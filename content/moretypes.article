@@ -6,120 +6,119 @@ https://golang.org
 
 * Pointers
 
-Go has pointers.
-A pointer holds the memory address of a variable.
+Goはポインタを扱います。
+ポインタは変数のメモリアドレスを指します。
 
-The type `*T` is a pointer to a `T` value. Its zero value is `nil`.
+変数 `T` のポインタは、 `*T` 型で、ゼロ値は `nil` です。
 
 	var p *int
 
-The `&` operator generates a pointer to its operand.
+`&` オペレータは、そのオペランド( _operand_ )へのポインタを引き出します。
 
 	i := 42
 	p = &i
 
-The `*` operator denotes the pointer's underlying value.
+`*` オペレータは、ポインタの指す先の変数を示します。
 
-	fmt.Println(*p) // read i through the pointer p
-	*p = 21         // set i through the pointer p
+	fmt.Println(*p) // ポインタpを通してiから値を読みだす
+	*p = 21         // ポインタpを通してiへ値を代入する
 
-This is known as "dereferencing" or "indirecting".
+これは "dereferencing" または "indirecting" としてよく知られています。
 
-Unlike C, Go has no pointer arithmetic.
+なお、C言語とは異なり、ポインタ演算はありません。
 
 .play moretypes/pointers.go
 
 * Structs
 
-A `struct` is a collection of fields.
+`struct` (構造体)は、フィールド( _field_ )の集まりです。
 
-(And a `type` declaration does what you'd expect.)
+( `type` 宣言は型を宣言するためのものです)
 
 .play moretypes/structs.go
 
 * Struct Fields
 
-Struct fields are accessed using a dot.
+structのフィールドは、ドット( `.` )を用いてアクセスします。
 
 .play moretypes/struct-fields.go
 
 * Pointers to structs
 
-Struct fields can be accessed through a struct pointer.
+structのフィールドは、structのポインタを通してアクセスします。
 
-The indirection through the pointer is transparent.
+ポインタを通じたindirectionは、透過的です。
 
 .play moretypes/struct-pointers.go
 
 * Struct Literals
 
-A struct literal denotes a newly allocated struct value by listing the values of its fields.
+structリテラルは、フィールドの値を列挙することで新しいstructの初期値の割り当てを示しています。
 
-You can list just a subset of fields by using the `Name:` syntax. (And the order of named fields is irrelevant.)
+`Name:` 構文を使って、フィールドの一部だけを列挙することができます(この方法でのフィールドの指定順序は関係ありません)。
+例では `X:`1` として `X` だけを初期化しています。
 
-The special prefix `&` returns a pointer to the struct value.
+`&` を頭に付けると、新しく割り当てられたstructへのポインタを戻します。
 
 .play moretypes/struct-literals.go
 
 * Arrays
 
-The type `[n]T` is an array of `n` values of type `T`.
+`[n]T` 型は、型 `T` の `n` 個の変数の配列( _array_ )を表します。
 
-The expression
+以下は、intの10個の配列を宣言しています:
 
 	var a [10]int
 
-declares a variable `a` as an array of ten integers.
-
-An array's length is part of its type, so arrays cannot be resized.
-This seems limiting, but don't worry;
-Go provides a convenient way of working with arrays.
+配列の長さは、型の一部分です。ですので、配列のサイズを変えることはできません。
+これは制約のように思えますが、心配しないでください。
+Goは配列を扱うための便利な方法を提供しています。
 
 .play moretypes/array.go
 
 * Slices
 
-A slice points to an array of values and also includes a length.
+スライス( _slice_ )は、値の配列を参照し、長さ( _length_ )を含んでいます。
 
-`[]T` is a slice with elements of type `T`.
+`[]T` は、 `T` 型の要素をもつスライスです。
 
-`len(s)` returns the length of slice `s`.
+`len(s)` は、スライス `s` の長さを返します。
 
 .play moretypes/slices.go
 
 * Slices of Slices
 
-Slices can contain any type, including other slices.
+スライスは任意の型を収めることができ、他のスライスを入れることもできます。
 
 .play moretypes/slices-of-slice.go
 
 * Slicing slices
 
-Slices can be re-sliced, creating a new slice value that points to the same array.
-
-The expression
+スライスは、同じ配列を参照するスライスを再スライス( _re-slice_ )することができます。
 
 	s[lo:hi]
 
-evaluates to a slice of the elements from `lo` through `hi-1`, inclusive. Thus
+上の式は、 `lo` から `hi-1` までの要素のスライスを返します。
 
 	s[lo:lo]
 
-is empty and
+上の式は、空のスライスとなり、
 
 	s[lo:lo+1]
 
-has one element.
+は、ひとつの要素を持つスライスとなります。
 
 .play moretypes/slicing-slices.go
 
 * Making slices
 
-Slices are created with the `make` function. It works by allocating a zeroed array and returning a slice that refers to that array:
+新たなスライスは `make` 関数で生成します。
+これは、ゼロ値に初期化した配列をメモリに割り当て、その配列への参照を持つスライスを返します。
 
 	a := make([]int, 5)  // len(a)=5
 
-To specify a capacity, pass a third argument to `make`:
+`make` の3番目の引数に、スライスの容量( _capacity_ )を指定できます。
+`cap(b)` で、スライスの容量を返します:
 
 	b := make([]int, 0, 5) // len(b)=0, cap(b)=5
 
@@ -130,106 +129,111 @@ To specify a capacity, pass a third argument to `make`:
 
 * Nil slices
 
-The zero value of a slice is `nil`.
+スライスのゼロ値は `nil` です。
 
-A nil slice has a length and capacity of 0.
+nil のスライスの長さと容量は0です。
 
 .play moretypes/nil-slices.go
 
 * Adding elements to a slice
 
-It is common to append new elements to a slice, and so Go provides a built-in
-`append` function. The [[https://golang.org/pkg/builtin/#append][documentation]]
-of the built-in package describes `append`.
+スライスへ新しい要素を追加するには、Goの組み込みの `append` を使います。
+`append` についての詳細は [[https://golang.org/pkg/builtin/#append][documentation]] を参照してみてください。
 
 	func append(s []T, vs ...T) []T
 
-The first parameter `s` of `append` is a slice of type `T`, and the rest are
-`T` values to append to the slice.
+上の定義を見てみましょう。 `append` への最初のパラメータ `s` は、追加元となる `T` 型のスライスです。
+残りの `vs` は、追加する `T` 型の変数群です。
 
-The resulting value of `append` is a slice containing all the elements of the
-original slice plus the provided values.
+`append` の戻り値は、追加元のスライスと追加する変数群を合わせたスライスとなります。
 
-If the backing array of `s` is too small to fit all the given values a bigger
-array will be allocated. The returned slice will point to the newly allocated
-array.
+もし、元の配列 `s` が、変数群を追加する際に容量が小さい場合は、より大きいサイズの配列を割り当て直します。
+その場合、戻り値となるスライスは、新しい割当先を示すようになります。
 
-(To learn more about slices, read the [[https://blog.golang.org/go-slices-usage-and-internals][Slices: usage and internals]] article.)
+(スライスについてより詳しく学ぶには、[[https://blog.golang.org/go-slices-usage-and-internals][Slices: usage and internals]]を読んでみてください)
 
 .play moretypes/append.go
 
 * Range
 
-The `range` form of the `for` loop iterates over a slice or map.
+`for` ループに利用する `range` は、スライスや、マップ( `map` )をひとつずつ反復処理するために使います。
 
-When ranging over a slice, two values are returned for each iteration.
-The first is the index, and the second is a copy of the element at that index.
+スライスをrangeで繰り返す場合、rangeは反復毎に2つの変数を返します。
+1つ目の変数はインデックス( _index_ )で、2つ目はインデックスの場所の要素のコピーです。
 
 .play moretypes/range.go
 
 * Range continued
 
-You can skip the index or value by assigning to `_`.
+インデックスや値は、 " `_` "(アンダーバー) へ代入することで捨てることができます。
 
-If you only want the index, drop the ", value" entirely.
+もしインデックスだけが必要なのであれば、例のコードの場合 " `,`value` " の部分を `_` にします。
 
 .play moretypes/range-continued.go
 
 * Exercise: Slices
 
-Implement `Pic`. It should return a slice of length `dy`, each element of which is a slice of `dx` 8-bit unsigned integers. When you run the program, it will display your picture, interpreting the integers as grayscale (well, bluescale) values.
+`Pic` 関数を実装してみましょう。
+このプログラムを実行すると、生成した画像が下に表示されるはずです。
+この関数は、長さ `dy` のsliceに、各要素が8bitのunsigned int型で長さ `dx` のsliceを割り当てたものを返すように実装する必要があります。
+画像は、整数値をグレースケール(実際はブルースケール)として解釈したものです。
 
+生成する画像は、好きに選んでください。例えば、面白い関数に、 `(x+y)/2` 、 `x*y` 、o `x^y` などがあります。
 The choice of image is up to you. Interesting functions include `(x+y)/2`, `x*y`, and `x^y`.
 
-(You need to use a loop to allocate each `[]uint8` inside the `[][]uint8`.)
+ヒント:( `[][]uint8` に、各 `[]uint8` を割り当てるためにループを使用する必要があります)
 
-(Use `uint8(intValue)` to convert between types.)
+ヒント:( `uint8(intValue)` を型の変換のために使います)
+
+#補足： `fmt.Println` などを用いて標準出力すると画像が表示されなくなってしまうため、使わないでください。
 
 .play moretypes/exercise-slices.go
 
 * Maps
 
-A map maps keys to values.
+`map` はキーと値とを関連付けます(マップします)。
 
-Maps must be created with `make` before use; the `nil` map is empty and cannot be assigned to.
+mapは、使用する前に `make` ( `new` ではありません)で作成する必要があります。 `nil` のmapは空なので、要素を割り当てることはできません。
 
 .play moretypes/maps.go
 
 * Map literals
 
-Map literals are like struct literals, but the keys are required.
+mapリテラルは、structリテラルに似ていますが、 *キー* ( _key_ )が必要です。
 
 .play moretypes/map-literals.go
 
 * Map literals continued
 
-If the top-level type is just a type name, you can omit it from the elements of the literal.
+もし、mapに渡すトップレベルの型が単純な型名である場合は、リテラルの要素から推定できますので、その型名を省略することができます。
 
 .play moretypes/map-literals-continued.go
 
 * Mutating Maps
 
-Insert or update an element in map `m`:
+map `m` の操作を見ていきましょう。
+
+`m` へ要素(elem)の挿入や更新:
 
 	m[key] = elem
 
-Retrieve an element:
+要素の取得:
 
 	elem = m[key]
 
-Delete an element:
+要素の削除:
 
 	delete(m, key)
 
-Test that a key is present with a two-value assignment:
+キーに対する要素が存在するかどうかは、2つの目の値で確認します:
 
 	elem, ok = m[key]
 
-If `key` is in `m`, `ok` is `true`. If not, `ok` is `false`.
+もし、 `m` に `key` があれば、変数 `ok` は `true` となり、存在しなければ、 `ok` は `false` となります。
 
-If `key` is not in the map, then `elem` is the zero value for the map's element type.
+なお、mapに `key` が存在しない場合、 `elem` はmapの要素の型のゼロ値となります。
 
-_Note_: if `elem` or `ok` have not yet been declared you could use a short declaration form:
+Note: もし `elem` や `ok` を宣言していないのであれば、次のように `:=` で短く表現できます:
 
 	elem, ok := m[key]
 
@@ -237,38 +241,45 @@ _Note_: if `elem` or `ok` have not yet been declared you could use a short decla
 
 * Exercise: Maps
 
-Implement `WordCount`.  It should return a map of the counts of each “word” in the string `s`. The `wc.Test` function runs a test suite against the provided function and prints success or failure.
+`WordCount` 関数を実装してみましょう。string `s` で渡される文章の、各単語の出現回数のmapを返す必要があります。
+`wc.Test` 関数は、引数に渡した関数に対しテストスイートを実行し、成功か失敗かを結果に表示します。
 
-You might find [[https://golang.org/pkg/strings/#Fields][strings.Fields]] helpful.
+[[https://golang.org/pkg/strings/#Fields][strings.Fields]] で、何かヒントを得ることができるはずです。
+
+Note: このテストスイートで何を入力とし、何を期待しているかについては、[[https://github.com/golang/tour/blob/master/wc/wc.go][golang.org/x/tour/wc]]]を見てみてください。
 
 .play moretypes/exercise-maps.go
 
 * Function values
 
-Functions are values too. They can be passed around just like other values.
+関数も変数です。他の変数のように関数を渡すことができます。
 
-Function values may be used as function arguments and return values.
+関数値( _function_value_ )は、関数の引数に取ることもできますし、戻り値としても利用できます。
 
 .play moretypes/function-values.go
 
 * Function closures
 
-Go functions may be closures. A closure is a function value that references variables from outside its body. The function may access and assign to the referenced variables; in this sense the function is "bound" to the variables.
+Goの関数は [[https://ja.wikipedia.org/wiki/クロージャ][クロージャ( _closure_ )]] です。
+クロージャは、それ自身の外部から変数を参照する関数値です。
+この関数は、参照された変数へアクセスして変えることができ、その意味では、その関数は変数へ"バインド"( _bind_ )されています。
 
-For example, the `adder` function returns a closure. Each closure is bound to its own `sum` variable.
+例えば、 `adder` 関数はクロージャを返しています。
+各クロージャは、それ自身の `sum` 変数へバインドされます。
 
 .play moretypes/function-closures.go
 
 * Exercise: Fibonacci closure
 
-Let's have some fun with functions.
+関数を用いた面白い例を見てみましょう。
 
-Implement a `fibonacci` function that returns a function (a closure) that returns successive fibonacci numbers.
+`fibonacci` (フィボナッチ)関数を実装しましょう。この関数は、連続する[[https://ja.wikipedia.org/wiki/%E3%83%95%E3%82%A3%E3%83%9C%E3%83%8A%E3%83%83%E3%83%81%E6%95%B0][フィボナッチ数]]を返す関数(クロージャ)を返します。
 
 .play moretypes/exercise-fibonacci-closure.go
 
 * Congratulations!
 
-You finished this lesson!
+この章はこれで終わりです。
 
-You can go back to the list of [[/list][modules]] to find what to learn next, or continue with the [[javascript:click('.next-page')][next lesson]].
+[[/list][章のリスト]]から学びたいところを見ても良いですし、
+[[javascript:click('.next-page')][>]] をクリックして次の章へ進みましょう。

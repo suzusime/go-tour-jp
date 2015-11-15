@@ -6,82 +6,82 @@ https://golang.org
 
 * For
 
-Go has only one looping construct, the `for` loop.
+基本的に、 `for` ループはセミコロン `;` で3つの部分に分かれています:
 
-The basic `for` loop has three components separated by semicolons:
+- 初期化ステートメント: 最初のイテレーション(繰り返し)の前に初期化が実行されます
+- 条件式: イテレーション毎に評価されます
+- 後処理ステートメント: イテレーション毎の最後に実行されます
 
-- the init statement: executed before the first iteration
-- the condition expression: evaluated before every iteration
-- the post statement: executed at the end of every iteration
+初期化ステートメントは、短い変数宣言によく利用します。その変数は `for` ステートメントのスコープ内でのみ有効です。
 
-The init statement will often be a short variable declaration, and the
-variables declared there are visible only in the scope of the `for`
-statement.
+ループは、条件式の評価が `false` となった場合にイテレーションを停止します。
 
-The loop will stop iterating once the boolean condition evaluates to `false`.
-
-_Note_: Unlike other languages like C, Java, or Javascript there are no parentheses
-surrounding the three components of the `for` statement and the braces `{`}` are
-always required.
+Note: 他の言語、C言語 や Java、JavaScriptの `for` ループとは異なり、 `for` ステートメントの3つの部分を括る括弧 `(`)` はありません。なお、中括弧 `{`}` は必要です。
 
 .play flowcontrol/for.go
 
 * For continued
 
-The init and post statement are optional. 
+初期化と後処理ステートメントの記述は任意です。
 
 .play flowcontrol/for-continued.go
 
 * For is Go's "while"
 
-At that point you can drop the semicolons: C's `while` is spelled `for` in Go.
+セミコロン(;)を省略することもできます。つまり、C言語などにある `while` は、Goでは `for` だけを使います。
 
 .play flowcontrol/for-is-gos-while.go
 
 * Forever
 
-If you omit the loop condition it loops forever, so an infinite loop is compactly expressed.
+ループ条件を省略すれば、無限ループ( _infinite_loop_ )になりますので、無限ループをコンパクトに表現できます。
 
 .play flowcontrol/forever.go
 
 * If
 
-Go's `if` statements are like its `for` loops; the expression need not be
-surrounded by parentheses `(`)` but the braces `{`}` are required.
+Go言語の `if` ステートメントは、先ほどの `for` ループと同様に、括弧 `(`)` は不要で、中括弧 `{`}` は必要です。
+
+(もうおなじみですね！)
 
 .play flowcontrol/if.go
 
 * If with a short statement
 
-Like `for`, the `if` statement can start with a short statement to execute before the condition.
+`if` ステートメントは、 `for` のように、条件の前に、評価するための簡単なステートメントを書くことができます。
 
-Variables declared by the statement are only in scope until the end of the `if`.
+ここで宣言された変数は、 `if` のスコープ内だけで有効です。
 
-(Try using `v` in the last `return` statement.)
+(ためしに最後の `return` 文で、 `v` を使ってみてください。
+# 補足
+スコープの外なので使えないですよね？)
 
 .play flowcontrol/if-with-a-short-statement.go
 
 * If and else
 
-Variables declared inside an `if` short statement are also available inside any of the `else` blocks.
+なお、 `if` ステートメントで宣言された変数は、 `else` ブロック内でも使うことができます。
 
-(Both calls to `pow` are executed and return before `main`'s call to `fmt.Println` begins.)
+(コードの補足: `main` の `fmt.Println` は、2つの `pow` が先に実行されてから実行されます)
 
 .play flowcontrol/if-and-else.go
 
 * Exercise: Loops and Functions
 
-As a simple way to play with functions and loops, implement the square root function using Newton's method.
+関数とループを使った簡単な練習として、 [[http://ja.wikipedia.org/wiki/%E3%83%8B%E3%83%A5%E3%83%BC%E3%83%88%E3%83%B3%E6%B3%95][ニュートン法]] を使った平方根の計算を実装してみましょう。
 
-In this case, Newton's method is to approximate `Sqrt(x)` by picking a starting point _z_ and then repeating:
+ニュートン法は、開始点 _z_ を選び、以下の式を繰り返すことによって、 `Sqrt(x)` を近似します:
 
 .image /content/img/newton.png
 
-To begin with, just repeat that calculation 10 times and see how close you get to the answer for various values (1, 2, 3, ...).
+最初は、その計算式を10回だけ繰り返し、 `x` を(1, 2, 3, ...)と様々な値に対する結果がどれだけ正解値に近づくかを確認してみてください。
 
-Next, change the loop condition to stop once the value has stopped changing (or only changes by a very small delta). See if that's more or fewer iterations. How close are you to the [[https://golang.org/pkg/math/#Sqrt][math.Sqrt]]?
+次に、ループを回すときの直前に求めたzの値がこれ以上変化しなくなったとき
+(または、差がとても小さくなったとき)に停止するようにループを変更してみてください。
+この変更により、ループ回数が多くなったか、少なくなったのか見てみてください。
+[[https://golang.org/pkg/math/#Sqrt][math.Sqrt]] と比べてどれくらい近似できましたか？
 
-Hint: to declare and initialize a floating point value, give it floating point syntax or use a conversion:
+ヒント：浮動小数点の変数を初期化して宣言するには、型でキャストするか、浮動小数点を使ってみてください:
 
 	z := float64(1)
 	z := 1.0
@@ -90,61 +90,61 @@ Hint: to declare and initialize a floating point value, give it floating point s
 
 * Switch
 
-You probably knew what `switch` was going to look like.
+Goの `switch` は他の言語と比較して、大きく異なるかもしれません。
 
-A case body breaks automatically, unless it ends with a `fallthrough` statement.
+Goでのswitchは、 `case` の最後で自動的にbreakします。
+もし、breakせずに通したい場合は、 `fallthrough` 文をcaseの最後に記述します。
 
 .play flowcontrol/switch.go
 
 * Switch evaluation order
 
-Switch cases evaluate cases from top to bottom, stopping when a case succeeds.
+switch caseは、上から下へcaseを評価します。
+caseの条件が一致すれば、そこで停止(自動的にbreak)します。
 
-(For example,
+(例えば、
 
 	switch i {
 	case 0:
 	case f():
 	}
 
-does not call `f` if `i==0`.)
+では、 `i==0` であれば、 `case`0` でbreakされるため `f` は呼び出されません)
 
-#appengine: *Note:* Time in the Go playground always appears to start at
-#appengine: 2009-11-10 23:00:00 UTC, a value whose significance is left as an
-#appengine: exercise for the reader.
+#appengine: Note: Go playground上の時間は、いつも "2009-11-10 23:00:00 UTC" です。
+#appengine: この値の意味は、読者の楽しみのために残しておきます(^^)
 
 .play flowcontrol/switch-evaluation-order.go
 
 * Switch with no condition
 
-Switch without a condition is the same as `switch`true`.
+条件のないswitchは、 `switch`true` と書くことと同じです。
 
-This construct can be a clean way to write long if-then-else chains.
+このswitchの構造は、長くなりがちな "if-then-else" のつながりをシンプルに表現できます。
 
 .play flowcontrol/switch-with-no-condition.go
 
 * Defer
 
-A defer statement defers the execution of a function until the surrounding
-function returns.
+`defer` ステートメントは、 `defer` へ渡した関数の実行を、呼び出し元の関数の終わり(returnする)まで遅延させるものです。
 
-The deferred call's arguments are evaluated immediately, but the function call
-is not executed until the surrounding function returns.
+`defer` へ渡した関数の引数は、すぐに評価されますが、その関数自体は呼び出し元の関数がreturnするまで実行されません。
 
 .play flowcontrol/defer.go
 
 * Stacking defers
 
-Deferred function calls are pushed onto a stack. When a function returns, its
-deferred calls are executed in last-in-first-out order.
+`defer` へ渡した関数が複数ある場合、その呼び出しはスタック( _stack_ )されます。
+呼び出し元の関数がreturnするとき、 `defer` へ渡した関数は [[http://ja.wikipedia.org/wiki/ROT13][LIFO(last-in-first-out)]] の順番で実行されます。
 
-To learn more about defer statements read this
-[[https://blog.golang.org/defer-panic-and-recover][blog post]].
+`defer` ステートメントについてさらに学ぶには、
+[[https://blog.golang.org/defer-panic-and-recover][こちら(blog post)]]を読んでみてください。
 
 .play flowcontrol/defer-multi.go
 
 * Congratulations!
 
-You finished this lesson!
+この章はこれで終わりです。
 
-You can go back to the list of [[/list][modules]] to find what to learn next, or continue with the [[javascript:click('.next-page')][next lesson]].
+[[/list][章のリスト]]から学びたいところを見ても良いですし、
+[[javascript:click('.next-page')][>]] をクリックして次の章へ進みましょう。

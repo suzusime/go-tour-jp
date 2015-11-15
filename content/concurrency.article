@@ -6,79 +6,89 @@ https://golang.org
 
 * Goroutines
 
-A _goroutine_ is a lightweight thread managed by the Go runtime.
+*goroutine* (ゴルーチン)は、Goのランタイムに管理される軽量なスレッドです。
 
 	go f(x, y, z)
 
-starts a new goroutine running
+と書けば、新しいgoroutineが実行されます。
 
 	f(x, y, z)
 
-The evaluation of `f`, `x`, `y`, and `z` happens in the current goroutine and the execution of `f` happens in the new goroutine.
+`f` , `x` , `y` , `z` の評価は、実行元(current)のgoroutineで実行され、 `f` の実行は、新しいgoroutineで実行されます。
 
-Goroutines run in the same address space, so access to shared memory must be synchronized. The [[https://golang.org/pkg/sync/][`sync`]] package provides useful primitives, although you won't need them much in Go as there are other primitives. (See the next slide.)
+goroutineは、同じアドレス空間で実行されるため、共有メモリへのアクセスは必ず同期する必要があります。
+[[https://golang.org/pkg/sync/][`sync`]] パッケージは同期する際に役に立つ方法を提供していますが、別の方法があるためそれほど必要ありません。
+(次のスライドで説明します)
 
 .play concurrency/goroutines.go
 
 * Channels
 
-Channels are a typed conduit through which you can send and receive values with the channel operator, `<-`.
+チャネル( _Channel_ )型は、チャネルオペレータの `<-` を用いて値の送受信ができる通り道です。
 
-	ch <- v    // Send v to channel ch.
-	v := <-ch  // Receive from ch, and
-	           // assign value to v.
+	ch <- v    // v をチャネル ch へ送信する
+	v := <-ch  // ch から受信した変数を v へ割り当てる
 
-(The data flows in the direction of the arrow.)
+(データは、矢印の方向に流れます)
 
-Like maps and slices, channels must be created before use:
+マップとスライスのように、チャネルは使う前に以下のように生成します:
 
 	ch := make(chan int)
 
-By default, sends and receives block until the other side is ready. This allows goroutines to synchronize without explicit locks or condition variables.
+通常、片方が準備できるまで送受信はブロックされます。これにより、明確なロックや条件変数がなくても、goroutineの同期を可能にします。
 
 .play concurrency/channels.go
 
 * Buffered Channels
 
-Channels can be _buffered_.  Provide the buffer length as the second argument to `make` to initialize a buffered channel:
+チャネルは、 *バッファ* ( _buffer_ )として使えます。
+バッファを持つチャネルを初期化するには、 `make` の２つ目の引数にバッファの長さを与えます:
 
 	ch := make(chan int, 100)
 
-Sends to a buffered channel block only when the buffer is full. Receives block when the buffer is empty.
+バッファが詰まった時は、チャネルへの送信をブロックします。
+バッファが空の時には、チャネルの受信をブロックします。
 
-Modify the example to overfill the buffer and see what happens.
+バッファが詰まるようにサンプルコードを変更し、何が起きるのかを見てみてください。
 
 .play concurrency/buffered-channels.go
 
 * Range and Close
 
-A sender can `close` a channel to indicate that no more values will be sent. Receivers can test whether a channel has been closed by assigning a second parameter to the receive expression: after
+送り手は、これ以上の送信する値がないことを示すため、チャネルを `close` できます。
+受け手は、受信の式に2つ目のパラメータを割り当てることで、そのチャネルがcloseされているかどうかを確認できます:
 
 	v, ok := <-ch
 
-`ok` is `false` if there are no more values to receive and the channel is closed.
+受信する値がない、かつ、チャネルが閉じているなら、 `ok` の変数は、 `false` になります。
 
-The loop `for`i`:=`range`c` receives values from the channel repeatedly until it is closed.
+ループの `for`i`:=`range`c` は、チャネルが閉じられるまで、チャネルから値を繰り返し受信し続けます。
 
-*Note:* Only the sender should close a channel, never the receiver. Sending on a closed channel will cause a panic.
+*注意:*
+送り手のチャネルだけをcloseしてください。受け手はcloseしてはいけません。
+もしcloseしたチャネルへ送信すると、パニック( _panic_ )します。
 
-*Another*note*: Channels aren't like files; you don't usually need to close them. Closing is only necessary when the receiver must be told there are no more values coming, such as to terminate a `range` loop.
+*もう一つ注意:*
+チャネルは、ファイルとは異なり、通常は、closeする必要はありません。
+closeするのは、これ以上値が来ないことを受け手が知る必要があるときにだけです。
+例えば、 `range` ループを終了するという場合です。
 
 .play concurrency/range-and-close.go
 
 * Select
 
-The `select` statement lets a goroutine wait on multiple communication operations.
+`select` ステートメントは、goroutineを複数の通信操作で待たせます。
 
-A `select` blocks until one of its cases can run, then it executes that case.  It chooses one at random if multiple are ready.
+`select` は、複数ある `case` のいずれかが準備できるようになるまでブロックし、準備ができた `case` を実行します。
+もし、複数の `case` の準備ができている場合、 `case` はランダムに選択されます。
 
 .play concurrency/select.go
 
 * Default Selection
 
-The `default` case in a `select` is run if no other case is ready.
+どの `case` も準備ができていないのであれば、 `select` の中の `default` が実行されます。
 
-Use a `default` case to try a send or receive without blocking:
+ブロックせずに送受信するなら、 `default` の `case` を使ってください:
 
 	select {
 	case i := <-c:
@@ -91,13 +101,15 @@ Use a `default` case to try a send or receive without blocking:
 
 * Exercise: Equivalent Binary Trees
 
-There can be many different binary trees with the same sequence of values stored at the leaves. For example, here are two binary trees storing the sequence 1, 1, 2, 3, 5, 8, 13.
+葉に同じ順序の値を保持する、異なる多くの[[https://ja.wikipedia.org/wiki/二分木][二分木( _binary_tree_ )]]]があります。
+例えば、ここに "1, 1, 2, 3, 5, 8, 13" を保持する2つの二分木があります。
 
 .image /content/img/tree.png
 
-A function to check whether two binary trees store the same sequence is quite complex in most languages. We'll use Go's concurrency and channels to write a simple solution.
+2つの二分木が同じ順序を保持しているかどうかを確認する機能は、多くの言語においてかなり複雑です。
+シンプルな解決方法を記述するために、Goの並行性( _concurrency_ )とチャネルを利用してみます。
 
-This example uses the `tree` package, which defines the type:
+例では、型を以下のように定義している `tree` パッケージを利用します:
 
 	type Tree struct {
 		Left  *Tree
@@ -105,74 +117,90 @@ This example uses the `tree` package, which defines the type:
 		Right *Tree
 	}
 
-
-Continue description on [[javascript:click('.next-page')][next page]].
+[[javascript:click('.next-page')][続く...]]
 
 * Exercise: Equivalent Binary Trees
 
-*1.* Implement the `Walk` function.
+*1.*  `Walk` 関数を実装してください。
 
-*2.* Test the `Walk` function.
+*2.* `Walk` 関数をテストしてください。
 
-The function `tree.New(k)` constructs a randomly-structured binary tree holding the values `k`, `2k`, `3k`, ..., `10k`.
+関数 `tree.New(k)` は、値( `k`, `2k`, `3k`, ..., `10k` )をもつ、ランダムに構造化した二分木を生成します。
 
-Create a new channel `ch` and kick off the walker:
+新しいチャネル `ch` を生成し、 `Walk` を動かしましょう:
 
 	go Walk(tree.New(1), ch)
 
-Then read and print 10 values from the channel. It should be the numbers 1, 2, 3, ..., 10.
+そして、そのチャネルから値を読み出し、10個の値を表示してください。
+それは、 1, 2, 3, ..., 10 という表示になるでしょう。
 
-*3.* Implement the `Same` function using `Walk` to determine whether `t1` and `t2` store the same values.
+*3.* `Same` 関数を実装してください。 `t1` と `t2` が同じ値を保存しているどうかを判断するため、 `Walk` を使ってください。
 
-*4.* Test the `Same` function.
+*4.*  `Same` 関数をテストしてください。
 
-`Same(tree.New(1),`tree.New(1))` should return true, and `Same(tree.New(1),`tree.New(2))` should return false.
+`Same(tree.New(1),`tree.New(1))` は、 `true` を返すように、
+`Same(tree.New(1),`tree.New(2))` は、 `false` を返すようにします。
 
 .play concurrency/exercise-equivalent-binary-trees.go
 
 * Exercise: Web Crawler
 
-In this exercise you'll use Go's concurrency features to parallelize a web crawler.
+この演習では、ウェブクローラ( _web_crawler_ )を並列化するため、Goの並行性の特徴を使います。
 
-Modify the `Crawl` function to fetch URLs in parallel without fetching the same URL twice.
+同じURLを2度取ってくることなく並列してURLを取ってくるように、 `Crawl` 関数を修正してみてください(注1)。
+
+*注1:* 工夫すれば `Crawl` 関数のみの修正で実装できますが、無理に `Crawl` 関数内部に収める必要はありません。
 
 .play concurrency/exercise-web-crawler.go
 
 * Where to Go from here...
 
-#appengine: You can get started by
-#appengine: [[https://golang.org/dl/][installing Go]].
+#appengine: [[https://golang.org/dl/][Goをインストール]]
+#appengine: することで、Go言語を始めることができます。
 
-#appengine: Once you have Go installed, the
-The
-[[https://golang.org/doc/][Go Documentation]] is a great place to
-#appengine: continue.
-start.
-It contains references, tutorials, videos, and more.
+#appengine: Goをインストールしたなら、
+この
+[[https://golang.org/doc/][Goのドキュメント]] は、
+#appengine: 次に参考にする
+始める
+にはとても良いものです。
+ここにはリファレンスやチュートリアル、ビデオなどがあります。
 
-To learn how to organize and work with Go code, watch [[https://www.youtube.com/watch?v=XCsL89YtqCs][this screencast]] or read [[https://golang.org/doc/code.html][How to Write Go Code]].
+Goのコードの構成や、動かし方を学ぶためには、 [[https://www.youtube.com/watch?v=XCsL89YtqCs][この動画]] を見てください。また、 [[https://golang.org/doc/code.html][How to Write Go Code]] を読んでください。
 
-If you need help with the standard library, see the [[https://golang.org/pkg/][package reference]]. For help with the language itself, you might be surprised to find the [[https://golang.org/ref/spec][Language Spec]] is quite readable.
+もし、標準ライブラリに関してヘルプが必要なら、
+[[https://golang.org/pkg/][パッケージリファレンス]]
+を見てください。
+言語自身に関してのヘルプは、
+[[https://golang.org/ref/spec][Go言語仕様]]
+がとても参考になります。
 
-To further explore Go's concurrency model, watch
+Goの並行性のモデルについてもっと調べてみたいなら、
 [[https://www.youtube.com/watch?v=f6kdp27TYZs][Go Concurrency Patterns]]
 ([[https://talks.golang.org/2012/concurrency.slide][slides]])
-and
+や、
 [[https://www.youtube.com/watch?v=QDDwwePbDtw][Advanced Go Concurrency Patterns]]
 ([[https://talks.golang.org/2013/advconc.slide][slides]])
-and read the
+を見たり、
+codewalk:
 [[https://golang.org/doc/codewalk/sharemem/][Share Memory by Communicating]]
-codewalk.
+を読んでみてください。
 
-To get started writing web applications, watch
+Webアプリケーションをはじめてみるなら、
 [[https://vimeo.com/53221558][A simple programming environment]]
 ([[https://talks.golang.org/2012/simple.slide][slides]])
-and read the
-[[https://golang.org/doc/articles/wiki/][Writing Web Applications]] tutorial.
+を見たり、
+チュートリアル:
+[[https://golang.org/doc/articles/wiki/][Writing Web Applications]]
+を読んでみてください。
 
-The [[https://golang.org/doc/codewalk/functions/][First Class Functions in Go]] codewalk gives an interesting perspective on Go's function types.
+[[https://golang.org/doc/codewalk/functions/][First Class Functions in Go]]
+では、Goの関数型の興味深い側面を教えてくれます。
 
-The [[https://blog.golang.org/][Go Blog]] has a large archive of informative Go articles.
+[[https://blog.golang.org/][Go Blog]]
+には、Goに関する素晴らしい記事の多くのアーカイブがあります。
 
-Visit [[https://golang.org][golang.org]] for more.
+もちろん、 [[https://golang.org][golang.org]]
+も見てください。
 
+_翻訳：_ [[https://github.com/atotto/go-tour-jp][_@atotto_]]
