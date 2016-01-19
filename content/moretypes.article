@@ -45,7 +45,7 @@ structのフィールドは、ドット( `.` )を用いてアクセスします�
 
 * Pointers to structs
 
-structのフィールドは、structのポインタを通してアクセスします。
+structのフィールドは、structのポインタを通してアクセスすることもできます。
 
 ポインタを通じたindirectionは、透過的です。
 
