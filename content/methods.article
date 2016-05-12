@@ -6,70 +6,263 @@ https://golang.org
 
 * Methods
 
-Goには、クラス( _class_ )のしくみはありませんが、struct型にメソッド( _method_ )を定義できます。
+Goには、クラス( _class_ )のしくみはありませんが、型にメソッド( _method_ )を定義できます。
 
-*メソッドレシーバ* ( _method_receiver_ )は、 `func` キーワードとメソッド名の間に、それ自身の引数を並べて表現します。
-(例では、 `func`(v`*Vertex)`Abs()` の中で `(v`*Vertex)` がメソッドレシーバです)
+メソッドは、特別なレシーバ( _receiver_ )引数を関数に取ります。
+
+レシーバは、 `func` キーワードとメソッド名の間に自身の引数リストで表現します。
+
+この例では、 `Abs` メソッドは `v` という名前の `Vertex` 型のレシーバを持つことを意味しています。
 
 .play methods/methods.go
 
+* Methods are functions
+
+メソッドは、レシーバ引数を伴う関数、でしたね？
+
+この `Abs` は、先ほどの例から機能を変えずに通常の関数として記述しています。
+
+.play methods/methods-funcs.go
+
 * Methods continued
 
-実際には、structだけではなく、パッケージ内で任意の型(type)にもメソッドを定義できます。
+例で上げたstructの型だけではなく、任意の型(type)にもメソッドを宣言できます。
 
-なお、他のパッケージの型や基本型にはメソッドを定義できません。
+例は、 `Abs` メソッドを持つ、数値型の `MyFloat` 型です。
+
+レシーバを伴うメソッドの宣言は、レシーバ型が同じパッケージにある必要があります。
+他のパッケージに定義している型に対して、レシーバを伴うメソッドを宣言できません
+（組み込みの `int` などの型も同様です）。
 
 .play methods/methods-continued.go
 
-* Methods with pointer receivers
+* Pointer receivers
 
-メソッドは、名前付きの型( _named_type_ )、もしくは、名前付きの型へのポインタに割り当てることができます。
+You can declare methods with pointer receivers.
 
-ここまでの話の中で、２つの `Abs` 関数が出てきました。
-ひとつは、 `*Vertex` のポインタ型( _pointer_type_ )で、
-もうひとつは、 `MyFloat` の値型( _value_type_ )です。
+This means the receiver type has the literal syntax `*T` for some type `T`.
+(Also, `T` cannot itself be a pointer such as `*int`.)
 
-ポインタのレシーバ( _pointer_receiver_ )を使う理由が2つあります。
-1つ目は、各メソッド呼び出しで、値をコピーするのを避けるためです(最も効果的なのは、値型が大きな構造体の場合です)。
-2つ目は、そのメソッドは、そのレシーバが指している値を変更できるようになります。
+For example, the `Scale` method here is defined on `*Vertex`.
 
-`Abs` と `Scale` メソッドの定義を、 `*Vertex` の代わりに、レシーバとして `Vertex` を使って書き換えてみましょう。
+Methods with pointer receivers can modify the value to which the receiver
+points (as `Scale` does here).
+Since methods often need to modify their receiver, pointer receivers are more
+common than value receivers.
 
-`Scale` メソッドは、 `v` が `Vertex` の場合は効果がありません。
-`Scale` は `v` を変化させようとしますが、 `v` が値(ポインタではない)型の場合は、メソッドは `Vertex` のコピーを参照しているため、元の値を変化させることはできません。
+Try removing the `*` from the declaration of the `Scale` function on line 16
+and observe how the program's behavior changes.
 
-`Abs` は、どちらかの方法でもうまく動作します。
-`Abs` は `v` を読み出すだけですので、元の値を(ポインタを通じて)読み出し続けるか、値のコピーをするかはたいした問題ではありません。
+With a value receiver, the `Scale` method operates on a copy of the original
+`Vertex` value.
+(This is the same behavior as for any other function argument.)
+The `Scale` method must have a pointer receiver to change the `Vertex` value
+declared in the `main` function.
+
+.play methods/methods-pointers.go
+
+* Pointers and functions
+
+Here we see the `Abs` and `Scale` methods rewritten as functions.
+
+Again, try removing the `*` from line 16.
+Can you see why the behavior changes?
+What else did you need to change for the example to compile?
+
+(If you're not sure, continue to the next page.)
+
+.play methods/methods-pointers-explained.go
+
+* Methods and pointer indirection
+
+Comparing the previous two programs, you might notice that
+functions with a pointer argument must take a pointer:
+
+	var v Vertex
+	ScaleFunc(v)  // Compile error!
+	ScaleFunc(&v) // OK
+
+while methods with pointer receivers take either a value or a pointer as the
+receiver when they are called:
+
+	var v Vertex
+	v.Scale(5)  // OK
+	p := &v
+	p.Scale(10) // OK
+
+For the statement `v.Scale(5)`, even though `v` is a value and not a pointer,
+the method with the pointer receiver is called automatically.
+That is, as a convenience, Go interprets the statement `v.Scale(5)` as
+`(&v).Scale(5)` since the `Scale` method has a pointer receiver.
+
+.play methods/indirection.go
+
+* Methods and pointer indirection (2)
+
+The equivalent thing happens in the reverse direction.
+
+Functions that take a value argument must take a value of that specific type:
+
+	var v Vertex
+	fmt.Println(AbsFunc(v))  // OK
+	fmt.Println(AbsFunc(&v)) // Compile error!
+
+while methods with value receivers take either a value or a pointer as the
+receiver when they are called:
+
+	var v Vertex
+	fmt.Println(v.Abs()) // OK
+	p := &v
+	fmt.Println(p.Abs()) // OK
+
+In this case, the method call `p.Abs()` is interpreted as `(*p).Abs()`.
+
+.play methods/indirection-values.go
+
+* Choosing a value or pointer receiver
+
+There are two reasons to use a pointer receiver.
+
+The first is so that the method can modify the value that its receiver points to.
+
+The second is to avoid copying the value on each method call.
+This can be more efficient if the receiver is a large struct, for example.
+
+In this example, both `Scale` and `Abs` are with receiver type `*Vertex`,
+even though the `Abs` method needn't modify its receiver.
+
+In general, all methods on a given type should have either value or pointer
+receivers, but not a mixture of both.
+(We'll see why over the next few pages.)
 
 .play methods/methods-with-pointer-receivers.go
 
 * Interfaces
 
-interface(インタフェース)型は、メソッドの集まりで定義します。
+interface(インタフェース)型は、メソッドのシグニチャの集まりで定義します。
 
 そのメソッドの集まりを実装した値を、interface型の変数へ持たせることができます。
 
 *注意:* この例は、22行目でエラーになります。
 `Abs` メソッドが、 `Vertex` ではなく `*Vertex` の定義であり、
-`Vertex` が `Abser` インタフェースを満たしていないということになるためエラーとなります。
+`Vertex` が `Abser` インタフェースを実装していないということになるためエラーとなります。
 
 .play methods/interfaces.go
 
-* Interfaces are satisfied implicitly
+* Interfaces are implemented implicitly
 
 型にメソッドを実装していくことによって、インタフェースを実装(満た)します。
 インタフェースを実装することを明示的に宣言する必要はありません( "implements" キーワードは必要ありません)。
 
-この暗黙的なインタフェースにより、インタフェースを定義するパッケージと、実装するパッケージとを分離する( _decouple_ )ことができ、依存しません。
-
-これはまた、明瞭なインタフェースの定義づけを促します。
-なぜなら、すべての実装を見つける必要はありませんし、新しいインタフェースの名前でそれを関連付ける必要もないからです。
-
-[[https://golang.org/pkg/io/][ioパッケージ]] は、同じ `Reader` と `Writer` を既に定義していますので、実際はこのような定義は必要ありません。
-
-(訳注： `fmt.Fprint` 関数の第一引数はioパッケージの `io.Writer` タイプであり、この例で定義した `Writer` と同じインタフェースをもっています。Goではインタフェースを実装していることを明示する必要がありませんので、このようなことが簡単に実現できます)
+Implicit interfaces decouple the definition of an interface from its
+implementation, which could then appear in any package without prearrangement.
 
 .play methods/interfaces-are-satisfied-implicitly.go
+
+* Interface values
+
+Under the covers, interface values can be thought of as a tuple of a value and a
+concrete type:
+
+	(value, type)
+
+An interface value holds a value of a specific underlying concrete type.
+
+Calling a method on an interface value executes the method of the same name on
+its underlying type.
+
+.play methods/interface-values.go
+
+* Interface values with nil underlying values
+
+If the concrete value inside the interface itself is nil,
+the method will be called with a nil receiver.
+
+In some languages this would trigger a null pointer exception,
+but in Go it is common to write methods that gracefully handle being called
+with a nil receiver (as with the method `M` in this example.)
+
+Note that an interface value that holds a nil concrete value is itself non-nil.
+
+.play methods/interface-values-with-nil.go
+
+* Nil interface values
+
+A nil interface value holds neither value nor concrete type.
+
+Calling a method on a nil interface is a run-time error because there is no
+type inside the interface tuple to indicate which _concrete_ method to call.
+
+.play methods/nil-interface-values.go
+
+* The empty interface
+
+The interface type that specifies zero methods is known as the _empty_interface_:
+
+	interface{}
+
+An empty interface may hold values of any type.
+(Every type implements at least zero methods.)
+
+Empty interfaces are used by code that handles values of unknown type.
+For example, `fmt.Print` takes any number of arguments of type `interface{}`.
+
+.play methods/empty-interface.go
+
+* Type assertions
+
+A _type_assertion_ provides access to an interface value's underlying concrete value.
+
+	t := i.(T)
+
+This statement asserts that the interface value `i` holds the concrete type `T`
+and assigns the underlying `T` value to the variable `t`.
+
+If `i` does not hold a `T`, the statement will trigger a panic.
+
+To _test_ whether an interface value holds a specific type,
+a type assertion can return two values: the underlying value
+and a boolean value that reports whether the assertion succeeded.
+
+	t, ok := i.(T)
+
+If `i` holds a `T`, then `t` will be the underlying value and `ok` will be true.
+
+If not, `ok` will be false and `t` will be the zero value of type `T`,
+and no panic occurs.
+
+Note the similarity between this syntax and that of reading from a map.
+
+.play methods/type-assertions.go
+
+* Type switches
+
+A _type_switch_ is a construct that permits several type assertions in series.
+
+A type switch is like a regular switch statement, but the cases in a type
+switch specify types (not values), and those values are compared against
+the type of the value held by the given interface value.
+
+	switch v := i.(type) {
+	case T:
+		// here v has type T
+	case S:
+		// here v has type S
+	default:
+		// no match; here v has the same type as i
+	}
+
+The declaration in a type switch has the same syntax as a type assertion `i.(T)`,
+but the specific type `T` is replaced with the keyword `type`.
+
+This switch statement tests whether the interface value `i`
+holds a value of type `T` or `S`.
+In each of the `T` and `S` cases, the variable `v` will be of type
+`T` or `S` respectively and hold the value held by `i`.
+In the default case (where there is no match), the variable `v` is
+of the same interface type and value as `i`.
+
+.play methods/type-switches.go
 
 * Stringers
 
@@ -181,63 +374,6 @@ ASCII文字 `'A'` の無限ストリームを出力する `Reader` 型を実装�
 この `Read` メソッドを実装することで `io.Reader` インタフェースを満たしてください。
 
 .play methods/exercise-rot-reader.go
-
-* Web servers
-
-[[https://golang.org/pkg/net/http/][`http`]] パッケージは、 `http.Handler` インタフェースを実装した変数を用いることで、HTTPリクエストの処理機能を提供します:
-
-	package http
-
-	type Handler interface {
-		ServeHTTP(w ResponseWriter, r *Request)
-	}
-
-この例では、 `Hello` 型は、 `http.Handler` インタフェースを実装しています。
-
-[[http://localhost:4000/][http://localhost:4000/]] へアクセスし、動きを確認してみましょう。
-
-#appengine: *注意:*
-#appengine: この例は、ウェブベースのツアーでは実行できません。
-#appengine: このWebサーバを動かしてみるには、
-#appengine: [[https://golang.org/dl/][Goのインストール]]
-#appengine: が必要となります。
-
-.play methods/web-servers.go
-
-* Exercise: HTTP Handlers
-
-以下の型を実装し、それらにServeHTTPメソッドを定義してみてください。
-自分のWebサーバで、特定のパスをハンドル(取り扱い)できるように登録してみてください。
-
-	type String string
-
-	type Struct struct {
-		Greeting string
-		Punct    string
-		Who      string
-	}
-
-例えば、以下のようにハンドラを登録します:
-
-	http.Handle("/string", String("I'm a frayed knot."))
-	http.Handle("/struct", &Struct{"Hello", ":", "Gophers!"})
-
-サーバを起動した後、
-[[http://localhost:4000/string][http://localhost:4000/string]] と
-[[http://localhost:4000/struct][http://localhost:4000/struct]]
-へアクセスできます。
-
-`http.Handle` 関数についての詳細は、
-[[https://golang.org/pkg/net/http/#Handle][the documentation]]
-を見てください。
-
-#appengine: *注意:*
-#appengine: この例は、ウェブベースのツアーでは実行できません。
-#appengine: このWebサーバを動かしてみるには、
-#appengine: [[https://golang.org/dl/][Goのインストール]]
-#appengine: が必要となります。
-
-.play methods/exercise-http-handlers.go
 
 * Images
 

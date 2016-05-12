@@ -47,7 +47,10 @@ structのフィールドは、ドット( `.` )を用いてアクセスします�
 
 structのフィールドは、structのポインタを通してアクセスすることもできます。
 
-ポインタを通じたindirectionは、透過的です。
+To access the field `X` of a struct when we have the struct pointer `p` we could
+write `(*p).X`.
+However, that notation is cumbersome, so the language permits us instead to
+write just `p.X`, without the explicit dereference.
 
 .play moretypes/struct-pointers.go
 
@@ -61,6 +64,7 @@ structリテラルは、フィールドの値を列挙することで新しいst
 `&` を頭に付けると、新しく割り当てられたstructへのポインタを戻します。
 
 .play moretypes/struct-literals.go
+
 
 * Arrays
 
@@ -76,44 +80,109 @@ Goは配列を扱うための便利な方法を提供しています。
 
 .play moretypes/array.go
 
+
 * Slices
 
-スライス( _slice_ )は、値の配列を参照し、長さ( _length_ )を含んでいます。
+An array has a fixed size.
+A slice, on the other hand, is a dynamically-sized,
+flexible view into the elements of an array.
+In practice, slices are much more common than arrays.
 
-`[]T` は、 `T` 型の要素をもつスライスです。
+The type `[]T` is a slice with elements of type `T`.
 
-`len(s)` は、スライス `s` の長さを返します。
+This expression creates a slice of the first five elements of the array `a`:
+
+	a[0:5]
 
 .play moretypes/slices.go
 
-* Slices of Slices
 
-スライスは任意の型を収めることができ、他のスライスを入れることもできます。
+* Slices are like references to arrays
 
-.play moretypes/slices-of-slice.go
+A slice does not store any data,
+it just describes a section of an underlying array.
 
-* Slicing slices
+Changing the elements of a slice modifies the
+corresponding elements of its underlying array.
 
-スライスは、同じ配列を参照するスライスを再スライス( _re-slice_ )することができます。
+Other slices that share the same underlying array will see those changes.
 
-	s[lo:hi]
+.play moretypes/slices-pointers.go
 
-上の式は、 `lo` から `hi-1` までの要素のスライスを返します。
 
-	s[lo:lo]
+* Slice literals
 
-上の式は、空のスライスとなり、
+A slice literal is like an array literal without the length.
 
-	s[lo:lo+1]
+This is an array literal:
 
-は、ひとつの要素を持つスライスとなります。
+	[3]bool{true, true, false}
 
-.play moretypes/slicing-slices.go
+And this creates the same array as above,
+then builds a slice that references it:
 
-* Making slices
+	[]bool{true, true, false}
 
-新たなスライスは `make` 関数で生成します。
-これは、ゼロ値に初期化した配列をメモリに割り当て、その配列への参照を持つスライスを返します。
+.play moretypes/slice-literals.go
+
+
+* Slice defaults
+
+When slicing, you may omit the high or low bounds to use their defaults instead.
+
+The default is zero for the low bound and the length of the slice for the high bound.
+
+For the array
+
+	var a [10]int
+
+these slice expressions are equivalent:
+
+	a[0:10]
+	a[:10]
+	a[0:]
+	a[:]
+
+.play moretypes/slice-bounds.go
+
+
+* Slice length and capacity
+
+A slice has both a _length_ and a _capacity_.
+
+The length of a slice is the number of elements it contains.
+
+The capacity of a slice is the number of elements in the underlying array,
+counting from the first element in the slice.
+
+The length and capacity of a slice `s` can be obtained using the expressions
+`len(s)` and `cap(s)`.
+
+You can extend a slice's length by re-slicing it,
+provided it has sufficient capacity.
+Try changing one of the slice operations in the example program to extend it
+beyond its capacity and see what happens.
+
+.play moretypes/slice-len-cap.go
+
+
+* Nil slices
+
+The zero value of a slice is `nil`.
+
+A nil slice has a length and capacity of 0
+and has no underlying array.
+
+.play moretypes/nil-slices.go
+
+
+* Creating a slice with make
+
+Slices can be created with the built-in `make` function;
+this is how you create dynamically-sized arrays.
+
+The `make` function allocates a zeroed array
+and returns a slice that refers to that array:
 
 	a := make([]int, 5)  // len(a)=5
 
@@ -127,15 +196,15 @@ Goは配列を扱うための便利な方法を提供しています。
 
 .play moretypes/making-slices.go
 
-* Nil slices
 
-スライスのゼロ値は `nil` です。
+* Slices of slices
 
-nil のスライスの長さと容量は0です。
+Slices can contain any type, including other slices.
 
-.play moretypes/nil-slices.go
+.play moretypes/slices-of-slice.go
 
-* Adding elements to a slice
+
+* Appending to a slice
 
 スライスへ新しい要素を追加するには、Goの組み込みの `append` を使います。
 `append` についての詳細は [[https://golang.org/pkg/builtin/#append][documentation]] を参照してみてください。
@@ -153,6 +222,7 @@ nil のスライスの長さと容量は0です。
 (スライスについてより詳しく学ぶには、[[https://blog.golang.org/go-slices-usage-and-internals][Slices: usage and internals]]を読んでみてください)
 
 .play moretypes/append.go
+
 
 * Range
 
@@ -192,7 +262,11 @@ nil のスライスの長さと容量は0です。
 
 `map` はキーと値とを関連付けます(マップします)。
 
-mapは、使用する前に `make` ( `new` ではありません)で作成する必要があります。 `nil` のmapは空なので、要素を割り当てることはできません。
+The zero value of a map is `nil`.
+A `nil` map has no keys, nor can keys be added.
+
+The `make` function returns a map of the given type,
+initialized and ready for use.
 
 .play moretypes/maps.go
 
@@ -272,7 +346,7 @@ Goの関数は [[https://ja.wikipedia.org/wiki/クロージャ][クロージャ(
 
 関数を用いた面白い例を見てみましょう。
 
-`fibonacci` (フィボナッチ)関数を実装しましょう。この関数は、連続する[[https://ja.wikipedia.org/wiki/%E3%83%95%E3%82%A3%E3%83%9C%E3%83%8A%E3%83%83%E3%83%81%E6%95%B0][フィボナッチ数]]を返す関数(クロージャ)を返します。
+`fibonacci` (フィボナッチ)関数を実装しましょう。この関数は、連続する[[https://ja.wikipedia.org/wiki/%E3%83%95%E3%82%A3%E3%83%9C%E3%83%8A%E3%83%83%E3%83%81%E6%95%B0][フィボナッチ数]](0, 1, 1, 2, 3, 5, ...)を返す関数(クロージャ)を返します。
 
 .play moretypes/exercise-fibonacci-closure.go
 

@@ -76,16 +76,15 @@ The tour is available in other languages:
 #appengine: 
 #appengine: スタンドアロンの Go Tour は、自身のマシンでコードをビルドし、実行するため、より高速になります。
 #appengine: 
-#appengine: ローカルで Go Tour を実行するためには、まずはじめに、Go をインストール([[http://golang.org/doc/install/][install Go]])します。
-#appengine: 次に、付属の [[http://golang.org/cmd/go/][go get コマンド]]を利用して、
-#appengine: 以下のように [[http://golang.org/x/tour/][gotour]] を取得します:
+#appengine: ローカルで Go Tour を実行するためには、はじめに、
+#appengine: [[http://golang.org/dl/][Goのダウンロードとインストール]]
+#appengine: し、コマンドラインで以下のように実行します:
 #appengine: 
-#appengine: 	go get golang.org/x/tour/gotour
+#appengine: 	go tool tour
 #appengine: 
-#appengine: すると `gotour` の実行ファイルが `$GOPATH/bin` にできます。これを実行すると本サイトと同じ Go Tour が始まります:
+#appengine: すると、ウェブブラウザでローカル版のGo Tourが表示されます。
 #appengine: 
-#appengine: 	cd $GOPATH/bin
-#appengine: 	./gotour
+#appengine: もちろん、ここのウェブサイトでGo Tourを続けてもらって構いません。
 
 #appengine: * The Go Playground
 #appengine: 
