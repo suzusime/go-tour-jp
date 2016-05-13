@@ -2,7 +2,7 @@ This is Go Tour, an introduction to the Go programming language.
 
 To install the tour locally, first install Go, then run:
 
-	$ go get golang.org/x/tour/gotour
+	$ go get github.com/atotto/go-tour-jp/gotour
 	$ cd $GOPATH/bin
 	$ ./gotour
 
