@@ -144,29 +144,27 @@ closeするのは、これ以上値が来ないことを受け手が知る必要
 `Same(tree.New(1),`tree.New(1))` は、 `true` を返すように、
 `Same(tree.New(1),`tree.New(2))` は、 `false` を返すようにします。
 
-The documentation for `Tree` can be found [[https://godoc.org/golang.org/x/tour/tree#Tree][here]].
+`Tree` のドキュメントは [[https://godoc.org/golang.org/x/tour/tree#Tree][こちら]] です。
 
 .play concurrency/exercise-equivalent-binary-trees.go
 
 * sync.Mutex
 
-We've seen how channels are great for communication among goroutines.
+チャネルが、goroutineとコミュニケーションするための素晴らしい方法であることを見てきました。
 
-But what if we don't need communication? What if we just want to make sure only
-one goroutine can access a variable at a time to avoid conflicts?
+しかし、コミュニケーションが必要ない場合はどうでしょう？
+あるgoroutineが変数へのコンフリクトを避けるためだけに、一時的に変数へのアクセスできるようにしたい場合はどうでしょうか。
 
-This concept is called _mutual_exclusion_, and the conventional name for the data structure that provides it is _mutex_.
+このコンセプトは、[[https://ja.wikipedia.org/wiki/%E6%8E%92%E4%BB%96%E5%88%B6%E5%BE%A1][排他制御( _mutual_exclusion_ )]]と呼ばれ、このデータ構造を指す一般的な名前は [[https://ja.wikipedia.org/wiki/%E3%83%9F%E3%83%A5%E3%83%BC%E3%83%86%E3%83%83%E3%82%AF%E3%82%B9][ *mutex* (ミューテックス)]]です。
 
-Go's standard library provides mutual exclusion with
-[[https://golang.org/pkg/sync/#Mutex][`sync.Mutex`]] and its two methods:
+Goの標準ライブラリは、排他制御を[[https://golang.org/pkg/sync/#Mutex][`sync.Mutex`]]と次の二つのメソッドで提供します:
 
 - `Lock`
 - `Unlock`
 
-We can define a block of code to be executed in mutual exclusion by surrounding it
-with a call to `Lock` and `Unlock` as shown on the `Inc` method.
+`Inc` メソッドにあるように、 `Lock` と `Unlock` で囲むことで排他制御で実行するコードを定義できます。
 
-We can also use `defer` to ensure the mutex will be unlocked as in the `Value` method.
+`Value` メソッドのように、mutexがUnlockされることを保証するために `defer` を使うこともできます。
 
 .play concurrency/mutex-counter.go
 
@@ -176,10 +174,9 @@ We can also use `defer` to ensure the mutex will be unlocked as in the `Value` m
 
 同じURLを2度取ってくることなく並列してURLを取ってくるように、 `Crawl` 関数を修正してみてください(注1)。
 
-*注1:* 工夫すれば `Crawl` 関数のみの修正で実装できますが、無理に `Crawl` 関数内部に収める必要はありません。
+*補足*: 工夫すれば `Crawl` 関数のみの修正で実装できますが、無理に `Crawl` 関数内部に収める必要はありません。
 
-_Hint_: you can keep a cache of the URLs that have been fetched on a map, but maps alone are not
-safe for concurrent use!
+*ひとこと*: mapにフェッチしたURLのキャッシュを保持できますが、mapだけでは並行実行時の安全性はありません!
 
 .play concurrency/exercise-web-crawler.go
 
