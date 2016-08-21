@@ -237,7 +237,7 @@ Slices can contain any type, including other slices.
 
 インデックスや値は、 " `_` "(アンダーバー) へ代入することで捨てることができます。
 
-もしインデックスだけが必要なのであれば、例のコードの場合 " `,`value` " の部分を `_` にします。
+もしインデックスだけが必要なのであれば、 " `,`value` " を省略します。
 
 .play moretypes/range-continued.go
 
