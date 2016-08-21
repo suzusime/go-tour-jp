@@ -38,102 +38,92 @@ Goには、クラス( _class_ )のしくみはありませんが、型にメソ�
 
 * Pointer receivers
 
-You can declare methods with pointer receivers.
+ポインタレシーバでメソッドを宣言できます。
 
-This means the receiver type has the literal syntax `*T` for some type `T`.
-(Also, `T` cannot itself be a pointer such as `*int`.)
+これはレシーバの型が、ある型 `T` への構文 `*T` があることを意味します。
+（なお、 `T` は `*int` のようなポインタ自身を取ることはできません）
 
-For example, the `Scale` method here is defined on `*Vertex`.
+例では `*Vertex` に `Scale` メソッドが定義されています。
 
-Methods with pointer receivers can modify the value to which the receiver
-points (as `Scale` does here).
-Since methods often need to modify their receiver, pointer receivers are more
-common than value receivers.
+ポインタレシーバを持つメソッド(ここでは `Scale` )は、レシーバが指す変数を変更できます。
+レシーバ自身を更新することが多いため、変数レシーバよりもポインタレシーバの方が一般的です。
 
-Try removing the `*` from the declaration of the `Scale` function on line 16
-and observe how the program's behavior changes.
+`Scale` の宣言(line 16)から `*` を消し、プログラムの振る舞いがどう変わるのかを確認してみましょう。
 
-With a value receiver, the `Scale` method operates on a copy of the original
-`Vertex` value.
-(This is the same behavior as for any other function argument.)
-The `Scale` method must have a pointer receiver to change the `Vertex` value
-declared in the `main` function.
+変数レシーバでは、 `Scale` メソッドの操作は元の `Vertex` 変数のコピーを操作します。
+（これは関数の引数としての振るまいと同じです）。
+つまり `main` 関数で宣言した `Vertex` 変数を変更するためには、`Scale` メソッドはポインタレシーバにする必要があるのです。
 
 .play methods/methods-pointers.go
 
 * Pointers and functions
 
-Here we see the `Abs` and `Scale` methods rewritten as functions.
+ここで、 `Abs` と `Scale` メソッドは関数として書きなおしてあります。
 
-Again, try removing the `*` from line 16.
-Can you see why the behavior changes?
-What else did you need to change for the example to compile?
+再度、line 16から `*` を消してください。
+なぜ振る舞いが変わったのかわかりますか？
+コンパイルするために、さらに何が必要でしょうか。
 
-(If you're not sure, continue to the next page.)
+(よくわからなくても、次のページに行きましょう)
 
 .play methods/methods-pointers-explained.go
 
 * Methods and pointer indirection
 
-Comparing the previous two programs, you might notice that
-functions with a pointer argument must take a pointer:
+下の2つの呼び出しを比べると、ポインタを引数に取る `ScaleFunc` 関数は、ポインタを渡す必要があることに気がつくでしょう:
 
 	var v Vertex
 	ScaleFunc(v)  // Compile error!
 	ScaleFunc(&v) // OK
 
-while methods with pointer receivers take either a value or a pointer as the
-receiver when they are called:
+メソッドがポインタレシーバである場合、呼び出し時に、変数、または、ポインタのいずれかのレシーバとして取ることができます:
 
 	var v Vertex
 	v.Scale(5)  // OK
 	p := &v
 	p.Scale(10) // OK
 
-For the statement `v.Scale(5)`, even though `v` is a value and not a pointer,
-the method with the pointer receiver is called automatically.
-That is, as a convenience, Go interprets the statement `v.Scale(5)` as
-`(&v).Scale(5)` since the `Scale` method has a pointer receiver.
+`v.Scale(5)` のステートメントでは、 `v` は変数であり、ポインタではありません。
+メソッドでポインタレシーバが自動的に呼びだされます。
+`Scale` メソッドはポインタレシーバを持つ場合、Goは利便性のため、 `v.Scale(5)` のステートメントを `(&v).Scale(5)` として解釈します。
 
 .play methods/indirection.go
 
 * Methods and pointer indirection (2)
 
-The equivalent thing happens in the reverse direction.
 
-Functions that take a value argument must take a value of that specific type:
+逆にも見てみましょう。
+
+変数の引数を取る関数は、特定の型の変数を取る必要があります:
 
 	var v Vertex
 	fmt.Println(AbsFunc(v))  // OK
 	fmt.Println(AbsFunc(&v)) // Compile error!
 
-while methods with value receivers take either a value or a pointer as the
-receiver when they are called:
+メソッドが変数レシーバである場合、呼び出し時に、変数、または、ポインタのいずれかのレシーバとして取ることができます:
 
 	var v Vertex
 	fmt.Println(v.Abs()) // OK
 	p := &v
 	fmt.Println(p.Abs()) // OK
 
-In this case, the method call `p.Abs()` is interpreted as `(*p).Abs()`.
+この場合、 `p.Abs()` は `(*p).Abs()` として解釈されます。
 
 .play methods/indirection-values.go
 
 * Choosing a value or pointer receiver
 
-There are two reasons to use a pointer receiver.
+ポインタレシーバを使う2つの理由があります。
 
-The first is so that the method can modify the value that its receiver points to.
+ひとつは、メソッドがレシーバが指す先の変数を変更するためです。
 
-The second is to avoid copying the value on each method call.
-This can be more efficient if the receiver is a large struct, for example.
+ふたつに、メソッドの呼び出し毎に変数のコピーを避けるためです。
+例えば、レシーバが大きな構造体である場合に効率的です。
 
-In this example, both `Scale` and `Abs` are with receiver type `*Vertex`,
-even though the `Abs` method needn't modify its receiver.
+例では、 `Abs` メソッドはレシーバ自身を変更する必要はありませんが、 `Scale` と `Abs` は両方とも `*Vertex` 型のレシーバです。
 
-In general, all methods on a given type should have either value or pointer
-receivers, but not a mixture of both.
-(We'll see why over the next few pages.)
+一般的には、変数レシーバ、または、ポインタレシーバのどちらかですべてのメソッドを与え、混在させるべきではありません。
+(この理由は数ページ後にわかります)
 
 .play methods/methods-with-pointer-receivers.go
 
