@@ -47,10 +47,8 @@ structのフィールドは、ドット( `.` )を用いてアクセスします�
 
 structのフィールドは、structのポインタを通してアクセスすることもできます。
 
-To access the field `X` of a struct when we have the struct pointer `p` we could
-write `(*p).X`.
-However, that notation is cumbersome, so the language permits us instead to
-write just `p.X`, without the explicit dereference.
+フィールド `X` を持つstructのポインタ `p` がある場合、フィールド `X` にアクセスするには `(*p).X` のように書けます。
+しかし、この表記法は大変面倒ですので、Go言語では代わりに `p.X` と書くこともできます。
 
 .play moretypes/struct-pointers.go
 
@@ -83,15 +81,12 @@ Goは配列を扱うための便利な方法を提供しています。
 
 * Slices
 
-An array has a fixed size.
-A slice, on the other hand, is a dynamically-sized,
-flexible view into the elements of an array.
-In practice, slices are much more common than arrays.
+配列は固定長です。一方で、スライスは可変長です。より柔軟な配列と見なすこともできます。
+実際には、スライスは配列よりもより一般的です。
 
-The type `[]T` is a slice with elements of type `T`.
+型 `[]T` は 型 `T` のスライスを表します。
 
-This expression creates a slice of the first five elements of the array `a`:
-
+はじめに５つの要素をもったスライスを定義するには次のように書きます。 `a`:
 	a[0:5]
 
 .play moretypes/slices.go
