@@ -37,8 +37,8 @@ goroutineは、同じアドレス空間で実行されるため、共有メモ�
 
 通常、片方が準備できるまで送受信はブロックされます。これにより、明確なロックや条件変数がなくても、goroutineの同期を可能にします。
 
-The example code sums the numbers in a slice, distributing the work between two goroutines.
-Once both goroutines have completed their computation, it calculates the final result.
+サンプルコードは、スライス内の数値を合算し、2つのgoroutine間で作業を分配します。
+両方のgoroutineで計算が完了すると、最終結果が計算されます。
 
 .play concurrency/channels.go
 
