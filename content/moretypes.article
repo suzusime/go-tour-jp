@@ -93,29 +93,29 @@ Goは配列を扱うための便利な方法を提供しています。
 .play moretypes/slices.go
 
 
-* Slices are like references to arrays
+* スライスは配列への参照のようなものです
 
-A slice does not store any data,
-it just describes a section of an underlying array.
+スライスはどんなデータも格納しておらず、単に元の配列の部分列を指し示しています。
 
-Changing the elements of a slice modifies the
-corresponding elements of its underlying array.
+スライスの要素を変更すると、その元となる配列の対応する要素が変更されます。
 
-Other slices that share the same underlying array will see those changes.
+同じ元となる配列を共有している他のスライスは、それらの変更が反映されます。
+
+
+
 
 .play moretypes/slices-pointers.go
 
 
 * Slice literals
 
-A slice literal is like an array literal without the length.
+スライスのリテラルは長さのない配列リテラルのようなものです。
 
-This is an array literal:
+これは配列リテラルです:
 
 	[3]bool{true, true, false}
 
-And this creates the same array as above,
-then builds a slice that references it:
+そして、これは上記と同様の配列を作成し、それを参照するスライスを作成します:
 
 	[]bool{true, true, false}
 
@@ -124,15 +124,15 @@ then builds a slice that references it:
 
 * Slice defaults
 
-When slicing, you may omit the high or low bounds to use their defaults instead.
+スライスするときは、それらの規定値を代わりに使用することで上限または下限を省略することができます。
 
-The default is zero for the low bound and the length of the slice for the high bound.
+規定値は下限が 0 で上限はスライスの長さです。
 
-For the array
+以下の配列において
 
 	var a [10]int
 
-these slice expressions are equivalent:
+これらのスライス式は等価です:
 
 	a[0:10]
 	a[:10]
@@ -144,41 +144,35 @@ these slice expressions are equivalent:
 
 * Slice length and capacity
 
-A slice has both a _length_ and a _capacity_.
+スライスは長さ( _length_ )と容量(　_capacity_ )の両方を持っています。
 
-The length of a slice is the number of elements it contains.
+スライスの長さは、それに含まれる要素の数です。
 
-The capacity of a slice is the number of elements in the underlying array,
-counting from the first element in the slice.
+スライスの容量は、スライスの最初の要素から数えて、元となる配列の要素数です。
 
-The length and capacity of a slice `s` can be obtained using the expressions
-`len(s)` and `cap(s)`.
+スライス `s` の長さと容量は `len(s)` と `cap(s)` という式を使用して得ることができます 。
 
-You can extend a slice's length by re-slicing it,
-provided it has sufficient capacity.
-Try changing one of the slice operations in the example program to extend it
-beyond its capacity and see what happens.
+十分な容量を持って提供されているスライスを再スライスすることによって、スライスの長さを伸ばすことができます。
+その容量を超えて伸ばしたときに何が起こるかを見るため、プログラム例でのスライスのいずれかの操作を変更してみてください。
 
 .play moretypes/slice-len-cap.go
 
 
 * Nil slices
 
-The zero value of a slice is `nil`.
+スライスのゼロ値は `nil` です。
 
-A nil slice has a length and capacity of 0
-and has no underlying array.
+`nil` スライスは 0 の長さと容量を持っており、何の元となる配列も持っていません。
 
 .play moretypes/nil-slices.go
 
 
 * Creating a slice with make
 
-Slices can be created with the built-in `make` function;
-this is how you create dynamically-sized arrays.
+スライスは、組み込みの `make` 関数を使用して作成することができます; 
+これは、動的サイズの配列を作成する方法です。
 
-The `make` function allocates a zeroed array
-and returns a slice that refers to that array:
+`make` 関数はゼロ化された配列を割り当て、その配列を指すスライスを返します。
 
 	a := make([]int, 5)  // len(a)=5
 
@@ -195,7 +189,7 @@ and returns a slice that refers to that array:
 
 * Slices of slices
 
-Slices can contain any type, including other slices.
+スライスは、他のスライスを含む任意の型を含むことができます。
 
 .play moretypes/slices-of-slice.go
 
@@ -258,11 +252,10 @@ Slices can contain any type, including other slices.
 
 `map` はキーと値とを関連付けます(マップします)。
 
-The zero value of a map is `nil`.
-A `nil` map has no keys, nor can keys be added.
+マップのゼロ値は `nil`です。
+`nil` マップはキーを持っておらず、またキーを追加することもできません。
 
-The `make` function returns a map of the given type,
-initialized and ready for use.
+`make` 関数は指定された型の、初期化され使用できるようにしたマップを返します。
 
 .play moretypes/maps.go
 
