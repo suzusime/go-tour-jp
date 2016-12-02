@@ -333,7 +333,7 @@ nil の `error` は成功したことを示し、 nilではない `error` は失
 
 Goの標準ライブラリには、インタフェース、ファイル、ネットワーク接続、圧縮、暗号化、などで [[https://golang.org/search?q=Read#Global][多くの実装]] があります。
 
-`io.Reader` インタフェースは `Read`メソッドを持ちます:
+`io.Reader` インタフェースは `Read` メソッドを持ちます:
 
 	func (T) Read(b []byte) (n int, err error)
 
