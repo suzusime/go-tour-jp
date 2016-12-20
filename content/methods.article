@@ -144,94 +144,82 @@ interface(インタフェース)型は、メソッドのシグニチャの集ま
 型にメソッドを実装していくことによって、インタフェースを実装(満た)します。
 インタフェースを実装することを明示的に宣言する必要はありません( "implements" キーワードは必要ありません)。
 
-Implicit interfaces decouple the definition of an interface from its
-implementation, which could then appear in any package without prearrangement.
+暗黙のインターフェースは、インターフェースの定義をその実装から切り離します。
+インターフェースの実装は、事前の取り決めなしにパッケージに現れることがあります。
 
 .play methods/interfaces-are-satisfied-implicitly.go
 
 * Interface values
 
-Under the covers, interface values can be thought of as a tuple of a value and a
-concrete type:
+下記のように、インターフェースの値は、値と具体的な型のタプルのように考えることができます:
 
 	(value, type)
 
-An interface value holds a value of a specific underlying concrete type.
+インターフェースの値は、特定の基底になる具体的な型の値を保持します。
 
-Calling a method on an interface value executes the method of the same name on
-its underlying type.
+インターフェースの値のメソッドを呼び出すと、その基底型の同じ名前のメソッドが実行されます。
 
 .play methods/interface-values.go
 
 * Interface values with nil underlying values
 
-If the concrete value inside the interface itself is nil,
-the method will be called with a nil receiver.
+インターフェース自体の中にある具体的な値が nil の場合、メソッドは nil をレシーバーとして呼び出されます。
 
-In some languages this would trigger a null pointer exception,
-but in Go it is common to write methods that gracefully handle being called
-with a nil receiver (as with the method `M` in this example.)
+いくつかの言語ではこれは null ポインター例外を引き起こしますが、Go では nil をレシーバーとして呼び出されても適切に処理するメソッドを記述するのが一般的です(この例では `M` メソッドのように)。
 
-Note that an interface value that holds a nil concrete value is itself non-nil.
+具体的な値が nil でないインターフェースの値は、それ自体が nil ではないことに注意してください。
 
 .play methods/interface-values-with-nil.go
 
 * Nil interface values
 
-A nil interface value holds neither value nor concrete type.
+nil インターフェースの値は、値も具体的な型も保持しません。
 
-Calling a method on a nil interface is a run-time error because there is no
-type inside the interface tuple to indicate which _concrete_ method to call.
+呼び出す _具体的な_ メソッドを示す型がインターフェースのタプル内に存在しないため、 nil インターフェースのメソッドを呼び出すと、ランタイムエラーになります。
 
 .play methods/nil-interface-values.go
 
 * The empty interface
 
-The interface type that specifies zero methods is known as the _empty_interface_:
+ゼロ個のメソッドを指定されたインターフェース型は、 _空のインターフェース_ と呼ばれます:
 
 	interface{}
 
-An empty interface may hold values of any type.
-(Every type implements at least zero methods.)
+空のインターフェースは、任意の型の値を保持できます。
+(全ての型は、少なこともゼロ個のメソッドを実装しています。)
 
-Empty interfaces are used by code that handles values of unknown type.
-For example, `fmt.Print` takes any number of arguments of type `interface{}`.
+空のインターフェースは、未知の型の値を扱うコードで使用されます。
+例えば、 `fmt.Print` は `interface{}` 型の任意の数の引数を受け取ります。
 
 .play methods/empty-interface.go
 
 * Type assertions
 
-A _type_assertion_ provides access to an interface value's underlying concrete value.
+_型アサーション_ は、インターフェースの値の基になる具体的な値を利用する手段を提供します。
 
 	t := i.(T)
 
-This statement asserts that the interface value `i` holds the concrete type `T`
-and assigns the underlying `T` value to the variable `t`.
+この文は、インターフェースの値 `i` が具体的な型 `T` を保持し、基になる `T` の値を変数 `t` に代入することを主張します。
 
-If `i` does not hold a `T`, the statement will trigger a panic.
+`i` が `T` を保持していない場合、この文は panic を引き起こします。
 
-To _test_ whether an interface value holds a specific type,
-a type assertion can return two values: the underlying value
-and a boolean value that reports whether the assertion succeeded.
+インターフェースの値が特定の型を保持しているかどうかを _テスト_ するために、型アサーションは2つの値(基になる値とアサーションが成功したかどうかを報告するブール値)を返すことができます。
 
 	t, ok := i.(T)
 
-If `i` holds a `T`, then `t` will be the underlying value and `ok` will be true.
+`i` が `T` を保持していれば、 `t` は基になる値になり、 `ok` は真(true)になります。
 
-If not, `ok` will be false and `t` will be the zero value of type `T`,
-and no panic occurs.
+そうでなければ、 `ok` は偽(false)になり、 `t` は型 `T` のゼロ値になり panic は起きません。
 
-Note the similarity between this syntax and that of reading from a map.
+この構文と map から読み取る構文との類似点に注意してください。
 
 .play methods/type-assertions.go
 
 * Type switches
 
-A _type_switch_ is a construct that permits several type assertions in series.
+_型switch_ はいくつかの型アサーションを直列に使用できる構造です。
 
-A type switch is like a regular switch statement, but the cases in a type
-switch specify types (not values), and those values are compared against
-the type of the value held by the given interface value.
+型switchは通常のswitch文と似ていますが、型switchのcaseは型(値ではない)を指定し、それらの値は指定されたインターフェースの値が保持する値の型と比較されます。
 
 	switch v := i.(type) {
 	case T:
@@ -242,15 +230,11 @@ the type of the value held by the given interface value.
 		// no match; here v has the same type as i
 	}
 
-The declaration in a type switch has the same syntax as a type assertion `i.(T)`,
-but the specific type `T` is replaced with the keyword `type`.
+型switchの宣言は、型アサーション `i.(T)` と同じ構文を持ちますが、特定の型 `T` はキーワード `type` に置き換えられます。
 
-This switch statement tests whether the interface value `i`
-holds a value of type `T` or `S`.
-In each of the `T` and `S` cases, the variable `v` will be of type
-`T` or `S` respectively and hold the value held by `i`.
-In the default case (where there is no match), the variable `v` is
-of the same interface type and value as `i`.
+このswitch文は、インターフェースの値 `i` が 型 `T` または `S` の値を保持するかどうかをテストします。
+`T` および `S` の各caseにおいて、変数 `v` はそれぞれ 型 `T` または `S` であり、 `i` によって保持される値を保持します。
+defaultの場合(一致するものがない場合)、変数 `v` は同じインターフェース型で値は `i` となります。
 
 .play methods/type-switches.go
 
