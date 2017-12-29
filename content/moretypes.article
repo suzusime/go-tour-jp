@@ -308,7 +308,7 @@ Note: もし `elem` や `ok` を宣言していないのであれば、次のよ
 
 [[https://golang.org/pkg/strings/#Fields][strings.Fields]] で、何かヒントを得ることができるはずです。
 
-Note: このテストスイートで何を入力とし、何を期待しているかについては、[[https://github.com/golang/tour/blob/master/wc/wc.go][golang.org/x/tour/wc]]]を見てみてください。
+Note: このテストスイートで何を入力とし、何を期待しているかについては、[[https://github.com/golang/tour/blob/master/wc/wc.go][golang.org/x/tour/wc]]を見てみてください。
 
 .play moretypes/exercise-maps.go
 
