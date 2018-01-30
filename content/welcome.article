@@ -78,7 +78,7 @@ The tour is available in other languages:
 #appengine: スタンドアロンの Go Tour は、自身のマシンでコードをビルドし、実行するため、より高速になります。
 #appengine: 
 #appengine: ローカルで Go Tour を実行するためには、はじめに、
-#appengine: [[http://golang.org/dl/][Goのダウンロードとインストール]]
+#appengine: [[https://golang.org/dl/][Goのダウンロードとインストール]]
 #appengine: し、コマンドラインで以下のように実行します:
 #appengine: 
 #appengine: 	go tool tour
