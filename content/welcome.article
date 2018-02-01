@@ -43,7 +43,7 @@ Goのコードを書く際は、必ずこのツールを一緒に使いましょ
 
 準備ができたら、次のページへ進みましょう！
 
-注：本サイト "A Tour of Go" は、 [[https://go-tour.appspot.com][A Tour of Go]] を日本語訳したものです。日本語翻訳プロジェクトは[[https://github.com/atotto/go-tour-jp][こちら]]です。
+注：本サイト "A Tour of Go" は、 [[https://tour.golang.org][A Tour of Go]] を日本語訳したものです。日本語翻訳プロジェクトは[[https://github.com/atotto/go-tour-jp][こちら]]です。
 
 .play welcome/hello.go
 
@@ -68,7 +68,8 @@ The tour is available in other languages:
 - [[https://go-tour-zh-tw.appspot.com/][Traditional Chinese — 中文(繁體)]]
 - [[https://go-tour-ua.appspot.com/][Ukrainian — Українська]]
 - [[https://go-tour-uz.appspot.com/][Uzbek — Ўзбекча]]
-- [[http://tur.a.golang.org.tr/][Turkish - Türkçe]]
+- [[https://go-tour-turkish.appspot.com/][Turkish - Türkçe]]
+- [[https://go-tour-ru-ru.appspot.com/][Russian - Русский]]
 
 #appengine: * Go offline
 #appengine: 
@@ -77,12 +78,17 @@ The tour is available in other languages:
 #appengine: スタンドアロンの Go Tour は、自身のマシンでコードをビルドし、実行するため、より高速になります。
 #appengine: 
 #appengine: ローカルで Go Tour を実行するためには、はじめに、
-#appengine: [[http://golang.org/dl/][Goのダウンロードとインストール]]
+#appengine: [[https://golang.org/dl/][Goのダウンロードとインストール]]
 #appengine: し、コマンドラインで以下のように実行します:
 #appengine: 
 #appengine: 	go tool tour
 #appengine: 
-#appengine: すると、ウェブブラウザでローカル版のGo Tourが表示されます。
+#appengine: 上記のコマンドの実行に問題がある場合は手動でこのツアーをインストールして実行できます:
+#appengine: 
+#appengine:   go get github.com/atotto/go-tour-jp/gotour
+#appengine:   gotour
+#appengine: 
+#appengine: gotour ではローカルバージョンの tour を表示するウェブブラウザが開きます。
 #appengine: 
 #appengine: もちろん、ここのウェブサイトでGo Tourを続けてもらって構いません。
 

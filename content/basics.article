@@ -20,7 +20,8 @@ Goのプログラムは、パッケージ( _package_ )で構成されます。
 #appengine: *Note:* ここで実行するプログラムは常に同じ環境で実行されます。
 #appengine: ですので、[[http://ja.wikipedia.org/wiki/%E6%93%AC%E4%BC%BC%E4%B9%B1%E6%95%B0][擬似乱数]]を返す [[https://golang.org/pkg/math/rand/#Rand.Intn][`rand.Intn`]] はいつも同じ数を返します。
 #appengine:
-#appengine: (数を強制的に変える場合は、乱数生成でシードを与える必要があります。[[https://golang.org/pkg/math/rand/#Seed][`rand.Seed`]]を見てみてください。)
+#appengine: (数を強制的に変える場合は、乱数生成でシードを与える必要があります。[[https://golang.org/pkg/math/rand/#Seed][`rand.Seed`]]を見てみてください。
+#appengine: playground 上での時間は一定なので他のものをシードとして使う必要があります。)
 
 .play basics/packages.go
 

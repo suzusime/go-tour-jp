@@ -73,8 +73,8 @@ Goには、クラス( _class_ )のしくみはありませんが、型にメソ�
 下の2つの呼び出しを比べると、ポインタを引数に取る `ScaleFunc` 関数は、ポインタを渡す必要があることに気がつくでしょう:
 
 	var v Vertex
-	ScaleFunc(v)  // Compile error!
-	ScaleFunc(&v) // OK
+	ScaleFunc(v, 5)  // Compile error!
+	ScaleFunc(&v, 5) // OK
 
 メソッドがポインタレシーバである場合、呼び出し時に、変数、または、ポインタのいずれかのレシーバとして取ることができます:
 
@@ -262,7 +262,7 @@ IPアドレスをドットで4つに区切った( _dotted_quad_ )表現で出力
 
 * Errors
 
-Goのプログラムは、エラーの状態を `error` 変数で表現します。
+Goのプログラムは、エラーの状態を `error` 値で表現します。
 
 `error` 型は `fmt.Stringer` に似た組み込みのインタフェースです:
 
