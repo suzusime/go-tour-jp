@@ -1,5 +1,5 @@
 Concurrency
-Go provides concurrency constructions as part of the core language. This lessons presents them and gives some examples on how to use it.
+Go は言語のコア機能の一部として並行処理を提供します。このレッスンではそれらを紹介し、使い方の例をいくつか示します。
 
 The Go Authors
 https://golang.org

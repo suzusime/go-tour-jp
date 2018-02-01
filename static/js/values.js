@@ -10,22 +10,22 @@ angular.module('tour.values', []).
 value('tableOfContents', [{
     'id': 'mechanics',
     'title': 'Using the tour',
-    'description': '<p>Welcome to a tour of the <a href="https://golang.org">Go programming language</a>. The tour covers the most important features of the language, mainly:</p>',
+    'description': '<p><a href="https://golang.org">プログラミング言語 Go</a> Tour へようこそ。この Tour では主に言語の最も重要な機能について説明します:</p>',
     'lessons': ['welcome']
 }, {
     'id': 'basics',
     'title': 'Basics',
-    'description': '<p>The starting point, learn all the basics of the language.</p><p>Declaring variables, calling functions, and all the things you need to know before moving to the next lessons.</p>',
+    'description': '<p>出発点は言語の全ての基本を学ぶことです。</p><p>変数の宣言方法や関数の呼び出し方、次のレッスンに移る前に知っておくべき全てのこと。</p>',
     'lessons': ['basics', 'flowcontrol', 'moretypes']
 }, {
     'id': 'methods',
     'title': 'Methods and interfaces',
-    'description': '<p>Learn how to define methods on types, how to declare interfaces, and how to put everything together.</p>',
+    'description': '<p>型のメソッドを定義する方法とインターフェイスを宣言する方法、全てをまとめて取得する方法について学びます。</p>',
     'lessons': ['methods']
 }, {
     'id': 'concurrency',
     'title': 'Concurrency',
-    'description': '<p>Go provides concurrency features as part of the core language.</p><p>This module goes over goroutines and channels, and how they are used to implement different concurrency patterns.</p>',
+    'description': '<p>Go は言語のコア機能の一部として並行処理機能を提供します。</p><p>ここでは goroutine と channel の概要とそれらを使ってさまざまな並行処理を実装する方法について説明します。</p>',
     'lessons': ['concurrency']
 }]).
 
@@ -42,14 +42,14 @@ value('translation', {
     'compile': 'Compile and Run',
     'more': 'Options',
     'toc': 'Table of Contents',
-    'prev': 'Previous',
-    'next': 'Next',
-    'waiting': 'Waiting for remote server...',
-    'errcomm': 'Error communicating with remote server.',
-    'submit-feedback': 'Send feedback about this page',
+    'prev': '戻る',
+    'next': '次へ',
+    'waiting': 'リモートサーバを待っています...',
+    'errcomm': 'リモートサーバとの通信中にエラーが発生しました。',
+    'submit-feedback': 'このページに対するフィードバックを送る',
 
     // GitHub issue template: update repo and messaging when translating.
-    'github-repo': 'github.com/golang/tour',
+    'github-repo': 'github.com/atotto/go-tour-jp',
     'issue-title': 'tour: [REPLACE WITH SHORT DESCRIPTION]',
     'issue-message': 'Change the title above to describe your issue and add your feedback here, including code if necessary',
     'context': 'Context',
