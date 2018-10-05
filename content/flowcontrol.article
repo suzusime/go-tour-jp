@@ -93,9 +93,9 @@ Hint: 浮動小数点の変数を初期化して宣言するには、型でキ�
 x や x/2 のように他の初期推測の値を z に与えてみてください。
 あなたの関数の結果は標準ライブラリの [[https://golang.org/pkg/math/#Sqrt][math.Sqrt]] にどれくらい近づきましたか？
 
-(Note: If you are interested in the details of the algorithm, the z² − x above
-is how far away z² is from where it needs to be (x), and the division by 2z is the derivative
-of z², to scale how much we adjust z by how quickly z² is changing.
+(メモ: アルゴリズムの詳細について興味がある人のために説明すると、
+上の z² − xという式は、z² が最終的な期待値 x からどのくらい離れているかを表しています。
+除算の 2z は z² の導関数で、z² の変化の大きさに応じて z の調整値を変化させます。
 この一般的なアプローチは[[https://ja.wikipedia.org/wiki/%E3%83%8B%E3%83%A5%E3%83%BC%E3%83%88%E3%83%B3%E6%B3%95][ニュートン法]]と呼ばれています。
 多くの関数で有効に働きますがとくに平方根では殊更有効です。)
 
