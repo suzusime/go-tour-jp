@@ -1,171 +1,171 @@
-
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Methods and interfaces</title>
-    <link type="text/css" rel="stylesheet" href="article.css">
-    <meta charset='utf-8'>
-    <script>
-      
-      if (window["location"] && window["location"]["hostname"] == "talks.golang.org") {
-        var _gaq = _gaq || [];
-        _gaq.push(["_setAccount", "UA-11222381-6"]);
-        _gaq.push(["b._setAccount", "UA-49880327-6"]);
-        window.trackPageview = function() {
-          _gaq.push(["_trackPageview", location.pathname+location.hash]);
-          _gaq.push(["b._trackPageview", location.pathname+location.hash]);
-        };
-        window.trackPageview();
-        window.trackEvent = function(category, action, opt_label, opt_value, opt_noninteraction) {
-          _gaq.push(["_trackEvent", category, action, opt_label, opt_value, opt_noninteraction]);
-          _gaq.push(["b._trackEvent", category, action, opt_label, opt_value, opt_noninteraction]);
-        };
-      }
-    </script>
-  </head>
 
-  <body>
-    <div id="topbar" class="wide">
-      <div class="container">
-        <div id="heading">Methods and interfaces
-          このレッスンではメソッドとインターフェース、オブジェクトとその動作を定義する構造体について説明します。
-          
-            
-              <div class="author">
-                
-  
-  <p>
-    The Go Authors
-  </p>
-  
-<p class="link"><a href="https://golang.org" target="_blank">https://golang.org</a></p>
-              </div>
-            
-          
+<head>
+  <title>Methods and interfaces</title>
+  <link type="text/css" rel="stylesheet" href="article.css">
+  <meta charset='utf-8'>
+  <script>
+
+    if (window["location"] && window["location"]["hostname"] == "talks.golang.org") {
+      var _gaq = _gaq || [];
+      _gaq.push(["_setAccount", "UA-11222381-6"]);
+      _gaq.push(["b._setAccount", "UA-49880327-6"]);
+      window.trackPageview = function () {
+        _gaq.push(["_trackPageview", location.pathname + location.hash]);
+        _gaq.push(["b._trackPageview", location.pathname + location.hash]);
+      };
+      window.trackPageview();
+      window.trackEvent = function (category, action, opt_label, opt_value, opt_noninteraction) {
+        _gaq.push(["_trackEvent", category, action, opt_label, opt_value, opt_noninteraction]);
+        _gaq.push(["b._trackEvent", category, action, opt_label, opt_value, opt_noninteraction]);
+      };
+    }
+  </script>
+</head>
+
+<body>
+  <div id="topbar" class="wide">
+    <div class="container">
+      <div id="heading">Methods and interfaces
+        このレッスンではメソッドとインターフェース、オブジェクトとその動作を定義する構造体について説明します。
+
+
+        <div class="author">
+
+
+          <p>
+            The Go Authors
+          </p>
+
+          <p class="link"><a href="https://golang.org" target="_blank">https://golang.org</a></p>
         </div>
+
+
       </div>
     </div>
-    <div id="page" class="wide">
-      <div class="container">
-        
-          <div id="toc" class="no-print">
-            <div id="tochead">Contents</div>
-            
-  <ul class="toc-outer">
-  
-    <li><a href="#TOC_1.">Methods</a></li>
-    
-  
-    <li><a href="#TOC_2.">Methods are functions</a></li>
-    
-  
-    <li><a href="#TOC_3.">Methods continued</a></li>
-    
-  
-    <li><a href="#TOC_4.">Pointer receivers</a></li>
-    
-  
-    <li><a href="#TOC_5.">Pointers and functions</a></li>
-    
-  
-    <li><a href="#TOC_6.">Methods and pointer indirection</a></li>
-    
-  
-    <li><a href="#TOC_7.">Methods and pointer indirection (2)</a></li>
-    
-  
-    <li><a href="#TOC_8.">Choosing a value or pointer receiver</a></li>
-    
-  
-    <li><a href="#TOC_9.">Interfaces</a></li>
-    
-  
-    <li><a href="#TOC_10.">Interfaces are implemented implicitly</a></li>
-    
-  
-    <li><a href="#TOC_11.">Interface values</a></li>
-    
-  
-    <li><a href="#TOC_12.">Interface values with nil underlying values</a></li>
-    
-  
-    <li><a href="#TOC_13.">Nil interface values</a></li>
-    
-  
-    <li><a href="#TOC_14.">The empty interface</a></li>
-    
-  
-    <li><a href="#TOC_15.">Type assertions</a></li>
-    
-  
-    <li><a href="#TOC_16.">Type switches</a></li>
-    
-  
-    <li><a href="#TOC_17.">Stringers</a></li>
-    
-  
-    <li><a href="#TOC_18.">Exercise: Stringers</a></li>
-    
-  
-    <li><a href="#TOC_19.">Errors</a></li>
-    
-  
-    <li><a href="#TOC_20.">Exercise: Errors</a></li>
-    
-  
-    <li><a href="#TOC_21.">Readers</a></li>
-    
-  
-    <li><a href="#TOC_22.">Exercise: Readers</a></li>
-    
-  
-    <li><a href="#TOC_23.">Exercise: rot13Reader</a></li>
-    
-  
-    <li><a href="#TOC_24.">Images</a></li>
-    
-  
-    <li><a href="#TOC_25.">Exercise: Images</a></li>
-    
-  
-    <li><a href="#TOC_26.">Congratulations!</a></li>
-    
-  
-  </ul>
+  </div>
+  <div id="page" class="wide">
+    <div id="toc" class="no-print">
+      <div id="tochead">Contents</div>
 
-          </div>
-        
+      <ul class="toc-outer">
 
-        
-          
-  <h1 id="TOC_1.">1. Methods</h1>
-  
-  
-  <p>
-    Goには、クラス( <i>class</i> )のしくみはありませんが、型にメソッド( <i>method</i> )を定義できます。
-  </p>
-  
+        <li><a href="#TOC_1.">Methods</a></li>
 
-  
-  <p>
-    メソッドは、特別なレシーバ( <i>receiver</i> )引数を関数に取ります。
-  </p>
-  
 
-  
-  <p>
-    レシーバは、 <code>func</code> キーワードとメソッド名の間に自身の引数リストで表現します。
-  </p>
-  
+        <li><a href="#TOC_2.">Methods are functions</a></li>
 
-  
-  <p>
-    この例では、 <code>Abs</code> メソッドは <code>v</code> という名前の <code>Vertex</code> 型のレシーバを持つことを意味しています。
-  </p>
-  
 
-  <div class="code" >
-<pre><span num="3">package main</span>
+        <li><a href="#TOC_3.">Methods continued</a></li>
+
+
+        <li><a href="#TOC_4.">Pointer receivers</a></li>
+
+
+        <li><a href="#TOC_5.">Pointers and functions</a></li>
+
+
+        <li><a href="#TOC_6.">Methods and pointer indirection</a></li>
+
+
+        <li><a href="#TOC_7.">Methods and pointer indirection (2)</a></li>
+
+
+        <li><a href="#TOC_8.">Choosing a value or pointer receiver</a></li>
+
+
+        <li><a href="#TOC_9.">Interfaces</a></li>
+
+
+        <li><a href="#TOC_10.">Interfaces are implemented implicitly</a></li>
+
+
+        <li><a href="#TOC_11.">Interface values</a></li>
+
+
+        <li><a href="#TOC_12.">Interface values with nil underlying values</a></li>
+
+
+        <li><a href="#TOC_13.">Nil interface values</a></li>
+
+
+        <li><a href="#TOC_14.">The empty interface</a></li>
+
+
+        <li><a href="#TOC_15.">Type assertions</a></li>
+
+
+        <li><a href="#TOC_16.">Type switches</a></li>
+
+
+        <li><a href="#TOC_17.">Stringers</a></li>
+
+
+        <li><a href="#TOC_18.">Exercise: Stringers</a></li>
+
+
+        <li><a href="#TOC_19.">Errors</a></li>
+
+
+        <li><a href="#TOC_20.">Exercise: Errors</a></li>
+
+
+        <li><a href="#TOC_21.">Readers</a></li>
+
+
+        <li><a href="#TOC_22.">Exercise: Readers</a></li>
+
+
+        <li><a href="#TOC_23.">Exercise: rot13Reader</a></li>
+
+
+        <li><a href="#TOC_24.">Images</a></li>
+
+
+        <li><a href="#TOC_25.">Exercise: Images</a></li>
+
+
+        <li><a href="#TOC_26.">Congratulations!</a></li>
+
+
+      </ul>
+
+    </div>
+
+    <div class="container">
+
+
+
+
+      <h1 id="TOC_1.">1. Methods</h1>
+
+
+      <p>
+        Goには、クラス( <i>class</i> )のしくみはありませんが、型にメソッド( <i>method</i> )を定義できます。
+      </p>
+
+
+
+      <p>
+        メソッドは、特別なレシーバ( <i>receiver</i> )引数を関数に取ります。
+      </p>
+
+
+
+      <p>
+        レシーバは、 <code>func</code> キーワードとメソッド名の間に自身の引数リストで表現します。
+      </p>
+
+
+
+      <p>
+        この例では、 <code>Abs</code> メソッドは <code>v</code> という名前の <code>Vertex</code> 型のレシーバを持つことを意味しています。
+      </p>
+
+
+      <div class="code">
+        <pre><span num="3">package main</span>
 <span num="4"></span>
 <span num="5">import (</span>
 <span num="6">    &#34;fmt&#34;</span>
@@ -185,27 +185,27 @@
 <span num="20">    fmt.Println(v.Abs())</span>
 <span num="21">}</span>
 </pre>
-</div>
+      </div>
 
 
-        
-          
-  <h1 id="TOC_2.">2. Methods are functions</h1>
-  
-  
-  <p>
-    メソッドは、レシーバ引数を伴う関数、でしたね？
-  </p>
-  
 
-  
-  <p>
-    この <code>Abs</code> は、先ほどの例から機能を変えずに通常の関数として記述しています。
-  </p>
-  
 
-  <div class="code" >
-<pre><span num="3">package main</span>
+      <h1 id="TOC_2.">2. Methods are functions</h1>
+
+
+      <p>
+        メソッドは、レシーバ引数を伴う関数、でしたね？
+      </p>
+
+
+
+      <p>
+        この <code>Abs</code> は、先ほどの例から機能を変えずに通常の関数として記述しています。
+      </p>
+
+
+      <div class="code">
+        <pre><span num="3">package main</span>
 <span num="4"></span>
 <span num="5">import (</span>
 <span num="6">    &#34;fmt&#34;</span>
@@ -225,39 +225,39 @@
 <span num="20">    fmt.Println(Abs(v))</span>
 <span num="21">}</span>
 </pre>
-</div>
+      </div>
 
 
-        
-          
-  <h1 id="TOC_3.">3. Methods continued</h1>
-  
-  
-  <p>
-    例で挙げたstructの型だけではなく、任意の型(type)にもメソッドを宣言できます。
-  </p>
-  
-
-  
-  <p>
-    例は、 <code>Abs</code> メソッドを持つ、数値型の <code>MyFloat</code> 型です。
-  </p>
-  
-
-  
-  <p>
-    レシーバを伴うメソッドの宣言は、レシーバ型が同じパッケージにある必要があります。
 
 
-    他のパッケージに定義している型に対して、レシーバを伴うメソッドを宣言できません
+      <h1 id="TOC_3.">3. Methods continued</h1>
 
 
-    （組み込みの <code>int</code> などの型も同様です）。
-  </p>
-  
+      <p>
+        例で挙げたstructの型だけではなく、任意の型(type)にもメソッドを宣言できます。
+      </p>
 
-  <div class="code" >
-<pre><span num="3">package main</span>
+
+
+      <p>
+        例は、 <code>Abs</code> メソッドを持つ、数値型の <code>MyFloat</code> 型です。
+      </p>
+
+
+
+      <p>
+        レシーバを伴うメソッドの宣言は、レシーバ型が同じパッケージにある必要があります。
+
+
+        他のパッケージに定義している型に対して、レシーバを伴うメソッドを宣言できません
+
+
+        （組み込みの <code>int</code> などの型も同様です）。
+      </p>
+
+
+      <div class="code">
+        <pre><span num="3">package main</span>
 <span num="4"></span>
 <span num="5">import (</span>
 <span num="6">    &#34;fmt&#34;</span>
@@ -278,63 +278,63 @@
 <span num="21">    fmt.Println(f.Abs())</span>
 <span num="22">}</span>
 </pre>
-</div>
+      </div>
 
 
-        
-          
-  <h1 id="TOC_4.">4. Pointer receivers</h1>
-  
-  
-  <p>
-    ポインタレシーバでメソッドを宣言できます。
-  </p>
-  
-
-  
-  <p>
-    これはレシーバの型が、ある型 <code>T</code> への構文 <code>*T</code> があることを意味します。
 
 
-    （なお、 <code>T</code> は <code>*int</code> のようなポインタ自身を取ることはできません）
-  </p>
-  
-
-  
-  <p>
-    例では <code>*Vertex</code> に <code>Scale</code> メソッドが定義されています。
-  </p>
-  
-
-  
-  <p>
-    ポインタレシーバを持つメソッド(ここでは <code>Scale</code> )は、レシーバが指す変数を変更できます。
+      <h1 id="TOC_4.">4. Pointer receivers</h1>
 
 
-    レシーバ自身を更新することが多いため、変数レシーバよりもポインタレシーバの方が一般的です。
-  </p>
-  
-
-  
-  <p>
-    <code>Scale</code> の宣言(line 16)から <code>*</code> を消し、プログラムの振る舞いがどう変わるのかを確認してみましょう。
-  </p>
-  
-
-  
-  <p>
-    変数レシーバでは、 <code>Scale</code> メソッドの操作は元の <code>Vertex</code> 変数のコピーを操作します。
+      <p>
+        ポインタレシーバでメソッドを宣言できます。
+      </p>
 
 
-    （これは関数の引数としての振るまいと同じです）。
+
+      <p>
+        これはレシーバの型が、ある型 <code>T</code> への構文 <code>*T</code> があることを意味します。
 
 
-    つまり <code>main</code> 関数で宣言した <code>Vertex</code> 変数を変更するためには、<code>Scale</code> メソッドはポインタレシーバにする必要があるのです。
-  </p>
-  
+        （なお、 <code>T</code> は <code>*int</code> のようなポインタ自身を取ることはできません）
+      </p>
 
-  <div class="code" >
-<pre><span num="3">package main</span>
+
+
+      <p>
+        例では <code>*Vertex</code> に <code>Scale</code> メソッドが定義されています。
+      </p>
+
+
+
+      <p>
+        ポインタレシーバを持つメソッド(ここでは <code>Scale</code> )は、レシーバが指す変数を変更できます。
+
+
+        レシーバ自身を更新することが多いため、変数レシーバよりもポインタレシーバの方が一般的です。
+      </p>
+
+
+
+      <p>
+        <code>Scale</code> の宣言(line 16)から <code>*</code> を消し、プログラムの振る舞いがどう変わるのかを確認してみましょう。
+      </p>
+
+
+
+      <p>
+        変数レシーバでは、 <code>Scale</code> メソッドの操作は元の <code>Vertex</code> 変数のコピーを操作します。
+
+
+        （これは関数の引数としての振るまいと同じです）。
+
+
+        つまり <code>main</code> 関数で宣言した <code>Vertex</code> 変数を変更するためには、<code>Scale</code> メソッドはポインタレシーバにする必要があるのです。
+      </p>
+
+
+      <div class="code">
+        <pre><span num="3">package main</span>
 <span num="4"></span>
 <span num="5">import (</span>
 <span num="6">    &#34;fmt&#34;</span>
@@ -360,39 +360,39 @@
 <span num="26">    fmt.Println(v.Abs())</span>
 <span num="27">}</span>
 </pre>
-</div>
+      </div>
 
 
-        
-          
-  <h1 id="TOC_5.">5. Pointers and functions</h1>
-  
-  
-  <p>
-    ここで、 <code>Abs</code> と <code>Scale</code> メソッドは関数として書きなおしてあります。
-  </p>
-  
-
-  
-  <p>
-    再度、line 16から <code>*</code> を消してください。
 
 
-    なぜ振る舞いが変わったのかわかりますか？
+      <h1 id="TOC_5.">5. Pointers and functions</h1>
 
 
-    コンパイルするために、さらに何が必要でしょうか。
-  </p>
-  
+      <p>
+        ここで、 <code>Abs</code> と <code>Scale</code> メソッドは関数として書きなおしてあります。
+      </p>
 
-  
-  <p>
-    (よくわからなくても、次のページに行きましょう)
-  </p>
-  
 
-  <div class="code" >
-<pre><span num="3">package main</span>
+
+      <p>
+        再度、line 16から <code>*</code> を消してください。
+
+
+        なぜ振る舞いが変わったのかわかりますか？
+
+
+        コンパイルするために、さらに何が必要でしょうか。
+      </p>
+
+
+
+      <p>
+        (よくわからなくても、次のページに行きましょう)
+      </p>
+
+
+      <div class="code">
+        <pre><span num="3">package main</span>
 <span num="4"></span>
 <span num="5">import (</span>
 <span num="6">    &#34;fmt&#34;</span>
@@ -418,52 +418,57 @@
 <span num="26">    fmt.Println(Abs(v))</span>
 <span num="27">}</span>
 </pre>
-</div>
+      </div>
 
 
-        
-          
-  <h1 id="TOC_6.">6. Methods and pointer indirection</h1>
-  
-  
-  <p>
-    下の2つの呼び出しを比べると、ポインタを引数に取る <code>ScaleFunc</code> 関数は、ポインタを渡す必要があることに気がつくでしょう:
-  </p>
-  
 
-  
-  <div class="code"><pre>var v Vertex
+
+      <h1 id="TOC_6.">6. Methods and pointer indirection</h1>
+
+
+      <p>
+        下の2つの呼び出しを比べると、ポインタを引数に取る <code>ScaleFunc</code> 関数は、ポインタを渡す必要があることに気がつくでしょう:
+      </p>
+
+
+
+      <div class="code">
+        <pre>var v Vertex
 ScaleFunc(v, 5)  // Compile error!
-ScaleFunc(&amp;v, 5) // OK</pre></div>
-  
+ScaleFunc(&amp;v, 5) // OK</pre>
+      </div>
 
-  
-  <p>
-    メソッドがポインタレシーバである場合、呼び出し時に、変数、または、ポインタのいずれかのレシーバとして取ることができます:
-  </p>
-  
 
-  
-  <div class="code"><pre>var v Vertex
+
+      <p>
+        メソッドがポインタレシーバである場合、呼び出し時に、変数、または、ポインタのいずれかのレシーバとして取ることができます:
+      </p>
+
+
+
+      <div class="code">
+        <pre>var v Vertex
 v.Scale(5)  // OK
 p := &amp;v
-p.Scale(10) // OK</pre></div>
-  
-
-  
-  <p>
-    <code>v.Scale(5)</code> のステートメントでは、 <code>v</code> は変数であり、ポインタではありません。
+p.Scale(10) // OK</pre>
+      </div>
 
 
-    メソッドでポインタレシーバが自動的に呼びだされます。
+
+      <p>
+        <code>v.Scale(5)</code> のステートメントでは、 <code>v</code> は変数であり、ポインタではありません。
 
 
-    <code>Scale</code> メソッドはポインタレシーバを持つ場合、Goは利便性のため、 <code>v.Scale(5)</code> のステートメントを <code>(&amp;v).Scale(5)</code> として解釈します。
-  </p>
-  
+        メソッドでポインタレシーバが自動的に呼びだされます。
 
-  <div class="code" >
-<pre><span num="3">package main</span>
+
+        <code>Scale</code> メソッドはポインタレシーバを持つ場合、Goは利便性のため、 <code>v.Scale(5)</code> のステートメントを
+        <code>(&amp;v).Scale(5)</code> として解釈します。
+      </p>
+
+
+      <div class="code">
+        <pre><span num="3">package main</span>
 <span num="4"></span>
 <span num="5">import &#34;fmt&#34;</span>
 <span num="6"></span>
@@ -493,52 +498,56 @@ p.Scale(10) // OK</pre></div>
 <span num="30">    fmt.Println(v, p)</span>
 <span num="31">}</span>
 </pre>
-</div>
+      </div>
 
 
-        
-          
-  <h1 id="TOC_7.">7. Methods and pointer indirection (2)</h1>
-  
-  
-  <p>
-    逆にも見てみましょう。
-  </p>
-  
 
-  
-  <p>
-    変数の引数を取る関数は、特定の型の変数を取る必要があります:
-  </p>
-  
 
-  
-  <div class="code"><pre>var v Vertex
+      <h1 id="TOC_7.">7. Methods and pointer indirection (2)</h1>
+
+
+      <p>
+        逆にも見てみましょう。
+      </p>
+
+
+
+      <p>
+        変数の引数を取る関数は、特定の型の変数を取る必要があります:
+      </p>
+
+
+
+      <div class="code">
+        <pre>var v Vertex
 fmt.Println(AbsFunc(v))  // OK
-fmt.Println(AbsFunc(&amp;v)) // Compile error!</pre></div>
-  
+fmt.Println(AbsFunc(&amp;v)) // Compile error!</pre>
+      </div>
 
-  
-  <p>
-    メソッドが変数レシーバである場合、呼び出し時に、変数、または、ポインタのいずれかのレシーバとして取ることができます:
-  </p>
-  
 
-  
-  <div class="code"><pre>var v Vertex
+
+      <p>
+        メソッドが変数レシーバである場合、呼び出し時に、変数、または、ポインタのいずれかのレシーバとして取ることができます:
+      </p>
+
+
+
+      <div class="code">
+        <pre>var v Vertex
 fmt.Println(v.Abs()) // OK
 p := &amp;v
-fmt.Println(p.Abs()) // OK</pre></div>
-  
+fmt.Println(p.Abs()) // OK</pre>
+      </div>
 
-  
-  <p>
-    この場合、 <code>p.Abs()</code> は <code>(*p).Abs()</code> として解釈されます。
-  </p>
-  
 
-  <div class="code" >
-<pre><span num="3">package main</span>
+
+      <p>
+        この場合、 <code>p.Abs()</code> は <code>(*p).Abs()</code> として解釈されます。
+      </p>
+
+
+      <div class="code">
+        <pre><span num="3">package main</span>
 <span num="4"></span>
 <span num="5">import (</span>
 <span num="6">    &#34;fmt&#34;</span>
@@ -567,51 +576,52 @@ fmt.Println(p.Abs()) // OK</pre></div>
 <span num="29">    fmt.Println(AbsFunc(*p))</span>
 <span num="30">}</span>
 </pre>
-</div>
+      </div>
 
 
-        
-          
-  <h1 id="TOC_8.">8. Choosing a value or pointer receiver</h1>
-  
-  
-  <p>
-    ポインタレシーバを使う2つの理由があります。
-  </p>
-  
-
-  
-  <p>
-    ひとつは、メソッドがレシーバが指す先の変数を変更するためです。
-  </p>
-  
-
-  
-  <p>
-    ふたつに、メソッドの呼び出し毎に変数のコピーを避けるためです。
 
 
-    例えば、レシーバが大きな構造体である場合に効率的です。
-  </p>
-  
-
-  
-  <p>
-    例では、 <code>Abs</code> メソッドはレシーバ自身を変更する必要はありませんが、 <code>Scale</code> と <code>Abs</code> は両方とも <code>*Vertex</code> 型のレシーバです。
-  </p>
-  
-
-  
-  <p>
-    一般的には、変数レシーバ、または、ポインタレシーバのどちらかですべてのメソッドを与え、混在させるべきではありません。
+      <h1 id="TOC_8.">8. Choosing a value or pointer receiver</h1>
 
 
-    (この理由は数ページ後にわかります)
-  </p>
-  
+      <p>
+        ポインタレシーバを使う2つの理由があります。
+      </p>
 
-  <div class="code" >
-<pre><span num="3">package main</span>
+
+
+      <p>
+        ひとつは、メソッドがレシーバが指す先の変数を変更するためです。
+      </p>
+
+
+
+      <p>
+        ふたつに、メソッドの呼び出し毎に変数のコピーを避けるためです。
+
+
+        例えば、レシーバが大きな構造体である場合に効率的です。
+      </p>
+
+
+
+      <p>
+        例では、 <code>Abs</code> メソッドはレシーバ自身を変更する必要はありませんが、 <code>Scale</code> と <code>Abs</code> は両方とも
+        <code>*Vertex</code> 型のレシーバです。
+      </p>
+
+
+
+      <p>
+        一般的には、変数レシーバ、または、ポインタレシーバのどちらかですべてのメソッドを与え、混在させるべきではありません。
+
+
+        (この理由は数ページ後にわかります)
+      </p>
+
+
+      <div class="code">
+        <pre><span num="3">package main</span>
 <span num="4"></span>
 <span num="5">import (</span>
 <span num="6">    &#34;fmt&#34;</span>
@@ -638,39 +648,39 @@ fmt.Println(p.Abs()) // OK</pre></div>
 <span num="27">    fmt.Printf(&#34;After scaling: %&#43;v, Abs: %v\n&#34;, v, v.Abs())</span>
 <span num="28">}</span>
 </pre>
-</div>
+      </div>
 
 
-        
-          
-  <h1 id="TOC_9.">9. Interfaces</h1>
-  
-  
-  <p>
-    interface(インタフェース)型は、メソッドのシグニチャの集まりで定義します。
-  </p>
-  
-
-  
-  <p>
-    そのメソッドの集まりを実装した値を、interface型の変数へ持たせることができます。
-  </p>
-  
-
-  
-  <p>
-    <b>注意:</b> この例は、22行目でエラーになります。
 
 
-    <code>Abs</code> メソッドが、 <code>Vertex</code> ではなく <code>*Vertex</code> の定義であり、
+      <h1 id="TOC_9.">9. Interfaces</h1>
 
 
-    <code>Vertex</code> が <code>Abser</code> インタフェースを実装していないということになるためエラーとなります。
-  </p>
-  
+      <p>
+        interface(インタフェース)型は、メソッドのシグニチャの集まりで定義します。
+      </p>
 
-  <div class="code" >
-<pre><span num="3">package main</span>
+
+
+      <p>
+        そのメソッドの集まりを実装した値を、interface型の変数へ持たせることができます。
+      </p>
+
+
+
+      <p>
+        <b>注意:</b> この例は、22行目でエラーになります。
+
+
+        <code>Abs</code> メソッドが、 <code>Vertex</code> ではなく <code>*Vertex</code> の定義であり、
+
+
+        <code>Vertex</code> が <code>Abser</code> インタフェースを実装していないということになるためエラーとなります。
+      </p>
+
+
+      <div class="code">
+        <pre><span num="3">package main</span>
 <span num="4"></span>
 <span num="5">import (</span>
 <span num="6">    &#34;fmt&#34;</span>
@@ -713,33 +723,33 @@ fmt.Println(p.Abs()) // OK</pre></div>
 <span num="43">    return math.Sqrt(v.X*v.X &#43; v.Y*v.Y)</span>
 <span num="44">}</span>
 </pre>
-</div>
+      </div>
 
 
-        
-          
-  <h1 id="TOC_10.">10. Interfaces are implemented implicitly</h1>
-  
-  
-  <p>
-    型にメソッドを実装していくことによって、インタフェースを実装(満た)します。
 
 
-    インタフェースを実装することを明示的に宣言する必要はありません( &#34;implements&#34; キーワードは必要ありません)。
-  </p>
-  
-
-  
-  <p>
-    暗黙のインターフェースは、インターフェースの定義をその実装から切り離します。
+      <h1 id="TOC_10.">10. Interfaces are implemented implicitly</h1>
 
 
-    インターフェースの実装は、事前の取り決めなしにパッケージに現れることがあります。
-  </p>
-  
+      <p>
+        型にメソッドを実装していくことによって、インタフェースを実装(満た)します。
 
-  <div class="code" >
-<pre><span num="3">package main</span>
+
+        インタフェースを実装することを明示的に宣言する必要はありません( &#34;implements&#34; キーワードは必要ありません)。
+      </p>
+
+
+
+      <p>
+        暗黙のインターフェースは、インターフェースの定義をその実装から切り離します。
+
+
+        インターフェースの実装は、事前の取り決めなしにパッケージに現れることがあります。
+      </p>
+
+
+      <div class="code">
+        <pre><span num="3">package main</span>
 <span num="4"></span>
 <span num="5">import &#34;fmt&#34;</span>
 <span num="6"></span>
@@ -762,37 +772,39 @@ fmt.Println(p.Abs()) // OK</pre></div>
 <span num="23">    i.M()</span>
 <span num="24">}</span>
 </pre>
-</div>
+      </div>
 
 
-        
-          
-  <h1 id="TOC_11.">11. Interface values</h1>
-  
-  
-  <p>
-    下記のように、インターフェースの値は、値と具体的な型のタプルのように考えることができます:
-  </p>
-  
 
-  
-  <div class="code"><pre>(value, type)</pre></div>
-  
 
-  
-  <p>
-    インターフェースの値は、特定の基底になる具体的な型の値を保持します。
-  </p>
-  
+      <h1 id="TOC_11.">11. Interface values</h1>
 
-  
-  <p>
-    インターフェースの値のメソッドを呼び出すと、その基底型の同じ名前のメソッドが実行されます。
-  </p>
-  
 
-  <div class="code" >
-<pre><span num="3">package main</span>
+      <p>
+        下記のように、インターフェースの値は、値と具体的な型のタプルのように考えることができます:
+      </p>
+
+
+
+      <div class="code">
+        <pre>(value, type)</pre>
+      </div>
+
+
+
+      <p>
+        インターフェースの値は、特定の基底になる具体的な型の値を保持します。
+      </p>
+
+
+
+      <p>
+        インターフェースの値のメソッドを呼び出すと、その基底型の同じ名前のメソッドが実行されます。
+      </p>
+
+
+      <div class="code">
+        <pre><span num="3">package main</span>
 <span num="4"></span>
 <span num="5">import (</span>
 <span num="6">    &#34;fmt&#34;</span>
@@ -833,33 +845,34 @@ fmt.Println(p.Abs()) // OK</pre></div>
 <span num="41">    fmt.Printf(&#34;(%v, %T)\n&#34;, i, i)</span>
 <span num="42">}</span>
 </pre>
-</div>
+      </div>
 
 
-        
-          
-  <h1 id="TOC_12.">12. Interface values with nil underlying values</h1>
-  
-  
-  <p>
-    インターフェース自体の中にある具体的な値が nil の場合、メソッドは nil をレシーバーとして呼び出されます。
-  </p>
-  
 
-  
-  <p>
-    いくつかの言語ではこれは null ポインター例外を引き起こしますが、Go では nil をレシーバーとして呼び出されても適切に処理するメソッドを記述するのが一般的です(この例では <code>M</code> メソッドのように)。
-  </p>
-  
 
-  
-  <p>
-    具体的な値として nil を保持するインターフェイスの値それ自体は非 nil であることに注意してください。
-  </p>
-  
+      <h1 id="TOC_12.">12. Interface values with nil underlying values</h1>
 
-  <div class="code" >
-<pre><span num="3">package main</span>
+
+      <p>
+        インターフェース自体の中にある具体的な値が nil の場合、メソッドは nil をレシーバーとして呼び出されます。
+      </p>
+
+
+
+      <p>
+        いくつかの言語ではこれは null ポインター例外を引き起こしますが、Go では nil をレシーバーとして呼び出されても適切に処理するメソッドを記述するのが一般的です(この例では <code>M</code>
+        メソッドのように)。
+      </p>
+
+
+
+      <p>
+        具体的な値として nil を保持するインターフェイスの値それ自体は非 nil であることに注意してください。
+      </p>
+
+
+      <div class="code">
+        <pre><span num="3">package main</span>
 <span num="4"></span>
 <span num="5">import &#34;fmt&#34;</span>
 <span num="6"></span>
@@ -896,27 +909,27 @@ fmt.Println(p.Abs()) // OK</pre></div>
 <span num="37">    fmt.Printf(&#34;(%v, %T)\n&#34;, i, i)</span>
 <span num="38">}</span>
 </pre>
-</div>
+      </div>
 
 
-        
-          
-  <h1 id="TOC_13.">13. Nil interface values</h1>
-  
-  
-  <p>
-    nil インターフェースの値は、値も具体的な型も保持しません。
-  </p>
-  
 
-  
-  <p>
-    呼び出す <i>具体的な</i> メソッドを示す型がインターフェースのタプル内に存在しないため、 nil インターフェースのメソッドを呼び出すと、ランタイムエラーになります。
-  </p>
-  
 
-  <div class="code" >
-<pre><span num="3">package main</span>
+      <h1 id="TOC_13.">13. Nil interface values</h1>
+
+
+      <p>
+        nil インターフェースの値は、値も具体的な型も保持しません。
+      </p>
+
+
+
+      <p>
+        呼び出す <i>具体的な</i> メソッドを示す型がインターフェースのタプル内に存在しないため、 nil インターフェースのメソッドを呼び出すと、ランタイムエラーになります。
+      </p>
+
+
+      <div class="code">
+        <pre><span num="3">package main</span>
 <span num="4"></span>
 <span num="5">import &#34;fmt&#34;</span>
 <span num="6"></span>
@@ -934,43 +947,45 @@ fmt.Println(p.Abs()) // OK</pre></div>
 <span num="18">    fmt.Printf(&#34;(%v, %T)\n&#34;, i, i)</span>
 <span num="19">}</span>
 </pre>
-</div>
+      </div>
 
 
-        
-          
-  <h1 id="TOC_14.">14. The empty interface</h1>
-  
-  
-  <p>
-    ゼロ個のメソッドを指定されたインターフェース型は、 <i>空のインターフェース</i> と呼ばれます:
-  </p>
-  
-
-  
-  <div class="code"><pre>interface{}</pre></div>
-  
-
-  
-  <p>
-    空のインターフェースは、任意の型の値を保持できます。
 
 
-    (全ての型は、少なくともゼロ個のメソッドを実装しています。)
-  </p>
-  
-
-  
-  <p>
-    空のインターフェースは、未知の型の値を扱うコードで使用されます。
+      <h1 id="TOC_14.">14. The empty interface</h1>
 
 
-    例えば、 <code>fmt.Print</code> は <code>interface{}</code> 型の任意の数の引数を受け取ります。
-  </p>
-  
+      <p>
+        ゼロ個のメソッドを指定されたインターフェース型は、 <i>空のインターフェース</i> と呼ばれます:
+      </p>
 
-  <div class="code" >
-<pre><span num="3">package main</span>
+
+
+      <div class="code">
+        <pre>interface{}</pre>
+      </div>
+
+
+
+      <p>
+        空のインターフェースは、任意の型の値を保持できます。
+
+
+        (全ての型は、少なくともゼロ個のメソッドを実装しています。)
+      </p>
+
+
+
+      <p>
+        空のインターフェースは、未知の型の値を扱うコードで使用されます。
+
+
+        例えば、 <code>fmt.Print</code> は <code>interface{}</code> 型の任意の数の引数を受け取ります。
+      </p>
+
+
+      <div class="code">
+        <pre><span num="3">package main</span>
 <span num="4"></span>
 <span num="5">import &#34;fmt&#34;</span>
 <span num="6"></span>
@@ -989,65 +1004,70 @@ fmt.Println(p.Abs()) // OK</pre></div>
 <span num="19">    fmt.Printf(&#34;(%v, %T)\n&#34;, i, i)</span>
 <span num="20">}</span>
 </pre>
-</div>
+      </div>
 
 
-        
-          
-  <h1 id="TOC_15.">15. Type assertions</h1>
-  
-  
-  <p>
-    <i>型アサーション</i> は、インターフェースの値の基になる具体的な値を利用する手段を提供します。
-  </p>
-  
 
-  
-  <div class="code"><pre>t := i.(T)</pre></div>
-  
 
-  
-  <p>
-    この文は、インターフェースの値 <code>i</code> が具体的な型 <code>T</code> を保持し、基になる <code>T</code> の値を変数 <code>t</code> に代入することを主張します。
-  </p>
-  
+      <h1 id="TOC_15.">15. Type assertions</h1>
 
-  
-  <p>
-    <code>i</code> が <code>T</code> を保持していない場合、この文は panic を引き起こします。
-  </p>
-  
 
-  
-  <p>
-    インターフェースの値が特定の型を保持しているかどうかを <i>テスト</i> するために、型アサーションは2つの値(基になる値とアサーションが成功したかどうかを報告するブール値)を返すことができます。
-  </p>
-  
+      <p>
+        <i>型アサーション</i> は、インターフェースの値の基になる具体的な値を利用する手段を提供します。
+      </p>
 
-  
-  <div class="code"><pre>t, ok := i.(T)</pre></div>
-  
 
-  
-  <p>
-    <code>i</code> が <code>T</code> を保持していれば、 <code>t</code> は基になる値になり、 <code>ok</code> は真(true)になります。
-  </p>
-  
 
-  
-  <p>
-    そうでなければ、 <code>ok</code> は偽(false)になり、 <code>t</code> は型 <code>T</code> のゼロ値になり panic は起きません。
-  </p>
-  
+      <div class="code">
+        <pre>t := i.(T)</pre>
+      </div>
 
-  
-  <p>
-    この構文と map から読み取る構文との類似点に注意してください。
-  </p>
-  
 
-  <div class="code" >
-<pre><span num="3">package main</span>
+
+      <p>
+        この文は、インターフェースの値 <code>i</code> が具体的な型 <code>T</code> を保持し、基になる <code>T</code> の値を変数 <code>t</code>
+        に代入することを主張します。
+      </p>
+
+
+
+      <p>
+        <code>i</code> が <code>T</code> を保持していない場合、この文は panic を引き起こします。
+      </p>
+
+
+
+      <p>
+        インターフェースの値が特定の型を保持しているかどうかを <i>テスト</i> するために、型アサーションは2つの値(基になる値とアサーションが成功したかどうかを報告するブール値)を返すことができます。
+      </p>
+
+
+
+      <div class="code">
+        <pre>t, ok := i.(T)</pre>
+      </div>
+
+
+
+      <p>
+        <code>i</code> が <code>T</code> を保持していれば、 <code>t</code> は基になる値になり、 <code>ok</code> は真(true)になります。
+      </p>
+
+
+
+      <p>
+        そうでなければ、 <code>ok</code> は偽(false)になり、 <code>t</code> は型 <code>T</code> のゼロ値になり panic は起きません。
+      </p>
+
+
+
+      <p>
+        この構文と map から読み取る構文との類似点に注意してください。
+      </p>
+
+
+      <div class="code">
+        <pre><span num="3">package main</span>
 <span num="4"></span>
 <span num="5">import &#34;fmt&#34;</span>
 <span num="6"></span>
@@ -1067,56 +1087,59 @@ fmt.Println(p.Abs()) // OK</pre></div>
 <span num="20">    fmt.Println(f)</span>
 <span num="21">}</span>
 </pre>
-</div>
+      </div>
 
 
-        
-          
-  <h1 id="TOC_16.">16. Type switches</h1>
-  
-  
-  <p>
-    <i>型switch</i> はいくつかの型アサーションを直列に使用できる構造です。
-  </p>
-  
 
-  
-  <p>
-    型switchは通常のswitch文と似ていますが、型switchのcaseは型(値ではない)を指定し、それらの値は指定されたインターフェースの値が保持する値の型と比較されます。
-  </p>
-  
 
-  
-  <div class="code"><pre>switch v := i.(type) {
+      <h1 id="TOC_16.">16. Type switches</h1>
+
+
+      <p>
+        <i>型switch</i> はいくつかの型アサーションを直列に使用できる構造です。
+      </p>
+
+
+
+      <p>
+        型switchは通常のswitch文と似ていますが、型switchのcaseは型(値ではない)を指定し、それらの値は指定されたインターフェースの値が保持する値の型と比較されます。
+      </p>
+
+
+
+      <div class="code">
+        <pre>switch v := i.(type) {
 case T:
     // here v has type T
 case S:
     // here v has type S
 default:
     // no match; here v has the same type as i
-}</pre></div>
-  
-
-  
-  <p>
-    型switchの宣言は、型アサーション <code>i.(T)</code> と同じ構文を持ちますが、特定の型 <code>T</code> はキーワード <code>type</code> に置き換えられます。
-  </p>
-  
-
-  
-  <p>
-    このswitch文は、インターフェースの値 <code>i</code> が 型 <code>T</code> または <code>S</code> の値を保持するかどうかをテストします。
+}</pre>
+      </div>
 
 
-    <code>T</code> および <code>S</code> の各caseにおいて、変数 <code>v</code> はそれぞれ 型 <code>T</code> または <code>S</code> であり、 <code>i</code> によって保持される値を保持します。
+
+      <p>
+        型switchの宣言は、型アサーション <code>i.(T)</code> と同じ構文を持ちますが、特定の型 <code>T</code> はキーワード <code>type</code> に置き換えられます。
+      </p>
 
 
-    defaultの場合(一致するものがない場合)、変数 <code>v</code> は同じインターフェース型で値は <code>i</code> となります。
-  </p>
-  
 
-  <div class="code" >
-<pre><span num="3">package main</span>
+      <p>
+        このswitch文は、インターフェースの値 <code>i</code> が 型 <code>T</code> または <code>S</code> の値を保持するかどうかをテストします。
+
+
+        <code>T</code> および <code>S</code> の各caseにおいて、変数 <code>v</code> はそれぞれ 型 <code>T</code> または <code>S</code> であり、
+        <code>i</code> によって保持される値を保持します。
+
+
+        defaultの場合(一致するものがない場合)、変数 <code>v</code> は同じインターフェース型で値は <code>i</code> となります。
+      </p>
+
+
+      <div class="code">
+        <pre><span num="3">package main</span>
 <span num="4"></span>
 <span num="5">import &#34;fmt&#34;</span>
 <span num="6"></span>
@@ -1137,36 +1160,39 @@ default:
 <span num="21">    do(true)</span>
 <span num="22">}</span>
 </pre>
-</div>
+      </div>
 
 
-        
-          
-  <h1 id="TOC_17.">17. Stringers</h1>
-  
-  
-  <p>
-    もっともよく使われているinterfaceの一つに <a href="//golang.org/pkg/fmt/" target="_self"><code>fmt</code> パッケージ</a> に定義されている <a href="//golang.org/pkg/fmt/#Stringer" target="_self"><code>Stringer</code></a> があります:
-  </p>
-  
 
-  
-  <div class="code"><pre>type Stringer interface {
+
+      <h1 id="TOC_17.">17. Stringers</h1>
+
+
+      <p>
+        もっともよく使われているinterfaceの一つに <a href="//golang.org/pkg/fmt/" target="_self"><code>fmt</code> パッケージ</a> に定義されている <a
+          href="//golang.org/pkg/fmt/#Stringer" target="_self"><code>Stringer</code></a> があります:
+      </p>
+
+
+
+      <div class="code">
+        <pre>type Stringer interface {
     String() string
-}</pre></div>
-  
-
-  
-  <p>
-    <code>Stringer</code> インタフェースは、stringとして表現することができる型です。
+}</pre>
+      </div>
 
 
-    <code>fmt</code> パッケージ(と、多くのパッケージ)では、変数を文字列で出力するためにこのインタフェースがあることを確認します。
-  </p>
-  
 
-  <div class="code" >
-<pre><span num="3">package main</span>
+      <p>
+        <code>Stringer</code> インタフェースは、stringとして表現することができる型です。
+
+
+        <code>fmt</code> パッケージ(と、多くのパッケージ)では、変数を文字列で出力するためにこのインタフェースがあることを確認します。
+      </p>
+
+
+      <div class="code">
+        <pre><span num="3">package main</span>
 <span num="4"></span>
 <span num="5">import &#34;fmt&#34;</span>
 <span num="6"></span>
@@ -1185,30 +1211,30 @@ default:
 <span num="19">    fmt.Println(a, z)</span>
 <span num="20">}</span>
 </pre>
-</div>
+      </div>
 
 
-        
-          
-  <h1 id="TOC_18.">18. Exercise: Stringers</h1>
-  
-  
-  <p>
-    <code>IPAddr</code> 型を実装してみましょう
 
 
-    IPアドレスをドットで4つに区切った( <i>dotted quad</i> )表現で出力するため、 <code>fmt.Stringer</code> インタフェースを実装してください。
-  </p>
-  
+      <h1 id="TOC_18.">18. Exercise: Stringers</h1>
 
-  
-  <p>
-    例えば、 <code>IPAddr{1, 2, 3, 4}</code> は、 <code>&#34;1.2.3.4&#34;</code> として出力するようにします。
-  </p>
-  
 
-  <div class="code" >
-<pre><span num="3">package main</span>
+      <p>
+        <code>IPAddr</code> 型を実装してみましょう
+
+
+        IPアドレスをドットで4つに区切った( <i>dotted quad</i> )表現で出力するため、 <code>fmt.Stringer</code> インタフェースを実装してください。
+      </p>
+
+
+
+      <p>
+        例えば、 <code>IPAddr{1, 2, 3, 4}</code> は、 <code>&#34;1.2.3.4&#34;</code> として出力するようにします。
+      </p>
+
+
+      <div class="code">
+        <pre><span num="3">package main</span>
 <span num="4"></span>
 <span num="5">import &#34;fmt&#34;</span>
 <span num="6"></span>
@@ -1226,60 +1252,64 @@ default:
 <span num="18">    }</span>
 <span num="19">}</span>
 </pre>
-</div>
+      </div>
 
 
-        
-          
-  <h1 id="TOC_19.">19. Errors</h1>
-  
-  
-  <p>
-    Goのプログラムは、エラーの状態を <code>error</code> 値で表現します。
-  </p>
-  
 
-  
-  <p>
-    <code>error</code> 型は <code>fmt.Stringer</code> に似た組み込みのインタフェースです:
-  </p>
-  
 
-  
-  <div class="code"><pre>type error interface {
+      <h1 id="TOC_19.">19. Errors</h1>
+
+
+      <p>
+        Goのプログラムは、エラーの状態を <code>error</code> 値で表現します。
+      </p>
+
+
+
+      <p>
+        <code>error</code> 型は <code>fmt.Stringer</code> に似た組み込みのインタフェースです:
+      </p>
+
+
+
+      <div class="code">
+        <pre>type error interface {
     Error() string
-}</pre></div>
-  
+}</pre>
+      </div>
 
-  
-  <p>
-    ( <code>fmt.Stringer</code> と同様に、 <code>fmt</code> パッケージは、変数を文字列で出力する際に <code>error</code> インタフェースを確認します。 )
-  </p>
-  
 
-  
-  <p>
-    よく、関数は <code>error</code> 変数を返します。そして、呼び出し元はエラーが <code>nil</code> かどうかを確認することでエラーをハンドル(取り扱い)します。
-  </p>
-  
 
-  
-  <div class="code"><pre>i, err := strconv.Atoi(&#34;42&#34;)
+      <p>
+        ( <code>fmt.Stringer</code> と同様に、 <code>fmt</code> パッケージは、変数を文字列で出力する際に <code>error</code> インタフェースを確認します。 )
+      </p>
+
+
+
+      <p>
+        よく、関数は <code>error</code> 変数を返します。そして、呼び出し元はエラーが <code>nil</code> かどうかを確認することでエラーをハンドル(取り扱い)します。
+      </p>
+
+
+
+      <div class="code">
+        <pre>i, err := strconv.Atoi(&#34;42&#34;)
 if err != nil {
     fmt.Printf(&#34;couldn&#39;t convert number: %v\n&#34;, err)
     return
 }
-fmt.Println(&#34;Converted integer:&#34;, i)</pre></div>
-  
+fmt.Println(&#34;Converted integer:&#34;, i)</pre>
+      </div>
 
-  
-  <p>
-    nil の <code>error</code> は成功したことを示し、 nilではない <code>error</code> は失敗したことを示します。
-  </p>
-  
 
-  <div class="code" >
-<pre><span num="3">package main</span>
+
+      <p>
+        nil の <code>error</code> は成功したことを示し、 nilではない <code>error</code> は失敗したことを示します。
+      </p>
+
+
+      <div class="code">
+        <pre><span num="3">package main</span>
 <span num="4"></span>
 <span num="5">import (</span>
 <span num="6">    &#34;fmt&#34;</span>
@@ -1309,77 +1339,82 @@ fmt.Println(&#34;Converted integer:&#34;, i)</pre></div>
 <span num="30">    }</span>
 <span num="31">}</span>
 </pre>
-</div>
+      </div>
 
 
-        
-          
-  <h1 id="TOC_20.">20. Exercise: Errors</h1>
-  
-  
-  <p>
-    <code>Sqrt</code> 関数を <a href="/flowcontrol/8" target="_self">以前の演習</a> からコピーし、 <code>error</code> の値を返すように修正してみてください。
-  </p>
-  
-
-  
-  <p>
-    <code>Sqrt</code> は、複素数をサポートしていないので、負の値が与えられたとき、nil以外のエラー値を返す必要があります。
-  </p>
-  
-
-  
-  <p>
-    新しい型:
-  </p>
-  
-
-  
-  <div class="code"><pre>type ErrNegativeSqrt float64</pre></div>
-  
-
-  
-  <p>
-    を作成してください。
-  </p>
-  
-
-  
-  <p>
-    そして、 <code>ErrNegativeSqrt(-2).Error()</code> で、 <code>&#34;cannot Sqrt negative number: -2&#34;</code> を返すような:
-  </p>
-  
-
-  
-  <div class="code"><pre>func (e ErrNegativeSqrt) Error() string</pre></div>
-  
-
-  
-  <p>
-    メソッドを実装し、 <code>error</code> インタフェースを満たすようにします。
-  </p>
-  
-
-  
-  <p>
-    <b>注意:</b> <code>Error</code> メソッドの中で、 <code>fmt.Sprint(e)</code> を呼び出すことは、無限ループのプログラムになることでしょう。
 
 
-    最初に <code>fmt.Sprint(float64(e))</code> として <code>e</code> を変換しておくことで、これを避けることができます。
+      <h1 id="TOC_20.">20. Exercise: Errors</h1>
 
 
-    なぜでしょうか？
-  </p>
-  
+      <p>
+        <code>Sqrt</code> 関数を <a href="/flowcontrol/8" target="_self">以前の演習</a> からコピーし、 <code>error</code>
+        の値を返すように修正してみてください。
+      </p>
 
-  
-  <p>
-    負の値が与えられたとき、 <code>ErrNegativeSqrt</code> の値を返すように <code>Sqrt</code> 関数を修正してみてください。
-  </p>
-  
 
-  <div class="code" >
-<pre><span num="3">package main</span>
+
+      <p>
+        <code>Sqrt</code> は、複素数をサポートしていないので、負の値が与えられたとき、nil以外のエラー値を返す必要があります。
+      </p>
+
+
+
+      <p>
+        新しい型:
+      </p>
+
+
+
+      <div class="code">
+        <pre>type ErrNegativeSqrt float64</pre>
+      </div>
+
+
+
+      <p>
+        を作成してください。
+      </p>
+
+
+
+      <p>
+        そして、 <code>ErrNegativeSqrt(-2).Error()</code> で、 <code>&#34;cannot Sqrt negative number: -2&#34;</code> を返すような:
+      </p>
+
+
+
+      <div class="code">
+        <pre>func (e ErrNegativeSqrt) Error() string</pre>
+      </div>
+
+
+
+      <p>
+        メソッドを実装し、 <code>error</code> インタフェースを満たすようにします。
+      </p>
+
+
+
+      <p>
+        <b>注意:</b> <code>Error</code> メソッドの中で、 <code>fmt.Sprint(e)</code> を呼び出すことは、無限ループのプログラムになることでしょう。
+
+
+        最初に <code>fmt.Sprint(float64(e))</code> として <code>e</code> を変換しておくことで、これを避けることができます。
+
+
+        なぜでしょうか？
+      </p>
+
+
+
+      <p>
+        負の値が与えられたとき、 <code>ErrNegativeSqrt</code> の値を返すように <code>Sqrt</code> 関数を修正してみてください。
+      </p>
+
+
+      <div class="code">
+        <pre><span num="3">package main</span>
 <span num="4"></span>
 <span num="5">import (</span>
 <span num="6">    &#34;fmt&#34;</span>
@@ -1394,55 +1429,58 @@ fmt.Println(&#34;Converted integer:&#34;, i)</pre></div>
 <span num="15">    fmt.Println(Sqrt(-2))</span>
 <span num="16">}</span>
 </pre>
-</div>
+      </div>
 
 
-        
-          
-  <h1 id="TOC_21.">21. Readers</h1>
-  
-  
-  <p>
-    <code>io</code> パッケージは、データストリームを読むことを表現する <code>io.Reader</code> インタフェースを規定しています。
-  </p>
-  
-
-  
-  <p>
-    Goの標準ライブラリには、インタフェース、ファイル、ネットワーク接続、圧縮、暗号化、などで <a href="https://golang.org/search?q=Read#Global" target="_blank">多くの実装</a> があります。
-  </p>
-  
-
-  
-  <p>
-    <code>io.Reader</code> インタフェースは <code>Read</code> メソッドを持ちます:
-  </p>
-  
-
-  
-  <div class="code"><pre>func (T) Read(b []byte) (n int, err error)</pre></div>
-  
-
-  
-  <p>
-    <code>Read</code> は、データを与えられたバイトスライスへ入れ、入れたバイトのサイズとエラーの値を返します。
 
 
-    ストリームの終端は、 <code>io.EOF</code> のエラーで返します。
-  </p>
-  
-
-  
-  <p>
-    例のコードは、 <a href="//golang.org/pkg/strings/#Reader" target="_self"><code>strings.Reader</code></a> を作成し、
+      <h1 id="TOC_21.">21. Readers</h1>
 
 
-    8 byte毎に読み出しています。
-  </p>
-  
+      <p>
+        <code>io</code> パッケージは、データストリームを読むことを表現する <code>io.Reader</code> インタフェースを規定しています。
+      </p>
 
-  <div class="code" >
-<pre><span num="3">package main</span>
+
+
+      <p>
+        Goの標準ライブラリには、インタフェース、ファイル、ネットワーク接続、圧縮、暗号化、などで <a href="https://golang.org/search?q=Read#Global"
+          target="_blank">多くの実装</a> があります。
+      </p>
+
+
+
+      <p>
+        <code>io.Reader</code> インタフェースは <code>Read</code> メソッドを持ちます:
+      </p>
+
+
+
+      <div class="code">
+        <pre>func (T) Read(b []byte) (n int, err error)</pre>
+      </div>
+
+
+
+      <p>
+        <code>Read</code> は、データを与えられたバイトスライスへ入れ、入れたバイトのサイズとエラーの値を返します。
+
+
+        ストリームの終端は、 <code>io.EOF</code> のエラーで返します。
+      </p>
+
+
+
+      <p>
+        例のコードは、 <a href="//golang.org/pkg/strings/#Reader" target="_self"><code>strings.Reader</code></a> を作成し、
+
+
+        8 byte毎に読み出しています。
+      </p>
+
+
+      <div class="code">
+        <pre><span num="3">package main</span>
 <span num="4"></span>
 <span num="5">import (</span>
 <span num="6">    &#34;fmt&#34;</span>
@@ -1464,21 +1502,21 @@ fmt.Println(&#34;Converted integer:&#34;, i)</pre></div>
 <span num="22">    }</span>
 <span num="23">}</span>
 </pre>
-</div>
+      </div>
 
 
-        
-          
-  <h1 id="TOC_22.">22. Exercise: Readers</h1>
-  
-  
-  <p>
-    ASCII文字 <code>&#39;A&#39;</code> の無限ストリームを出力する <code>Reader</code> 型を実装してください。
-  </p>
-  
 
-  <div class="code" >
-<pre><span num="3">package main</span>
+
+      <h1 id="TOC_22.">22. Exercise: Readers</h1>
+
+
+      <p>
+        ASCII文字 <code>&#39;A&#39;</code> の無限ストリームを出力する <code>Reader</code> 型を実装してください。
+      </p>
+
+
+      <div class="code">
+        <pre><span num="3">package main</span>
 <span num="4"></span>
 <span num="5">import &#34;golang.org/x/tour/reader&#34;</span>
 <span num="6"></span>
@@ -1490,45 +1528,49 @@ fmt.Println(&#34;Converted integer:&#34;, i)</pre></div>
 <span num="12">    reader.Validate(MyReader{})</span>
 <span num="13">}</span>
 </pre>
-</div>
+      </div>
 
 
-        
-          
-  <h1 id="TOC_23.">23. Exercise: rot13Reader</h1>
-  
-  
-  <p>
-    よくあるパターンは、別の <code>io.Reader</code> をラップし、ストリームの内容を何らかの方法で変換する<a href="https://golang.org/pkg/io/#Reader" target="_blank">io.Reader</a>です。
-  </p>
-  
-
-  
-  <p>
-    例えば、 <a href="https://golang.org/pkg/compress/gzip/#NewReader" target="_blank">gzip.NewReader</a> は、 <code>io.Reader</code> (gzipされたデータストリーム)を引数で受け取り、 <code>*gzip.Reader</code> を返します。
 
 
-    その <code>*gzip.Reader</code> は、 <code>io.Reader</code> (展開したデータストリーム)を実装しています。
-  </p>
-  
-
-  
-  <p>
-    <code>io.Reader</code> を実装し、 <code>io.Reader</code> で<a href="https://ja.wikipedia.org/wiki/ROT13" target="_blank">ROT13</a> 換字式暗号( <i>substitution cipher</i> )をすべてのアルファベットの文字に適用して読み出すように <code>rot13Reader</code> を実装してみてください。
-  </p>
-  
-
-  
-  <p>
-    <code>rot13Reader</code> 型は提供済みです。
+      <h1 id="TOC_23.">23. Exercise: rot13Reader</h1>
 
 
-    この <code>Read</code> メソッドを実装することで <code>io.Reader</code> インタフェースを満たしてください。
-  </p>
-  
+      <p>
+        よくあるパターンは、別の <code>io.Reader</code> をラップし、ストリームの内容を何らかの方法で変換する<a href="https://golang.org/pkg/io/#Reader"
+          target="_blank">io.Reader</a>です。
+      </p>
 
-  <div class="code" >
-<pre><span num="3">package main</span>
+
+
+      <p>
+        例えば、 <a href="https://golang.org/pkg/compress/gzip/#NewReader" target="_blank">gzip.NewReader</a> は、
+        <code>io.Reader</code> (gzipされたデータストリーム)を引数で受け取り、 <code>*gzip.Reader</code> を返します。
+
+
+        その <code>*gzip.Reader</code> は、 <code>io.Reader</code> (展開したデータストリーム)を実装しています。
+      </p>
+
+
+
+      <p>
+        <code>io.Reader</code> を実装し、 <code>io.Reader</code> で<a href="https://ja.wikipedia.org/wiki/ROT13"
+          target="_blank">ROT13</a> 換字式暗号( <i>substitution cipher</i> )をすべてのアルファベットの文字に適用して読み出すように
+        <code>rot13Reader</code> を実装してみてください。
+      </p>
+
+
+
+      <p>
+        <code>rot13Reader</code> 型は提供済みです。
+
+
+        この <code>Read</code> メソッドを実装することで <code>io.Reader</code> インタフェースを満たしてください。
+      </p>
+
+
+      <div class="code">
+        <pre><span num="3">package main</span>
 <span num="4"></span>
 <span num="5">import (</span>
 <span num="6">    &#34;io&#34;</span>
@@ -1546,58 +1588,62 @@ fmt.Println(&#34;Converted integer:&#34;, i)</pre></div>
 <span num="18">    io.Copy(os.Stdout, &amp;r)</span>
 <span num="19">}</span>
 </pre>
-</div>
+      </div>
 
 
-        
-          
-  <h1 id="TOC_24.">24. Images</h1>
-  
-  
-  <p>
-    <a href="https://golang.org/pkg/image/#Image" target="_blank"><code>image</code></a> パッケージは、以下の <code>Image</code> インタフェースを定義しています：
-  </p>
-  
 
-  
-  <div class="code"><pre>package image
+
+      <h1 id="TOC_24.">24. Images</h1>
+
+
+      <p>
+        <a href="https://golang.org/pkg/image/#Image" target="_blank"><code>image</code></a> パッケージは、以下の
+        <code>Image</code> インタフェースを定義しています：
+      </p>
+
+
+
+      <div class="code">
+        <pre>package image
 
 type Image interface {
     ColorModel() color.Model
     Bounds() Rectangle
     At(x, y int) color.Color
-}</pre></div>
-  
-
-  
-  <p>
-    Note: <code>Bounds</code> メソッドの戻り値である <code>Rectangle</code> は、 <code>image</code> パッケージの
+}</pre>
+      </div>
 
 
-    <a href="https://golang.org/pkg/image/#Rectangle" target="_blank"><code>image.Rectangle</code></a>
+
+      <p>
+        Note: <code>Bounds</code> メソッドの戻り値である <code>Rectangle</code> は、 <code>image</code> パッケージの
 
 
-    に定義があります。
-  </p>
-  
-
-  
-  <p>
-    (詳細は、 <a href="https://golang.org/pkg/image/#Image" target="_blank">このドキュメント</a> を参照してください。)
-  </p>
-  
-
-  
-  <p>
-    <code>color.Color</code> と <code>color.Model</code> は共にインタフェースですが、定義済みの <code>color.RGBA</code> と <code>color.RGBAModel</code> を使うことで、このインタフェースを無視できます。
+        <a href="https://golang.org/pkg/image/#Rectangle" target="_blank"><code>image.Rectangle</code></a>
 
 
-    これらのインタフェースは、<a href="https://golang.org/pkg/image/color/" target="_blank">image/color</a> パッケージで定義されています。
-  </p>
-  
+        に定義があります。
+      </p>
 
-  <div class="code" >
-<pre><span num="3">package main</span>
+
+
+      <p>
+        (詳細は、 <a href="https://golang.org/pkg/image/#Image" target="_blank">このドキュメント</a> を参照してください。)
+      </p>
+
+
+
+      <p>
+        <code>color.Color</code> と <code>color.Model</code> は共にインタフェースですが、定義済みの <code>color.RGBA</code> と
+        <code>color.RGBAModel</code> を使うことで、このインタフェースを無視できます。
+
+
+        これらのインタフェースは、<a href="https://golang.org/pkg/image/color/" target="_blank">image/color</a> パッケージで定義されています。
+      </p>
+
+
+      <div class="code">
+        <pre><span num="3">package main</span>
 <span num="4"></span>
 <span num="5">import (</span>
 <span num="6">    &#34;fmt&#34;</span>
@@ -1610,51 +1656,52 @@ type Image interface {
 <span num="13">    fmt.Println(m.At(0, 0).RGBA())</span>
 <span num="14">}</span>
 </pre>
-</div>
+      </div>
 
 
-        
-          
-  <h1 id="TOC_25.">25. Exercise: Images</h1>
-  
-  
-  <p>
-    前に解いた、画像ジェネレーターを覚えていますか？
 
 
-    今回は、データのスライスの代わりに <code>image.Image</code> インタフェースの実装を返すようにしてみましょう。
-  </p>
-  
-
-  
-  <p>
-    自分の <code>Image</code> 型を定義し、 <a href="https://golang.org/pkg/image/#Image" target="_blank">インタフェースを満たすのに必要なメソッド</a> を実装し、 <code>pic.ShowImage</code> を呼び出してみてください。
-  </p>
-  
-
-  
-  <p>
-    <code>Bounds</code> は、 <code>image.Rect(0, 0, w, h)</code> のようにして <code>image.Rectangle</code> を返すようにします。
-  </p>
-  
-
-  
-  <p>
-    <code>ColorModel</code> は、 <code>color.RGBAModel</code> を返すようにします。
-  </p>
-  
-
-  
-  <p>
-    <code>At</code> は、ひとつの色を返します。
+      <h1 id="TOC_25.">25. Exercise: Images</h1>
 
 
-    生成する画像の色の値 <code>v</code> を <code>color.RGBA{v, v, 255, 255}</code> を利用して返すようにします。
-  </p>
-  
+      <p>
+        前に解いた、画像ジェネレーターを覚えていますか？
 
-  <div class="code" >
-<pre><span num="3">package main</span>
+
+        今回は、データのスライスの代わりに <code>image.Image</code> インタフェースの実装を返すようにしてみましょう。
+      </p>
+
+
+
+      <p>
+        自分の <code>Image</code> 型を定義し、 <a href="https://golang.org/pkg/image/#Image"
+          target="_blank">インタフェースを満たすのに必要なメソッド</a> を実装し、 <code>pic.ShowImage</code> を呼び出してみてください。
+      </p>
+
+
+
+      <p>
+        <code>Bounds</code> は、 <code>image.Rect(0, 0, w, h)</code> のようにして <code>image.Rectangle</code> を返すようにします。
+      </p>
+
+
+
+      <p>
+        <code>ColorModel</code> は、 <code>color.RGBAModel</code> を返すようにします。
+      </p>
+
+
+
+      <p>
+        <code>At</code> は、ひとつの色を返します。
+
+
+        生成する画像の色の値 <code>v</code> を <code>color.RGBA{v, v, 255, 255}</code> を利用して返すようにします。
+      </p>
+
+
+      <div class="code">
+        <pre><span num="3">package main</span>
 <span num="4"></span>
 <span num="5">import &#34;golang.org/x/tour/pic&#34;</span>
 <span num="6"></span>
@@ -1665,45 +1712,46 @@ type Image interface {
 <span num="11">    pic.ShowImage(m)</span>
 <span num="12">}</span>
 </pre>
-</div>
-
-
-        
-          
-  <h1 id="TOC_26.">26. Congratulations!</h1>
-  
-  
-  <p>
-    この章はこれで終わりです。
-  </p>
-  
-
-  
-  <p>
-    <a href="/list" target="_self">章のリスト</a>から学びたいところを見ても良いですし、
-
-
-    <a href="javascript:click(&#39;.next-page&#39;)" target="_self">&gt;</a> をクリックして次の章へ進みましょう。
-  </p>
-  
-
-
-        
-
       </div>
+
+
+
+
+      <h1 id="TOC_26.">26. Congratulations!</h1>
+
+
+      <p>
+        この章はこれで終わりです。
+      </p>
+
+
+
+      <p>
+        <a href="/list" target="_self">章のリスト</a>から学びたいところを見ても良いですし、
+
+
+        <a href="javascript:click(&#39;.next-page&#39;)" target="_self">&gt;</a> をクリックして次の章へ進みましょう。
+      </p>
+
+
+
+
+
     </div>
+  </div>
 
-    
 
-    <script>
-      (function() {
-        
-        if (window["location"] && window["location"]["hostname"] == "talks.golang.org") {
-          var ga = document.createElement("script"); ga.type = "text/javascript"; ga.async = true;
-          ga.src = ("https:" == document.location.protocol ? "https://ssl" : "http://www") + ".google-analytics.com/ga.js";
-          var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(ga, s);
-        }
-      })();
-    </script>
-  </body>
+
+  <script>
+    (function () {
+
+      if (window["location"] && window["location"]["hostname"] == "talks.golang.org") {
+        var ga = document.createElement("script"); ga.type = "text/javascript"; ga.async = true;
+        ga.src = ("https:" == document.location.protocol ? "https://ssl" : "http://www") + ".google-analytics.com/ga.js";
+        var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(ga, s);
+      }
+    })();
+  </script>
+</body>
+
 </html>

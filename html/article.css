@@ -2,7 +2,7 @@ body {
   margin: 0 auto;
   font-family: Helvetica, Arial, sans-serif;
   font-size: 16px;
-  max-width: 900px;
+  width: 1080px;
 }
 pre,
 code {
@@ -76,6 +76,7 @@ body {
 }
 div#page {
   width: 100%;
+  display: flex;
 }
 div#page > .container,
 div#topbar > .container {
@@ -83,7 +84,6 @@ div#topbar > .container {
   margin-left: auto;
   margin-right: auto;
   padding: 0 20px;
-  width: 900px;
 }
 div#page.wide > .container,
 div#topbar.wide > .container {
@@ -138,20 +138,23 @@ div.output .buttons {
   margin-left: 0;
   margin-bottom: 10px;
 }
-
-#toc {
-  float: right;
+div#toc {
   margin: 0px 10px;
   padding: 10px;
   border: 1px solid #e5ecf9;
   background-color: #eee;
   box-shadow: 3px 3px 2px #888888;
 
-  max-width: 33%;
+  width: 180px;
 
   -webkit-border-radius: 5px;
   -moz-border-radius: 5px;
   border-radius: 5px;
+
+  top: 0;
+  height: 100%;
+  position: sticky;
+  flex-shrink: 0;
 }
 
 #tochead {

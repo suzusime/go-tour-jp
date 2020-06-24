@@ -1,145 +1,146 @@
-
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Flow control statements: for, if, else, switch and defer</title>
-    <link type="text/css" rel="stylesheet" href="article.css">
-    <meta charset='utf-8'>
-    <script>
-      
-      if (window["location"] && window["location"]["hostname"] == "talks.golang.org") {
-        var _gaq = _gaq || [];
-        _gaq.push(["_setAccount", "UA-11222381-6"]);
-        _gaq.push(["b._setAccount", "UA-49880327-6"]);
-        window.trackPageview = function() {
-          _gaq.push(["_trackPageview", location.pathname+location.hash]);
-          _gaq.push(["b._trackPageview", location.pathname+location.hash]);
-        };
-        window.trackPageview();
-        window.trackEvent = function(category, action, opt_label, opt_value, opt_noninteraction) {
-          _gaq.push(["_trackEvent", category, action, opt_label, opt_value, opt_noninteraction]);
-          _gaq.push(["b._trackEvent", category, action, opt_label, opt_value, opt_noninteraction]);
-        };
-      }
-    </script>
-  </head>
 
-  <body>
-    <div id="topbar" class="wide">
-      <div class="container">
-        <div id="heading">Flow control statements: for, if, else, switch and defer
-          条件文とループ、switch、defer を使ってコードの流れをコントロールする方法を学びます。
-          
-            
-              <div class="author">
-                
-  
-  <p>
-    The Go Authors
-  </p>
-  
-<p class="link"><a href="https://golang.org" target="_blank">https://golang.org</a></p>
-              </div>
-            
-          
+<head>
+  <title>Flow control statements: for, if, else, switch and defer</title>
+  <link type="text/css" rel="stylesheet" href="article.css">
+  <meta charset='utf-8'>
+  <script>
+
+    if (window["location"] && window["location"]["hostname"] == "talks.golang.org") {
+      var _gaq = _gaq || [];
+      _gaq.push(["_setAccount", "UA-11222381-6"]);
+      _gaq.push(["b._setAccount", "UA-49880327-6"]);
+      window.trackPageview = function () {
+        _gaq.push(["_trackPageview", location.pathname + location.hash]);
+        _gaq.push(["b._trackPageview", location.pathname + location.hash]);
+      };
+      window.trackPageview();
+      window.trackEvent = function (category, action, opt_label, opt_value, opt_noninteraction) {
+        _gaq.push(["_trackEvent", category, action, opt_label, opt_value, opt_noninteraction]);
+        _gaq.push(["b._trackEvent", category, action, opt_label, opt_value, opt_noninteraction]);
+      };
+    }
+  </script>
+</head>
+
+<body>
+  <div id="topbar" class="wide">
+    <div class="container">
+      <div id="heading">Flow control statements: for, if, else, switch and defer
+        条件文とループ、switch、defer を使ってコードの流れをコントロールする方法を学びます。
+
+
+        <div class="author">
+
+
+          <p>
+            The Go Authors
+          </p>
+
+          <p class="link"><a href="https://golang.org" target="_blank">https://golang.org</a></p>
         </div>
+
+
       </div>
     </div>
-    <div id="page" class="wide">
-      <div class="container">
-        
-          <div id="toc" class="no-print">
-            <div id="tochead">Contents</div>
-            
-  <ul class="toc-outer">
-  
-    <li><a href="#TOC_1.">For</a></li>
-    
-  
-    <li><a href="#TOC_2.">For continued</a></li>
-    
-  
-    <li><a href="#TOC_3.">For is Go&#39;s &#34;while&#34;</a></li>
-    
-  
-    <li><a href="#TOC_4.">Forever</a></li>
-    
-  
-    <li><a href="#TOC_5.">If</a></li>
-    
-  
-    <li><a href="#TOC_6.">If with a short statement</a></li>
-    
-  
-    <li><a href="#TOC_7.">If and else</a></li>
-    
-  
-    <li><a href="#TOC_8.">Exercise: Loops and Functions</a></li>
-    
-  
-    <li><a href="#TOC_9.">Switch</a></li>
-    
-  
-    <li><a href="#TOC_10.">Switch evaluation order</a></li>
-    
-  
-    <li><a href="#TOC_11.">Switch with no condition</a></li>
-    
-  
-    <li><a href="#TOC_12.">Defer</a></li>
-    
-  
-    <li><a href="#TOC_13.">Stacking defers</a></li>
-    
-  
-    <li><a href="#TOC_14.">Congratulations!</a></li>
-    
-  
-  </ul>
+  </div>
+  <div id="page" class="wide">
+    <div id="toc" class="no-print">
+      <div id="tochead">Contents</div>
 
-          </div>
-        
+      <ul class="toc-outer">
 
-        
-          
-  <h1 id="TOC_1.">1. For</h1>
-  
-  
-  <p>
-    基本的に、 <code>for</code> ループはセミコロン <code>;</code> で3つの部分に分かれています:
-  </p>
-  
+        <li><a href="#TOC_1.">For</a></li>
 
-  <ul>
-  
-    <li>初期化ステートメント: 最初のイテレーション(繰り返し)の前に初期化が実行されます</li>
-  
-    <li>条件式: イテレーション毎に評価されます</li>
-  
-    <li>後処理ステートメント: イテレーション毎の最後に実行されます</li>
-  
-  </ul>
 
-  
-  <p>
-    初期化ステートメントは、短い変数宣言によく利用します。その変数は <code>for</code> ステートメントのスコープ内でのみ有効です。
-  </p>
-  
+        <li><a href="#TOC_2.">For continued</a></li>
 
-  
-  <p>
-    ループは、条件式の評価が <code>false</code> となった場合にイテレーションを停止します。
-  </p>
-  
 
-  
-  <p>
-    <i>Note</i>: 他の言語、C言語 や Java、JavaScriptの <code>for</code> ループとは異なり、 <code>for</code> ステートメントの3つの部分を括る括弧 <code>( )</code> はありません。なお、中括弧 <code>{ }</code> は必要です。
-  </p>
-  
+        <li><a href="#TOC_3.">For is Go&#39;s &#34;while&#34;</a></li>
 
-  <div class="code" >
-<pre><span num="3">package main</span>
+
+        <li><a href="#TOC_4.">Forever</a></li>
+
+
+        <li><a href="#TOC_5.">If</a></li>
+
+
+        <li><a href="#TOC_6.">If with a short statement</a></li>
+
+
+        <li><a href="#TOC_7.">If and else</a></li>
+
+
+        <li><a href="#TOC_8.">Exercise: Loops and Functions</a></li>
+
+
+        <li><a href="#TOC_9.">Switch</a></li>
+
+
+        <li><a href="#TOC_10.">Switch evaluation order</a></li>
+
+
+        <li><a href="#TOC_11.">Switch with no condition</a></li>
+
+
+        <li><a href="#TOC_12.">Defer</a></li>
+
+
+        <li><a href="#TOC_13.">Stacking defers</a></li>
+
+
+        <li><a href="#TOC_14.">Congratulations!</a></li>
+
+
+      </ul>
+
+    </div>
+
+    <div class="container">
+
+
+
+
+      <h1 id="TOC_1.">1. For</h1>
+
+
+      <p>
+        基本的に、 <code>for</code> ループはセミコロン <code>;</code> で3つの部分に分かれています:
+      </p>
+
+
+      <ul>
+
+        <li>初期化ステートメント: 最初のイテレーション(繰り返し)の前に初期化が実行されます</li>
+
+        <li>条件式: イテレーション毎に評価されます</li>
+
+        <li>後処理ステートメント: イテレーション毎の最後に実行されます</li>
+
+      </ul>
+
+
+      <p>
+        初期化ステートメントは、短い変数宣言によく利用します。その変数は <code>for</code> ステートメントのスコープ内でのみ有効です。
+      </p>
+
+
+
+      <p>
+        ループは、条件式の評価が <code>false</code> となった場合にイテレーションを停止します。
+      </p>
+
+
+
+      <p>
+        <i>Note</i>: 他の言語、C言語 や Java、JavaScriptの <code>for</code> ループとは異なり、 <code>for</code> ステートメントの3つの部分を括る括弧
+        <code>( )</code> はありません。なお、中括弧 <code>{ }</code> は必要です。
+      </p>
+
+
+      <div class="code">
+        <pre><span num="3">package main</span>
 <span num="4"></span>
 <span num="5">import &#34;fmt&#34;</span>
 <span num="6"></span>
@@ -151,21 +152,21 @@
 <span num="12">    fmt.Println(sum)</span>
 <span num="13">}</span>
 </pre>
-</div>
+      </div>
 
 
-        
-          
-  <h1 id="TOC_2.">2. For continued</h1>
-  
-  
-  <p>
-    初期化と後処理ステートメントの記述は任意です。
-  </p>
-  
 
-  <div class="code" >
-<pre><span num="3">package main</span>
+
+      <h1 id="TOC_2.">2. For continued</h1>
+
+
+      <p>
+        初期化と後処理ステートメントの記述は任意です。
+      </p>
+
+
+      <div class="code">
+        <pre><span num="3">package main</span>
 <span num="4"></span>
 <span num="5">import &#34;fmt&#34;</span>
 <span num="6"></span>
@@ -177,21 +178,21 @@
 <span num="12">    fmt.Println(sum)</span>
 <span num="13">}</span>
 </pre>
-</div>
+      </div>
 
 
-        
-          
-  <h1 id="TOC_3.">3. For is Go&#39;s &#34;while&#34;</h1>
-  
-  
-  <p>
-    セミコロン(;)を省略することもできます。つまり、C言語などにある <code>while</code> は、Goでは <code>for</code> だけを使います。
-  </p>
-  
 
-  <div class="code" >
-<pre><span num="3">package main</span>
+
+      <h1 id="TOC_3.">3. For is Go&#39;s &#34;while&#34;</h1>
+
+
+      <p>
+        セミコロン(;)を省略することもできます。つまり、C言語などにある <code>while</code> は、Goでは <code>for</code> だけを使います。
+      </p>
+
+
+      <div class="code">
+        <pre><span num="3">package main</span>
 <span num="4"></span>
 <span num="5">import &#34;fmt&#34;</span>
 <span num="6"></span>
@@ -203,48 +204,49 @@
 <span num="12">    fmt.Println(sum)</span>
 <span num="13">}</span>
 </pre>
-</div>
+      </div>
 
 
-        
-          
-  <h1 id="TOC_4.">4. Forever</h1>
-  
-  
-  <p>
-    ループ条件を省略すれば、無限ループ( <i>infinite loop</i> )になりますので、無限ループをコンパクトに表現できます。
-  </p>
-  
 
-  <div class="code" >
-<pre><span num="3">package main</span>
+
+      <h1 id="TOC_4.">4. Forever</h1>
+
+
+      <p>
+        ループ条件を省略すれば、無限ループ( <i>infinite loop</i> )になりますので、無限ループをコンパクトに表現できます。
+      </p>
+
+
+      <div class="code">
+        <pre><span num="3">package main</span>
 <span num="4"></span>
 <span num="5">func main() {</span>
 <span num="6">    for {</span>
 <span num="7">    }</span>
 <span num="8">}</span>
 </pre>
-</div>
+      </div>
 
 
-        
-          
-  <h1 id="TOC_5.">5. If</h1>
-  
-  
-  <p>
-    Go言語の <code>if</code> ステートメントは、先ほどの <code>for</code> ループと同様に、括弧 <code>( )</code> は不要で、中括弧 <code>{ }</code> は必要です。
-  </p>
-  
 
-  
-  <p>
-    (もうおなじみですね！)
-  </p>
-  
 
-  <div class="code" >
-<pre><span num="3">package main</span>
+      <h1 id="TOC_5.">5. If</h1>
+
+
+      <p>
+        Go言語の <code>if</code> ステートメントは、先ほどの <code>for</code> ループと同様に、括弧 <code>( )</code> は不要で、中括弧 <code>{ }</code>
+        は必要です。
+      </p>
+
+
+
+      <p>
+        (もうおなじみですね！)
+      </p>
+
+
+      <div class="code">
+        <pre><span num="3">package main</span>
 <span num="4"></span>
 <span num="5">import (</span>
 <span num="6">    &#34;fmt&#34;</span>
@@ -262,36 +264,36 @@
 <span num="18">    fmt.Println(sqrt(2), sqrt(-4))</span>
 <span num="19">}</span>
 </pre>
-</div>
+      </div>
 
 
-        
-          
-  <h1 id="TOC_6.">6. If with a short statement</h1>
-  
-  
-  <p>
-    <code>if</code> ステートメントは、 <code>for</code> のように、条件の前に、評価するための簡単なステートメントを書くことができます。
-  </p>
-  
-
-  
-  <p>
-    ここで宣言された変数は、 <code>if</code> のスコープ内だけで有効です。
-  </p>
-  
-
-  
-  <p>
-    (ためしに最後の <code>return</code> 文で、 <code>v</code> を使ってみてください。
 
 
-    スコープの外なので使えないですよね？)
-  </p>
-  
+      <h1 id="TOC_6.">6. If with a short statement</h1>
 
-  <div class="code" >
-<pre><span num="3">package main</span>
+
+      <p>
+        <code>if</code> ステートメントは、 <code>for</code> のように、条件の前に、評価するための簡単なステートメントを書くことができます。
+      </p>
+
+
+
+      <p>
+        ここで宣言された変数は、 <code>if</code> のスコープ内だけで有効です。
+      </p>
+
+
+
+      <p>
+        (ためしに最後の <code>return</code> 文で、 <code>v</code> を使ってみてください。
+
+
+        スコープの外なので使えないですよね？)
+      </p>
+
+
+      <div class="code">
+        <pre><span num="3">package main</span>
 <span num="4"></span>
 <span num="5">import (</span>
 <span num="6">    &#34;fmt&#34;</span>
@@ -312,27 +314,27 @@
 <span num="21">    )</span>
 <span num="22">}</span>
 </pre>
-</div>
+      </div>
 
 
-        
-          
-  <h1 id="TOC_7.">7. If and else</h1>
-  
-  
-  <p>
-    なお、 <code>if</code> ステートメントで宣言された変数は、 <code>else</code> ブロック内でも使うことができます。
-  </p>
-  
 
-  
-  <p>
-    (コードの補足: <code>main</code> の <code>fmt.Println</code> は、2つの <code>pow</code> が先に実行されてから実行されます)
-  </p>
-  
 
-  <div class="code" >
-<pre><span num="3">package main</span>
+      <h1 id="TOC_7.">7. If and else</h1>
+
+
+      <p>
+        なお、 <code>if</code> ステートメントで宣言された変数は、 <code>else</code> ブロック内でも使うことができます。
+      </p>
+
+
+
+      <p>
+        (コードの補足: <code>main</code> の <code>fmt.Println</code> は、2つの <code>pow</code> が先に実行されてから実行されます)
+      </p>
+
+
+      <div class="code">
+        <pre><span num="3">package main</span>
 <span num="4"></span>
 <span num="5">import (</span>
 <span num="6">    &#34;fmt&#34;</span>
@@ -356,102 +358,107 @@
 <span num="24">    )</span>
 <span num="25">}</span>
 </pre>
-</div>
+      </div>
 
 
-        
-          
-  <h1 id="TOC_8.">8. Exercise: Loops and Functions</h1>
-  
-  
-  <p>
-    関数とループを使った簡単な練習として、平方根の計算を実装してみましょう: 数値 x が与えられたときに z² が最も x に近い数値 z を求めたいと思います。
-  </p>
-  
-
-  
-  <p>
-    コンピュータは通常ループを使って x の平方根を計算します。
 
 
-    いくつかの z を推測することから始めて、z² がどれほど x に近づいているかに応じて z を調整できます。
-  </p>
-  
-
-  
-  <div class="code"><pre>z -= (z*z - x) / (2*z)</pre></div>
-  
-
-  
-  <p>
-    実際の平方根に近い答えになるまでこの調整を繰り返すことによって、推測はより良いものなります。
-  </p>
-  
-
-  
-  <p>
-    これを <code>func Sqrt</code> に実装してください。
+      <h1 id="TOC_8.">8. Exercise: Loops and Functions</h1>
 
 
-    何が入力されても z の適切な開始推測値は 1 です。
+      <p>
+        関数とループを使った簡単な練習として、平方根の計算を実装してみましょう: 数値 x が与えられたときに z² が最も x に近い数値 z を求めたいと思います。
+      </p>
 
 
-    まず計算を 10 回繰り返してそれぞれの z を表示します。
+
+      <p>
+        コンピュータは通常ループを使って x の平方根を計算します。
 
 
-    x (1, 2, 3, ...) のさまざまな値に対する答えがどれほど近似し、
+        いくつかの z を推測することから始めて、z² がどれほど x に近づいているかに応じて z を調整できます。
+      </p>
 
 
-    推測が速くなるかを確認してください。
-  </p>
-  
 
-  
-  <p>
-    Hint: 浮動小数点の変数を初期化して宣言するには、型でキャストするか、浮動小数点を使ってみてください:
-  </p>
-  
-
-  
-  <div class="code"><pre>z := 1.0
-z := float64(1)</pre></div>
-  
-
-  
-  <p>
-    次に値が変化しなくなった (もしくはごくわずかな変化しかしなくなった) 場合にループを停止させます。
+      <div class="code">
+        <pre>z -= (z*z - x) / (2*z)</pre>
+      </div>
 
 
-    それが 10 回よりも多いか少ないかを確認してください。
+
+      <p>
+        実際の平方根に近い答えになるまでこの調整を繰り返すことによって、推測はより良いものなります。
+      </p>
 
 
-    x や x/2 のように他の初期推測の値を z に与えてみてください。
+
+      <p>
+        これを <code>func Sqrt</code> に実装してください。
 
 
-    あなたの関数の結果は標準ライブラリの <a href="https://golang.org/pkg/math/#Sqrt" target="_blank">math.Sqrt</a> にどれくらい近づきましたか？
-  </p>
-  
-
-  
-  <p>
-    (メモ: アルゴリズムの詳細について興味がある人のために説明すると、
+        何が入力されても z の適切な開始推測値は 1 です。
 
 
-    上の z² − xという式は、z² が最終的な期待値 x からどのくらい離れているかを表しています。
+        まず計算を 10 回繰り返してそれぞれの z を表示します。
 
 
-    除算の 2z は z² の導関数で、z² の変化の大きさに応じて z の調整値を変化させます。
+        x (1, 2, 3, ...) のさまざまな値に対する答えがどれほど近似し、
 
 
-    この一般的なアプローチは<a href="https://ja.wikipedia.org/wiki/%E3%83%8B%E3%83%A5%E3%83%BC%E3%83%88%E3%83%B3%E6%B3%95" target="_blank">ニュートン法</a>と呼ばれています。
+        推測が速くなるかを確認してください。
+      </p>
 
 
-    多くの関数で有効に働きますがとくに平方根では殊更有効です。)
-  </p>
-  
 
-  <div class="code" >
-<pre><span num="3">package main</span>
+      <p>
+        Hint: 浮動小数点の変数を初期化して宣言するには、型でキャストするか、浮動小数点を使ってみてください:
+      </p>
+
+
+
+      <div class="code">
+        <pre>z := 1.0
+z := float64(1)</pre>
+      </div>
+
+
+
+      <p>
+        次に値が変化しなくなった (もしくはごくわずかな変化しかしなくなった) 場合にループを停止させます。
+
+
+        それが 10 回よりも多いか少ないかを確認してください。
+
+
+        x や x/2 のように他の初期推測の値を z に与えてみてください。
+
+
+        あなたの関数の結果は標準ライブラリの <a href="https://golang.org/pkg/math/#Sqrt" target="_blank">math.Sqrt</a> にどれくらい近づきましたか？
+      </p>
+
+
+
+      <p>
+        (メモ: アルゴリズムの詳細について興味がある人のために説明すると、
+
+
+        上の z² − xという式は、z² が最終的な期待値 x からどのくらい離れているかを表しています。
+
+
+        除算の 2z は z² の導関数で、z² の変化の大きさに応じて z の調整値を変化させます。
+
+
+        この一般的なアプローチは<a href="https://ja.wikipedia.org/wiki/%E3%83%8B%E3%83%A5%E3%83%BC%E3%83%88%E3%83%B3%E6%B3%95"
+          target="_blank">ニュートン法</a>と呼ばれています。
+
+
+        多くの関数で有効に働きますがとくに平方根では殊更有効です。)
+      </p>
+
+
+      <div class="code">
+        <pre><span num="3">package main</span>
 <span num="4"></span>
 <span num="5">import (</span>
 <span num="6">    &#34;fmt&#34;</span>
@@ -464,39 +471,39 @@ z := float64(1)</pre></div>
 <span num="13">    fmt.Println(Sqrt(2))</span>
 <span num="14">}</span>
 </pre>
-</div>
+      </div>
 
 
-        
-          
-  <h1 id="TOC_9.">9. Switch</h1>
-  
-  
-  <p>
-    <code>switch</code> ステートメントは <code>if - else</code> ステートメントのシーケンスを短く書く方法です。
-  </p>
-  
-
-  
-  <p>
-    Go の switch は C や C++、Java、JavaScript、PHP の switch と似ていますが、
 
 
-    Go では選択された case だけを実行してそれに続く全ての case は実行されません。
+      <h1 id="TOC_9.">9. Switch</h1>
 
 
-    これらの言語の各 case の最後に必要な <code>break</code> ステートメントが Go では自動的に提供されます。
+      <p>
+        <code>switch</code> ステートメントは <code>if - else</code> ステートメントのシーケンスを短く書く方法です。
+      </p>
 
 
-    もう一つの重要な違いは Go の switch の case は定数である必要はなく、
+
+      <p>
+        Go の switch は C や C++、Java、JavaScript、PHP の switch と似ていますが、
 
 
-    関係する値は整数である必要はないということです。
-  </p>
-  
+        Go では選択された case だけを実行してそれに続く全ての case は実行されません。
 
-  <div class="code" >
-<pre><span num="3">package main</span>
+
+        これらの言語の各 case の最後に必要な <code>break</code> ステートメントが Go では自動的に提供されます。
+
+
+        もう一つの重要な違いは Go の switch の case は定数である必要はなく、
+
+
+        関係する値は整数である必要はないということです。
+      </p>
+
+
+      <div class="code">
+        <pre><span num="3">package main</span>
 <span num="4"></span>
 <span num="5">import (</span>
 <span num="6">    &#34;fmt&#34;</span>
@@ -517,43 +524,45 @@ z := float64(1)</pre></div>
 <span num="21">    }</span>
 <span num="22">}</span>
 </pre>
-</div>
+      </div>
 
 
-        
-          
-  <h1 id="TOC_10.">10. Switch evaluation order</h1>
-  
-  
-  <p>
-    switch caseは、上から下へcaseを評価します。
 
 
-    caseの条件が一致すれば、そこで停止(自動的にbreak)します。
-  </p>
-  
+      <h1 id="TOC_10.">10. Switch evaluation order</h1>
 
-  
-  <p>
-    (例えば、
-  </p>
-  
 
-  
-  <div class="code"><pre>switch i {
+      <p>
+        switch caseは、上から下へcaseを評価します。
+
+
+        caseの条件が一致すれば、そこで停止(自動的にbreak)します。
+      </p>
+
+
+
+      <p>
+        (例えば、
+      </p>
+
+
+
+      <div class="code">
+        <pre>switch i {
 case 0:
 case f():
-}</pre></div>
-  
+}</pre>
+      </div>
 
-  
-  <p>
-    では、 <code>i==0</code> であれば、 <code>case 0</code> でbreakされるため <code>f</code> は呼び出されません)
-  </p>
-  
 
-  <div class="code" >
-<pre><span num="3">package main</span>
+
+      <p>
+        では、 <code>i==0</code> であれば、 <code>case 0</code> でbreakされるため <code>f</code> は呼び出されません)
+      </p>
+
+
+      <div class="code">
+        <pre><span num="3">package main</span>
 <span num="4"></span>
 <span num="5">import (</span>
 <span num="6">    &#34;fmt&#34;</span>
@@ -575,27 +584,27 @@ case f():
 <span num="22">    }</span>
 <span num="23">}</span>
 </pre>
-</div>
+      </div>
 
 
-        
-          
-  <h1 id="TOC_11.">11. Switch with no condition</h1>
-  
-  
-  <p>
-    条件のないswitchは、 <code>switch true</code> と書くことと同じです。
-  </p>
-  
 
-  
-  <p>
-    このswitchの構造は、長くなりがちな &#34;if-then-else&#34; のつながりをシンプルに表現できます。
-  </p>
-  
 
-  <div class="code" >
-<pre><span num="3">package main</span>
+      <h1 id="TOC_11.">11. Switch with no condition</h1>
+
+
+      <p>
+        条件のないswitchは、 <code>switch true</code> と書くことと同じです。
+      </p>
+
+
+
+      <p>
+        このswitchの構造は、長くなりがちな &#34;if-then-else&#34; のつながりをシンプルに表現できます。
+      </p>
+
+
+      <div class="code">
+        <pre><span num="3">package main</span>
 <span num="4"></span>
 <span num="5">import (</span>
 <span num="6">    &#34;fmt&#34;</span>
@@ -614,27 +623,27 @@ case f():
 <span num="19">    }</span>
 <span num="20">}</span>
 </pre>
-</div>
+      </div>
 
 
-        
-          
-  <h1 id="TOC_12.">12. Defer</h1>
-  
-  
-  <p>
-    <code>defer</code> ステートメントは、 <code>defer</code> へ渡した関数の実行を、呼び出し元の関数の終わり(returnする)まで遅延させるものです。
-  </p>
-  
 
-  
-  <p>
-    <code>defer</code> へ渡した関数の引数は、すぐに評価されますが、その関数自体は呼び出し元の関数がreturnするまで実行されません。
-  </p>
-  
 
-  <div class="code" >
-<pre><span num="3">package main</span>
+      <h1 id="TOC_12.">12. Defer</h1>
+
+
+      <p>
+        <code>defer</code> ステートメントは、 <code>defer</code> へ渡した関数の実行を、呼び出し元の関数の終わり(returnする)まで遅延させるものです。
+      </p>
+
+
+
+      <p>
+        <code>defer</code> へ渡した関数の引数は、すぐに評価されますが、その関数自体は呼び出し元の関数がreturnするまで実行されません。
+      </p>
+
+
+      <div class="code">
+        <pre><span num="3">package main</span>
 <span num="4"></span>
 <span num="5">import &#34;fmt&#34;</span>
 <span num="6"></span>
@@ -644,33 +653,34 @@ case f():
 <span num="10">    fmt.Println(&#34;hello&#34;)</span>
 <span num="11">}</span>
 </pre>
-</div>
+      </div>
 
 
-        
-          
-  <h1 id="TOC_13.">13. Stacking defers</h1>
-  
-  
-  <p>
-    <code>defer</code> へ渡した関数が複数ある場合、その呼び出しはスタック( <i>stack</i> )されます。
 
 
-    呼び出し元の関数がreturnするとき、 <code>defer</code> へ渡した関数は <a href="https://ja.wikipedia.org/wiki/LIFO" target="_blank">LIFO(last-in-first-out)</a> の順番で実行されます。
-  </p>
-  
-
-  
-  <p>
-    <code>defer</code> ステートメントについてさらに学ぶには、
+      <h1 id="TOC_13.">13. Stacking defers</h1>
 
 
-    <a href="https://blog.golang.org/defer-panic-and-recover" target="_blank">こちら(blog post)</a>を読んでみてください。
-  </p>
-  
+      <p>
+        <code>defer</code> へ渡した関数が複数ある場合、その呼び出しはスタック( <i>stack</i> )されます。
 
-  <div class="code" >
-<pre><span num="3">package main</span>
+
+        呼び出し元の関数がreturnするとき、 <code>defer</code> へ渡した関数は <a href="https://ja.wikipedia.org/wiki/LIFO"
+          target="_blank">LIFO(last-in-first-out)</a> の順番で実行されます。
+      </p>
+
+
+
+      <p>
+        <code>defer</code> ステートメントについてさらに学ぶには、
+
+
+        <a href="https://blog.golang.org/defer-panic-and-recover" target="_blank">こちら(blog post)</a>を読んでみてください。
+      </p>
+
+
+      <div class="code">
+        <pre><span num="3">package main</span>
 <span num="4"></span>
 <span num="5">import &#34;fmt&#34;</span>
 <span num="6"></span>
@@ -684,45 +694,46 @@ case f():
 <span num="14">    fmt.Println(&#34;done&#34;)</span>
 <span num="15">}</span>
 </pre>
-</div>
-
-
-        
-          
-  <h1 id="TOC_14.">14. Congratulations!</h1>
-  
-  
-  <p>
-    この章はこれで終わりです。
-  </p>
-  
-
-  
-  <p>
-    <a href="/list" target="_self">章のリスト</a>から学びたいところを見ても良いですし、
-
-
-    <a href="javascript:click(&#39;.next-page&#39;)" target="_self">&gt;</a> をクリックして次の章へ進みましょう。
-  </p>
-  
-
-
-        
-
       </div>
+
+
+
+
+      <h1 id="TOC_14.">14. Congratulations!</h1>
+
+
+      <p>
+        この章はこれで終わりです。
+      </p>
+
+
+
+      <p>
+        <a href="/list" target="_self">章のリスト</a>から学びたいところを見ても良いですし、
+
+
+        <a href="javascript:click(&#39;.next-page&#39;)" target="_self">&gt;</a> をクリックして次の章へ進みましょう。
+      </p>
+
+
+
+
+
     </div>
+  </div>
 
-    
 
-    <script>
-      (function() {
-        
-        if (window["location"] && window["location"]["hostname"] == "talks.golang.org") {
-          var ga = document.createElement("script"); ga.type = "text/javascript"; ga.async = true;
-          ga.src = ("https:" == document.location.protocol ? "https://ssl" : "http://www") + ".google-analytics.com/ga.js";
-          var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(ga, s);
-        }
-      })();
-    </script>
-  </body>
+
+  <script>
+    (function () {
+
+      if (window["location"] && window["location"]["hostname"] == "talks.golang.org") {
+        var ga = document.createElement("script"); ga.type = "text/javascript"; ga.async = true;
+        ga.src = ("https:" == document.location.protocol ? "https://ssl" : "http://www") + ".google-analytics.com/ga.js";
+        var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(ga, s);
+      }
+    })();
+  </script>
+</body>
+
 </html>
