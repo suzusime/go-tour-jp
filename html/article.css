@@ -1,12 +1,14 @@
 body {
-  margin: 0;
+  margin: 0 auto;
   font-family: Helvetica, Arial, sans-serif;
   font-size: 16px;
+  max-width: 900px;
 }
 pre,
 code {
   font-family: Menlo, monospace;
   font-size: 14px;
+  background-color: #eee;
 }
 pre {
   line-height: 18px;
@@ -102,7 +104,8 @@ div#footer {
 
 div.code,
 div.output {
-  margin: 20px 20px 20px 40px;
+  margin: 10px 10px 10px 20px;
+  padding: 10px 10px 10px 20px;
   -webkit-border-radius: 5px;
   -moz-border-radius: 5px;
   border-radius: 5px;
@@ -113,7 +116,7 @@ div.output {
 }
 
 div.code {
-  background: white;
+  background-color: #eee;
 }
 div.output {
   background: black;
