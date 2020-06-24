@@ -2,7 +2,7 @@
 <html>
 
 <head>
-  <title>Methods and interfaces</title>
+  <title>メソッドとインターフェース</title>
   <link type="text/css" rel="stylesheet" href="article.css">
   <meta charset='utf-8'>
   <script>
@@ -27,9 +27,7 @@
 <body>
   <div id="topbar" class="wide">
     <div class="container">
-      <div id="heading">Methods and interfaces
-        このレッスンではメソッドとインターフェース、オブジェクトとその動作を定義する構造体について説明します。
-
+      <div id="heading">メソッドとインターフェース
 
         <div class="author">
 
@@ -47,83 +45,83 @@
   </div>
   <div id="page" class="wide">
     <div id="toc" class="no-print">
-      <div id="tochead">Contents</div>
+      <div id="tochead">目次</div>
 
       <ul class="toc-outer">
 
-        <li><a href="#TOC_1.">Methods</a></li>
+        <li><a href="#TOC_1.">メソッド</a></li>
 
 
-        <li><a href="#TOC_2.">Methods are functions</a></li>
+        <li><a href="#TOC_2.">メソッドと関数</a></li>
 
 
-        <li><a href="#TOC_3.">Methods continued</a></li>
+        <li><a href="#TOC_3.">メソッド（続）</a></li>
 
 
-        <li><a href="#TOC_4.">Pointer receivers</a></li>
+        <li><a href="#TOC_4.">ポインタレシーバ</a></li>
 
 
-        <li><a href="#TOC_5.">Pointers and functions</a></li>
+        <li><a href="#TOC_5.">ポインタと関数</a></li>
 
 
-        <li><a href="#TOC_6.">Methods and pointer indirection</a></li>
+        <li><a href="#TOC_6.">メソッドとポインタ間接参照</a></li>
 
 
-        <li><a href="#TOC_7.">Methods and pointer indirection (2)</a></li>
+        <li><a href="#TOC_7.">メソッドとポインタ間接参照 (2)</a></li>
 
 
-        <li><a href="#TOC_8.">Choosing a value or pointer receiver</a></li>
+        <li><a href="#TOC_8.">値かポインタレシーバかの選択</a></li>
 
 
-        <li><a href="#TOC_9.">Interfaces</a></li>
+        <li><a href="#TOC_9.">インタフェース</a></li>
 
 
-        <li><a href="#TOC_10.">Interfaces are implemented implicitly</a></li>
+        <li><a href="#TOC_10.">インターフェースは暗黙に実装される</a></li>
 
 
-        <li><a href="#TOC_11.">Interface values</a></li>
+        <li><a href="#TOC_11.">インターフェースの値</a></li>
 
 
-        <li><a href="#TOC_12.">Interface values with nil underlying values</a></li>
+        <li><a href="#TOC_12.">nilが潜在する値に関するインターフェースの値</a></li>
 
 
-        <li><a href="#TOC_13.">Nil interface values</a></li>
+        <li><a href="#TOC_13.">nilインターフェースの値</a></li>
 
 
-        <li><a href="#TOC_14.">The empty interface</a></li>
+        <li><a href="#TOC_14.">空のインターフェース</a></li>
 
 
-        <li><a href="#TOC_15.">Type assertions</a></li>
+        <li><a href="#TOC_15.">型アサーション</a></li>
 
 
-        <li><a href="#TOC_16.">Type switches</a></li>
+        <li><a href="#TOC_16.">型switch</a></li>
 
 
-        <li><a href="#TOC_17.">Stringers</a></li>
+        <li><a href="#TOC_17.">Stringer</a></li>
 
 
-        <li><a href="#TOC_18.">Exercise: Stringers</a></li>
+        <li><a href="#TOC_18.">練習：Stringer</a></li>
 
 
-        <li><a href="#TOC_19.">Errors</a></li>
+        <li><a href="#TOC_19.">エラー</a></li>
 
 
-        <li><a href="#TOC_20.">Exercise: Errors</a></li>
+        <li><a href="#TOC_20.">練習：エラー</a></li>
 
 
-        <li><a href="#TOC_21.">Readers</a></li>
+        <li><a href="#TOC_21.">Reader</a></li>
 
 
-        <li><a href="#TOC_22.">Exercise: Readers</a></li>
+        <li><a href="#TOC_22.">練習：Reader</a></li>
 
 
-        <li><a href="#TOC_23.">Exercise: rot13Reader</a></li>
+        <li><a href="#TOC_23.">練習：rot13Reader</a></li>
 
 
-        <li><a href="#TOC_24.">Images</a></li>
+        <li><a href="#TOC_24.">Image</a></li>
 
 
-        <li><a href="#TOC_25.">Exercise: Images</a></li>
+        <li><a href="#TOC_25.">練習：Image</a></li>
 
 
         <li><a href="#TOC_26.">Congratulations!</a></li>
@@ -138,7 +136,7 @@
 
 
 
-      <h1 id="TOC_1.">1. Methods</h1>
+      <h1 id="TOC_1.">1. メソッド</h1>
 
 
       <p>
@@ -190,7 +188,7 @@
 
 
 
-      <h1 id="TOC_2.">2. Methods are functions</h1>
+      <h1 id="TOC_2.">2. メソッドと関数</h1>
 
 
       <p>
@@ -230,7 +228,7 @@
 
 
 
-      <h1 id="TOC_3.">3. Methods continued</h1>
+      <h1 id="TOC_3.">3. メソッド（続）</h1>
 
 
       <p>
@@ -283,7 +281,7 @@
 
 
 
-      <h1 id="TOC_4.">4. Pointer receivers</h1>
+      <h1 id="TOC_4.">4. ポインタレシーバ</h1>
 
 
       <p>
@@ -365,7 +363,7 @@
 
 
 
-      <h1 id="TOC_5.">5. Pointers and functions</h1>
+      <h1 id="TOC_5.">5. ポインタと関数</h1>
 
 
       <p>
@@ -423,7 +421,7 @@
 
 
 
-      <h1 id="TOC_6.">6. Methods and pointer indirection</h1>
+      <h1 id="TOC_6.">6. メソッドとポインタ間接参照</h1>
 
 
       <p>
@@ -503,7 +501,7 @@ p.Scale(10) // OK</pre>
 
 
 
-      <h1 id="TOC_7.">7. Methods and pointer indirection (2)</h1>
+      <h1 id="TOC_7.">7. メソッドとポインタ間接参照 (2)</h1>
 
 
       <p>
@@ -581,7 +579,7 @@ fmt.Println(p.Abs()) // OK</pre>
 
 
 
-      <h1 id="TOC_8.">8. Choosing a value or pointer receiver</h1>
+      <h1 id="TOC_8.">8. 値かポインタレシーバかの選択</h1>
 
 
       <p>
@@ -653,7 +651,7 @@ fmt.Println(p.Abs()) // OK</pre>
 
 
 
-      <h1 id="TOC_9.">9. Interfaces</h1>
+      <h1 id="TOC_9.">9. インタフェース</h1>
 
 
       <p>
@@ -728,7 +726,7 @@ fmt.Println(p.Abs()) // OK</pre>
 
 
 
-      <h1 id="TOC_10.">10. Interfaces are implemented implicitly</h1>
+      <h1 id="TOC_10.">10. インターフェースは暗黙に実装される</h1>
 
 
       <p>
@@ -777,7 +775,7 @@ fmt.Println(p.Abs()) // OK</pre>
 
 
 
-      <h1 id="TOC_11.">11. Interface values</h1>
+      <h1 id="TOC_11.">11. インターフェースの値</h1>
 
 
       <p>
@@ -850,7 +848,7 @@ fmt.Println(p.Abs()) // OK</pre>
 
 
 
-      <h1 id="TOC_12.">12. Interface values with nil underlying values</h1>
+      <h1 id="TOC_12.">12. nilが潜在する値に関するインターフェースの値</h1>
 
 
       <p>
@@ -914,7 +912,7 @@ fmt.Println(p.Abs()) // OK</pre>
 
 
 
-      <h1 id="TOC_13.">13. Nil interface values</h1>
+      <h1 id="TOC_13.">13. nilインターフェースの値</h1>
 
 
       <p>
@@ -952,7 +950,7 @@ fmt.Println(p.Abs()) // OK</pre>
 
 
 
-      <h1 id="TOC_14.">14. The empty interface</h1>
+      <h1 id="TOC_14.">14. 空のインターフェース</h1>
 
 
       <p>
@@ -1009,7 +1007,7 @@ fmt.Println(p.Abs()) // OK</pre>
 
 
 
-      <h1 id="TOC_15.">15. Type assertions</h1>
+      <h1 id="TOC_15.">15. 型アサーション</h1>
 
 
       <p>
@@ -1092,7 +1090,7 @@ fmt.Println(p.Abs()) // OK</pre>
 
 
 
-      <h1 id="TOC_16.">16. Type switches</h1>
+      <h1 id="TOC_16.">16. 型switch</h1>
 
 
       <p>
@@ -1165,7 +1163,7 @@ default:
 
 
 
-      <h1 id="TOC_17.">17. Stringers</h1>
+      <h1 id="TOC_17.">17. Stringer</h1>
 
 
       <p>
@@ -1216,7 +1214,7 @@ default:
 
 
 
-      <h1 id="TOC_18.">18. Exercise: Stringers</h1>
+      <h1 id="TOC_18.">18. 練習：Stringer</h1>
 
 
       <p>
@@ -1257,7 +1255,7 @@ default:
 
 
 
-      <h1 id="TOC_19.">19. Errors</h1>
+      <h1 id="TOC_19.">19. エラー</h1>
 
 
       <p>
@@ -1344,7 +1342,7 @@ fmt.Println(&#34;Converted integer:&#34;, i)</pre>
 
 
 
-      <h1 id="TOC_20.">20. Exercise: Errors</h1>
+      <h1 id="TOC_20.">20. 練習：エラー</h1>
 
 
       <p>
@@ -1434,7 +1432,7 @@ fmt.Println(&#34;Converted integer:&#34;, i)</pre>
 
 
 
-      <h1 id="TOC_21.">21. Readers</h1>
+      <h1 id="TOC_21.">21. Reader</h1>
 
 
       <p>
@@ -1507,7 +1505,7 @@ fmt.Println(&#34;Converted integer:&#34;, i)</pre>
 
 
 
-      <h1 id="TOC_22.">22. Exercise: Readers</h1>
+      <h1 id="TOC_22.">22. 練習：Reader</h1>
 
 
       <p>
@@ -1533,7 +1531,7 @@ fmt.Println(&#34;Converted integer:&#34;, i)</pre>
 
 
 
-      <h1 id="TOC_23.">23. Exercise: rot13Reader</h1>
+      <h1 id="TOC_23.">23. 練習：rot13Reader</h1>
 
 
       <p>
@@ -1593,7 +1591,7 @@ fmt.Println(&#34;Converted integer:&#34;, i)</pre>
 
 
 
-      <h1 id="TOC_24.">24. Images</h1>
+      <h1 id="TOC_24.">24. Image</h1>
 
 
       <p>
@@ -1661,7 +1659,7 @@ type Image interface {
 
 
 
-      <h1 id="TOC_25.">25. Exercise: Images</h1>
+      <h1 id="TOC_25.">25. 練習：Image</h1>
 
 
       <p>

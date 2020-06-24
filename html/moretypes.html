@@ -2,7 +2,7 @@
 <html>
 
 <head>
-  <title>More types: structs, slices, and maps.</title>
+  <title>更なる型：構造体、スライス、マップ</title>
   <link type="text/css" rel="stylesheet" href="article.css">
   <meta charset='utf-8'>
   <script>
@@ -27,9 +27,7 @@
 <body>
   <div id="topbar" class="wide">
     <div class="container">
-      <div id="heading">More types: structs, slices, and maps.
-        既存の型に基づいて新しい型を定義する方法を学ぶ: このレッスンでは構造体、配列、slice、map について説明します。
-
+      <div id="heading">更なる型：構造体、スライス、マップ
 
         <div class="author">
 
@@ -47,86 +45,86 @@
   </div>
   <div id="page" class="wide">
     <div id="toc" class="no-print">
-      <div id="tochead">Contents</div>
+      <div id="tochead">目次</div>
 
       <ul class="toc-outer">
 
-        <li><a href="#TOC_1.">Pointers</a></li>
+        <li><a href="#TOC_1.">ポインタ</a></li>
 
 
-        <li><a href="#TOC_2.">Structs</a></li>
+        <li><a href="#TOC_2.">構造体</a></li>
 
 
-        <li><a href="#TOC_3.">Struct Fields</a></li>
+        <li><a href="#TOC_3.">構造体のフィールド</a></li>
 
 
-        <li><a href="#TOC_4.">Pointers to structs</a></li>
+        <li><a href="#TOC_4.">構造体へのポインタ</a></li>
 
 
-        <li><a href="#TOC_5.">Struct Literals</a></li>
+        <li><a href="#TOC_5.">構造体リテラル</a></li>
 
 
-        <li><a href="#TOC_6.">Arrays</a></li>
+        <li><a href="#TOC_6.">配列</a></li>
 
 
-        <li><a href="#TOC_7.">Slices</a></li>
+        <li><a href="#TOC_7.">スライス</a></li>
 
 
-        <li><a href="#TOC_8.">Slices are like references to arrays</a></li>
+        <li><a href="#TOC_8.">スライスは配列への参照のようなもの</a></li>
 
 
-        <li><a href="#TOC_9.">Slice literals</a></li>
+        <li><a href="#TOC_9.">スライスリテラル</a></li>
 
 
-        <li><a href="#TOC_10.">Slice defaults</a></li>
+        <li><a href="#TOC_10.">スライスの既定値</a></li>
 
 
-        <li><a href="#TOC_11.">Slice length and capacity</a></li>
+        <li><a href="#TOC_11.">スライスの長さと容量</a></li>
 
 
-        <li><a href="#TOC_12.">Nil slices</a></li>
+        <li><a href="#TOC_12.">nilスライス</a></li>
 
 
-        <li><a href="#TOC_13.">Creating a slice with make</a></li>
+        <li><a href="#TOC_13.">make関数によるスライスの作成</a></li>
 
 
-        <li><a href="#TOC_14.">Slices of slices</a></li>
+        <li><a href="#TOC_14.">スライスのスライス</a></li>
 
 
-        <li><a href="#TOC_15.">Appending to a slice</a></li>
+        <li><a href="#TOC_15.">スライスへの要素の追加</a></li>
 
 
-        <li><a href="#TOC_16.">Range</a></li>
+        <li><a href="#TOC_16.">range</a></li>
 
 
-        <li><a href="#TOC_17.">Range continued</a></li>
+        <li><a href="#TOC_17.">range（続）</a></li>
 
 
-        <li><a href="#TOC_18.">Exercise: Slices</a></li>
+        <li><a href="#TOC_18.">練習：スライス</a></li>
 
 
-        <li><a href="#TOC_19.">Maps</a></li>
+        <li><a href="#TOC_19.">マップ</a></li>
 
 
-        <li><a href="#TOC_20.">Map literals</a></li>
+        <li><a href="#TOC_20.">マップリテラル</a></li>
 
 
-        <li><a href="#TOC_21.">Map literals continued</a></li>
+        <li><a href="#TOC_21.">マップリテラル（続）</a></li>
 
 
-        <li><a href="#TOC_22.">Mutating Maps</a></li>
+        <li><a href="#TOC_22.">マップの操作</a></li>
 
 
-        <li><a href="#TOC_23.">Exercise: Maps</a></li>
+        <li><a href="#TOC_23.">練習：マップ</a></li>
 
 
-        <li><a href="#TOC_24.">Function values</a></li>
+        <li><a href="#TOC_24.">関数値</a></li>
 
 
-        <li><a href="#TOC_25.">Function closures</a></li>
+        <li><a href="#TOC_25.">クロージャ（関数閉包）</a></li>
 
 
-        <li><a href="#TOC_26.">Exercise: Fibonacci closure</a></li>
+        <li><a href="#TOC_26.">練習：フィボナッチクロージャ</a></li>
 
 
         <li><a href="#TOC_27.">Congratulations!</a></li>
@@ -142,7 +140,7 @@
 
 
 
-      <h1 id="TOC_1.">1. Pointers</h1>
+      <h1 id="TOC_1.">1. ポインタ</h1>
 
 
       <p>
@@ -226,7 +224,7 @@ p = &amp;i</pre>
 
 
 
-      <h1 id="TOC_2.">2. Structs</h1>
+      <h1 id="TOC_2.">2. 構造体</h1>
 
 
       <p>
@@ -253,7 +251,7 @@ p = &amp;i</pre>
 
 
 
-      <h1 id="TOC_3.">3. Struct Fields</h1>
+      <h1 id="TOC_3.">3. 構造体のフィールド</h1>
 
 
       <p>
@@ -282,7 +280,7 @@ p = &amp;i</pre>
 
 
 
-      <h1 id="TOC_4.">4. Pointers to structs</h1>
+      <h1 id="TOC_4.">4. 構造体へのポインタ</h1>
 
 
       <p>
@@ -322,7 +320,7 @@ p = &amp;i</pre>
 
 
 
-      <h1 id="TOC_5.">5. Struct Literals</h1>
+      <h1 id="TOC_5.">5. 構造体リテラル</h1>
 
 
       <p>
@@ -370,7 +368,7 @@ p = &amp;i</pre>
 
 
 
-      <h1 id="TOC_6.">6. Arrays</h1>
+      <h1 id="TOC_6.">6. 配列</h1>
 
 
       <p>
@@ -423,7 +421,7 @@ p = &amp;i</pre>
 
 
 
-      <h1 id="TOC_7.">7. Slices</h1>
+      <h1 id="TOC_7.">7. スライス</h1>
 
 
       <p>
@@ -487,7 +485,7 @@ p = &amp;i</pre>
 
 
 
-      <h1 id="TOC_8.">8. Slices are like references to arrays</h1>
+      <h1 id="TOC_8.">8. スライスは配列への参照のようなもの</h1>
 
 
       <p>
@@ -541,7 +539,7 @@ p = &amp;i</pre>
 
 
 
-      <h1 id="TOC_9.">9. Slice literals</h1>
+      <h1 id="TOC_9.">9. スライスリテラル</h1>
 
 
       <p>
@@ -604,7 +602,7 @@ p = &amp;i</pre>
 
 
 
-      <h1 id="TOC_10.">10. Slice defaults</h1>
+      <h1 id="TOC_10.">10. スライスの既定値</h1>
 
 
       <p>
@@ -668,7 +666,7 @@ a[:]</pre>
 
 
 
-      <h1 id="TOC_11.">11. Slice length and capacity</h1>
+      <h1 id="TOC_11.">11. スライスの長さと容量</h1>
 
 
       <p>
@@ -734,7 +732,7 @@ a[:]</pre>
 
 
 
-      <h1 id="TOC_12.">12. Nil slices</h1>
+      <h1 id="TOC_12.">12. nilスライス</h1>
 
 
       <p>
@@ -766,7 +764,7 @@ a[:]</pre>
 
 
 
-      <h1 id="TOC_13.">13. Creating a slice with make</h1>
+      <h1 id="TOC_13.">13. make関数によるスライスの作成</h1>
 
 
       <p>
@@ -836,7 +834,7 @@ b = b[1:]      // len(b)=4, cap(b)=4</pre>
 
 
 
-      <h1 id="TOC_14.">14. Slices of slices</h1>
+      <h1 id="TOC_14.">14. スライスのスライス</h1>
 
 
       <p>
@@ -877,7 +875,7 @@ b = b[1:]      // len(b)=4, cap(b)=4</pre>
 
 
 
-      <h1 id="TOC_15.">15. Appending to a slice</h1>
+      <h1 id="TOC_15.">15. スライスへの要素の追加</h1>
 
 
       <p>
@@ -957,7 +955,7 @@ b = b[1:]      // len(b)=4, cap(b)=4</pre>
 
 
 
-      <h1 id="TOC_16.">16. Range</h1>
+      <h1 id="TOC_16.">16. range</h1>
 
 
       <p>
@@ -992,7 +990,7 @@ b = b[1:]      // len(b)=4, cap(b)=4</pre>
 
 
 
-      <h1 id="TOC_17.">17. Range continued</h1>
+      <h1 id="TOC_17.">17. range（続）</h1>
 
 
       <p>
@@ -1026,7 +1024,7 @@ b = b[1:]      // len(b)=4, cap(b)=4</pre>
 
 
 
-      <h1 id="TOC_18.">18. Exercise: Slices</h1>
+      <h1 id="TOC_18.">18. 練習：スライス</h1>
 
 
       <p>
@@ -1078,7 +1076,7 @@ b = b[1:]      // len(b)=4, cap(b)=4</pre>
 
 
 
-      <h1 id="TOC_19.">19. Maps</h1>
+      <h1 id="TOC_19.">19. マップ</h1>
 
 
       <p>
@@ -1125,7 +1123,7 @@ b = b[1:]      // len(b)=4, cap(b)=4</pre>
 
 
 
-      <h1 id="TOC_20.">20. Map literals</h1>
+      <h1 id="TOC_20.">20. マップリテラル</h1>
 
 
       <p>
@@ -1160,7 +1158,7 @@ b = b[1:]      // len(b)=4, cap(b)=4</pre>
 
 
 
-      <h1 id="TOC_21.">21. Map literals continued</h1>
+      <h1 id="TOC_21.">21. マップリテラル（続）</h1>
 
 
       <p>
@@ -1191,7 +1189,7 @@ b = b[1:]      // len(b)=4, cap(b)=4</pre>
 
 
 
-      <h1 id="TOC_22.">22. Mutating Maps</h1>
+      <h1 id="TOC_22.">22. マップの操作</h1>
 
 
       <p>
@@ -1298,7 +1296,7 @@ b = b[1:]      // len(b)=4, cap(b)=4</pre>
 
 
 
-      <h1 id="TOC_23.">23. Exercise: Maps</h1>
+      <h1 id="TOC_23.">23. 練習：マップ</h1>
 
 
       <p>
@@ -1342,7 +1340,7 @@ b = b[1:]      // len(b)=4, cap(b)=4</pre>
 
 
 
-      <h1 id="TOC_24.">24. Function values</h1>
+      <h1 id="TOC_24.">24. 関数値</h1>
 
 
       <p>
@@ -1383,7 +1381,7 @@ b = b[1:]      // len(b)=4, cap(b)=4</pre>
 
 
 
-      <h1 id="TOC_25.">25. Function closures</h1>
+      <h1 id="TOC_25.">25. クロージャ（関数閉包）</h1>
 
 
       <p>
@@ -1434,7 +1432,7 @@ b = b[1:]      // len(b)=4, cap(b)=4</pre>
 
 
 
-      <h1 id="TOC_26.">26. Exercise: Fibonacci closure</h1>
+      <h1 id="TOC_26.">26. 練習：フィボナッチクロージャ</h1>
 
 
       <p>

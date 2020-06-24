@@ -156,6 +156,7 @@ div#toc {
   height: 100%;
   position: sticky;
   flex-shrink: 0;
+  text-align: left;
 }
 
 #tochead {
