@@ -1,0 +1,973 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Concurrency</title>
+    <link type="text/css" rel="stylesheet" href="article.css">
+    <meta charset='utf-8'>
+    <script>
+      
+      if (window["location"] && window["location"]["hostname"] == "talks.golang.org") {
+        var _gaq = _gaq || [];
+        _gaq.push(["_setAccount", "UA-11222381-6"]);
+        _gaq.push(["b._setAccount", "UA-49880327-6"]);
+        window.trackPageview = function() {
+          _gaq.push(["_trackPageview", location.pathname+location.hash]);
+          _gaq.push(["b._trackPageview", location.pathname+location.hash]);
+        };
+        window.trackPageview();
+        window.trackEvent = function(category, action, opt_label, opt_value, opt_noninteraction) {
+          _gaq.push(["_trackEvent", category, action, opt_label, opt_value, opt_noninteraction]);
+          _gaq.push(["b._trackEvent", category, action, opt_label, opt_value, opt_noninteraction]);
+        };
+      }
+    </script>
+  </head>
+
+  <body>
+    <div id="topbar" class="wide">
+      <div class="container">
+        <div id="heading">Concurrency
+          Go は言語のコア機能の一部として並行処理を提供します。このレッスンではそれらを紹介し、使い方の例をいくつか示します。
+          
+            
+              <div class="author">
+                
+  
+  <p>
+    The Go Authors
+  </p>
+  
+<p class="link"><a href="https://golang.org" target="_blank">https://golang.org</a></p>
+              </div>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div id="page" class="wide">
+      <div class="container">
+        
+          <div id="toc" class="no-print">
+            <div id="tochead">Contents</div>
+            
+  <ul class="toc-outer">
+  
+    <li><a href="#TOC_1.">Goroutines</a></li>
+    
+  
+    <li><a href="#TOC_2.">Channels</a></li>
+    
+  
+    <li><a href="#TOC_3.">Buffered Channels</a></li>
+    
+  
+    <li><a href="#TOC_4.">Range and Close</a></li>
+    
+  
+    <li><a href="#TOC_5.">Select</a></li>
+    
+  
+    <li><a href="#TOC_6.">Default Selection</a></li>
+    
+  
+    <li><a href="#TOC_7.">Exercise: Equivalent Binary Trees</a></li>
+    
+  
+    <li><a href="#TOC_8.">Exercise: Equivalent Binary Trees</a></li>
+    
+  
+    <li><a href="#TOC_9.">sync.Mutex</a></li>
+    
+  
+    <li><a href="#TOC_10.">Exercise: Web Crawler</a></li>
+    
+  
+    <li><a href="#TOC_11.">Where to Go from here...</a></li>
+    
+  
+  </ul>
+
+          </div>
+        
+
+        
+          
+  <h1 id="TOC_1.">1. Goroutines</h1>
+  
+  
+  <p>
+    <b>goroutine</b> (ゴルーチン)は、Goのランタイムに管理される軽量なスレッドです。
+  </p>
+  
+
+  
+  <div class="code"><pre>go f(x, y, z)</pre></div>
+  
+
+  
+  <p>
+    と書けば、新しいgoroutineが実行されます。
+  </p>
+  
+
+  
+  <div class="code"><pre>f(x, y, z)</pre></div>
+  
+
+  
+  <p>
+    <code>f</code> , <code>x</code> , <code>y</code> , <code>z</code> の評価は、実行元(current)のgoroutineで実行され、 <code>f</code> の実行は、新しいgoroutineで実行されます。
+  </p>
+  
+
+  
+  <p>
+    goroutineは、同じアドレス空間で実行されるため、共有メモリへのアクセスは必ず同期する必要があります。
+
+
+    <a href="https://golang.org/pkg/sync/" target="_blank"><code>sync</code></a> パッケージは同期する際に役に立つ方法を提供していますが、別の方法があるためそれほど必要ありません。
+
+
+    (次のスライドで説明します)
+  </p>
+  
+
+  <div class="code" >
+<pre><span num="3">package main</span>
+<span num="4"></span>
+<span num="5">import (</span>
+<span num="6">    &#34;fmt&#34;</span>
+<span num="7">    &#34;time&#34;</span>
+<span num="8">)</span>
+<span num="9"></span>
+<span num="10">func say(s string) {</span>
+<span num="11">    for i := 0; i &lt; 5; i&#43;&#43; {</span>
+<span num="12">        time.Sleep(100 * time.Millisecond)</span>
+<span num="13">        fmt.Println(s)</span>
+<span num="14">    }</span>
+<span num="15">}</span>
+<span num="16"></span>
+<span num="17">func main() {</span>
+<span num="18">    go say(&#34;world&#34;)</span>
+<span num="19">    say(&#34;hello&#34;)</span>
+<span num="20">}</span>
+</pre>
+</div>
+
+
+        
+          
+  <h1 id="TOC_2.">2. Channels</h1>
+  
+  
+  <p>
+    チャネル( <i>Channel</i> )型は、チャネルオペレータの <code>&lt;-</code> を用いて値の送受信ができる通り道です。
+  </p>
+  
+
+  
+  <div class="code"><pre>ch &lt;- v    // v をチャネル ch へ送信する
+v := &lt;-ch  // ch から受信した変数を v へ割り当てる</pre></div>
+  
+
+  
+  <p>
+    (データは、矢印の方向に流れます)
+  </p>
+  
+
+  
+  <p>
+    マップとスライスのように、チャネルは使う前に以下のように生成します:
+  </p>
+  
+
+  
+  <div class="code"><pre>ch := make(chan int)</pre></div>
+  
+
+  
+  <p>
+    通常、片方が準備できるまで送受信はブロックされます。これにより、明確なロックや条件変数がなくても、goroutineの同期を可能にします。
+  </p>
+  
+
+  
+  <p>
+    サンプルコードは、スライス内の数値を合算し、2つのgoroutine間で作業を分配します。
+
+
+    両方のgoroutineで計算が完了すると、最終結果が計算されます。
+  </p>
+  
+
+  <div class="code" >
+<pre><span num="3">package main</span>
+<span num="4"></span>
+<span num="5">import &#34;fmt&#34;</span>
+<span num="6"></span>
+<span num="7">func sum(s []int, c chan int) {</span>
+<span num="8">    sum := 0</span>
+<span num="9">    for _, v := range s {</span>
+<span num="10">        sum &#43;= v</span>
+<span num="11">    }</span>
+<span num="12">    c &lt;- sum // send sum to c</span>
+<span num="13">}</span>
+<span num="14"></span>
+<span num="15">func main() {</span>
+<span num="16">    s := []int{7, 2, 8, -9, 4, 0}</span>
+<span num="17"></span>
+<span num="18">    c := make(chan int)</span>
+<span num="19">    go sum(s[:len(s)/2], c)</span>
+<span num="20">    go sum(s[len(s)/2:], c)</span>
+<span num="21">    x, y := &lt;-c, &lt;-c // receive from c</span>
+<span num="22"></span>
+<span num="23">    fmt.Println(x, y, x&#43;y)</span>
+<span num="24">}</span>
+</pre>
+</div>
+
+
+        
+          
+  <h1 id="TOC_3.">3. Buffered Channels</h1>
+  
+  
+  <p>
+    チャネルは、 <b>バッファ</b> ( <i>buffer</i> )として使えます。
+
+
+    バッファを持つチャネルを初期化するには、 <code>make</code> の２つ目の引数にバッファの長さを与えます:
+  </p>
+  
+
+  
+  <div class="code"><pre>ch := make(chan int, 100)</pre></div>
+  
+
+  
+  <p>
+    バッファが詰まった時は、チャネルへの送信をブロックします。
+
+
+    バッファが空の時には、チャネルの受信をブロックします。
+  </p>
+  
+
+  
+  <p>
+    バッファが詰まるようにサンプルコードを変更し、何が起きるのかを見てみてください。
+  </p>
+  
+
+  <div class="code" >
+<pre><span num="3">package main</span>
+<span num="4"></span>
+<span num="5">import &#34;fmt&#34;</span>
+<span num="6"></span>
+<span num="7">func main() {</span>
+<span num="8">    ch := make(chan int, 2)</span>
+<span num="9">    ch &lt;- 1</span>
+<span num="10">    ch &lt;- 2</span>
+<span num="11">    fmt.Println(&lt;-ch)</span>
+<span num="12">    fmt.Println(&lt;-ch)</span>
+<span num="13">}</span>
+</pre>
+</div>
+
+
+        
+          
+  <h1 id="TOC_4.">4. Range and Close</h1>
+  
+  
+  <p>
+    送り手は、これ以上の送信する値がないことを示すため、チャネルを <code>close</code> できます。
+
+
+    受け手は、受信の式に2つ目のパラメータを割り当てることで、そのチャネルがcloseされているかどうかを確認できます:
+  </p>
+  
+
+  
+  <div class="code"><pre>v, ok := &lt;-ch</pre></div>
+  
+
+  
+  <p>
+    受信する値がない、かつ、チャネルが閉じているなら、 <code>ok</code> の変数は、 <code>false</code> になります。
+  </p>
+  
+
+  
+  <p>
+    ループの <code>for i := range c</code> は、チャネルが閉じられるまで、チャネルから値を繰り返し受信し続けます。
+  </p>
+  
+
+  
+  <p>
+    <b>注意:</b>
+
+
+    送り手のチャネルだけをcloseしてください。受け手はcloseしてはいけません。
+
+
+    もしcloseしたチャネルへ送信すると、パニック( <i>panic</i> )します。
+  </p>
+  
+
+  
+  <p>
+    <b>もう一つ注意:</b>
+
+
+    チャネルは、ファイルとは異なり、通常は、closeする必要はありません。
+
+
+    closeするのは、これ以上値が来ないことを受け手が知る必要があるときにだけです。
+
+
+    例えば、 <code>range</code> ループを終了するという場合です。
+  </p>
+  
+
+  <div class="code" >
+<pre><span num="3">package main</span>
+<span num="4"></span>
+<span num="5">import (</span>
+<span num="6">    &#34;fmt&#34;</span>
+<span num="7">)</span>
+<span num="8"></span>
+<span num="9">func fibonacci(n int, c chan int) {</span>
+<span num="10">    x, y := 0, 1</span>
+<span num="11">    for i := 0; i &lt; n; i&#43;&#43; {</span>
+<span num="12">        c &lt;- x</span>
+<span num="13">        x, y = y, x&#43;y</span>
+<span num="14">    }</span>
+<span num="15">    close(c)</span>
+<span num="16">}</span>
+<span num="17"></span>
+<span num="18">func main() {</span>
+<span num="19">    c := make(chan int, 10)</span>
+<span num="20">    go fibonacci(cap(c), c)</span>
+<span num="21">    for i := range c {</span>
+<span num="22">        fmt.Println(i)</span>
+<span num="23">    }</span>
+<span num="24">}</span>
+</pre>
+</div>
+
+
+        
+          
+  <h1 id="TOC_5.">5. Select</h1>
+  
+  
+  <p>
+    <code>select</code> ステートメントは、goroutineを複数の通信操作で待たせます。
+  </p>
+  
+
+  
+  <p>
+    <code>select</code> は、複数ある <code>case</code> のいずれかが準備できるようになるまでブロックし、準備ができた <code>case</code> を実行します。
+
+
+    もし、複数の <code>case</code> の準備ができている場合、 <code>case</code> はランダムに選択されます。
+  </p>
+  
+
+  <div class="code" >
+<pre><span num="3">package main</span>
+<span num="4"></span>
+<span num="5">import &#34;fmt&#34;</span>
+<span num="6"></span>
+<span num="7">func fibonacci(c, quit chan int) {</span>
+<span num="8">    x, y := 0, 1</span>
+<span num="9">    for {</span>
+<span num="10">        select {</span>
+<span num="11">        case c &lt;- x:</span>
+<span num="12">            x, y = y, x&#43;y</span>
+<span num="13">        case &lt;-quit:</span>
+<span num="14">            fmt.Println(&#34;quit&#34;)</span>
+<span num="15">            return</span>
+<span num="16">        }</span>
+<span num="17">    }</span>
+<span num="18">}</span>
+<span num="19"></span>
+<span num="20">func main() {</span>
+<span num="21">    c := make(chan int)</span>
+<span num="22">    quit := make(chan int)</span>
+<span num="23">    go func() {</span>
+<span num="24">        for i := 0; i &lt; 10; i&#43;&#43; {</span>
+<span num="25">            fmt.Println(&lt;-c)</span>
+<span num="26">        }</span>
+<span num="27">        quit &lt;- 0</span>
+<span num="28">    }()</span>
+<span num="29">    fibonacci(c, quit)</span>
+<span num="30">}</span>
+</pre>
+</div>
+
+
+        
+          
+  <h1 id="TOC_6.">6. Default Selection</h1>
+  
+  
+  <p>
+    どの <code>case</code> も準備ができていないのであれば、 <code>select</code> の中の <code>default</code> が実行されます。
+  </p>
+  
+
+  
+  <p>
+    ブロックせずに送受信するなら、 <code>default</code> の <code>case</code> を使ってください:
+  </p>
+  
+
+  
+  <div class="code"><pre>select {
+case i := &lt;-c:
+    // use i
+default:
+    // receiving from c would block
+}</pre></div>
+  
+
+  <div class="code" >
+<pre><span num="3">package main</span>
+<span num="4"></span>
+<span num="5">import (</span>
+<span num="6">    &#34;fmt&#34;</span>
+<span num="7">    &#34;time&#34;</span>
+<span num="8">)</span>
+<span num="9"></span>
+<span num="10">func main() {</span>
+<span num="11">    tick := time.Tick(100 * time.Millisecond)</span>
+<span num="12">    boom := time.After(500 * time.Millisecond)</span>
+<span num="13">    for {</span>
+<span num="14">        select {</span>
+<span num="15">        case &lt;-tick:</span>
+<span num="16">            fmt.Println(&#34;tick.&#34;)</span>
+<span num="17">        case &lt;-boom:</span>
+<span num="18">            fmt.Println(&#34;BOOM!&#34;)</span>
+<span num="19">            return</span>
+<span num="20">        default:</span>
+<span num="21">            fmt.Println(&#34;    .&#34;)</span>
+<span num="22">            time.Sleep(50 * time.Millisecond)</span>
+<span num="23">        }</span>
+<span num="24">    }</span>
+<span num="25">}</span>
+</pre>
+</div>
+
+
+        
+          
+  <h1 id="TOC_7.">7. Exercise: Equivalent Binary Trees</h1>
+  
+  
+  <p>
+    葉に同じ順序の値を保持する、異なる多くの<a href="https://ja.wikipedia.org/wiki/二分木" target="_blank">二分木( <i>binary tree</i> )</a>]があります。
+
+
+    例えば、ここに &#34;1, 1, 2, 3, 5, 8, 13&#34; を保持する2つの二分木があります。
+  </p>
+  
+
+<div class="image">
+  <img src="/content/img/tree.png">
+</div>
+
+  
+  <p>
+    2つの二分木が同じ順序を保持しているかどうかを確認する機能は、多くの言語においてかなり複雑です。
+
+
+    シンプルな解決方法を記述するために、Goの並行性( <i>concurrency</i> )とチャネルを利用してみます。
+  </p>
+  
+
+  
+  <p>
+    例では、型を以下のように定義している <code>tree</code> パッケージを利用します:
+  </p>
+  
+
+  
+  <div class="code"><pre>type Tree struct {
+    Left  *Tree
+    Value int
+    Right *Tree
+}</pre></div>
+  
+
+  
+  <p>
+    <a href="javascript:click(&#39;.next-page&#39;)" target="_self">続く...</a>
+  </p>
+  
+
+
+        
+          
+  <h1 id="TOC_8.">8. Exercise: Equivalent Binary Trees</h1>
+  
+  
+  <p>
+    <b>1.</b>  <code>Walk</code> 関数を実装してください。
+  </p>
+  
+
+  
+  <p>
+    <b>2.</b> <code>Walk</code> 関数をテストしてください。
+  </p>
+  
+
+  
+  <p>
+    関数 <code>tree.New(k)</code> は、値( <code>k</code>, <code>2k</code>, <code>3k</code>, ..., <code>10k</code> )をもつ、ランダムに構造化 (しかし常にソートされています) した二分木を生成します。
+  </p>
+  
+
+  
+  <p>
+    新しいチャネル <code>ch</code> を生成し、 <code>Walk</code> を動かしましょう:
+  </p>
+  
+
+  
+  <div class="code"><pre>go Walk(tree.New(1), ch)</pre></div>
+  
+
+  
+  <p>
+    そして、そのチャネルから値を読み出し、10個の値を表示してください。
+
+
+    それは、 1, 2, 3, ..., 10 という表示になるでしょう。
+  </p>
+  
+
+  
+  <p>
+    <b>3.</b> <code>Same</code> 関数を実装してください。 <code>t1</code> と <code>t2</code> が同じ値を保存しているどうかを判断するため、 <code>Walk</code> を使ってください。
+  </p>
+  
+
+  
+  <p>
+    <b>4.</b>  <code>Same</code> 関数をテストしてください。
+  </p>
+  
+
+  
+  <p>
+    <code>Same(tree.New(1), tree.New(1))</code> は、 <code>true</code> を返すように、
+
+
+    <code>Same(tree.New(1), tree.New(2))</code> は、 <code>false</code> を返すようにします。
+  </p>
+  
+
+  
+  <p>
+    <code>Tree</code> のドキュメントは <a href="https://godoc.org/golang.org/x/tour/tree#Tree" target="_blank">こちら</a> です。
+  </p>
+  
+
+  <div class="code" >
+<pre><span num="3">package main</span>
+<span num="4"></span>
+<span num="5">import &#34;golang.org/x/tour/tree&#34;</span>
+<span num="6"></span>
+<span num="7">// Walk walks the tree t sending all values</span>
+<span num="8">// from the tree to the channel ch.</span>
+<span num="9">func Walk(t *tree.Tree, ch chan int)</span>
+<span num="10"></span>
+<span num="11">// Same determines whether the trees</span>
+<span num="12">// t1 and t2 contain the same values.</span>
+<span num="13">func Same(t1, t2 *tree.Tree) bool</span>
+<span num="14"></span>
+<span num="15">func main() {</span>
+<span num="16">}</span>
+</pre>
+</div>
+
+
+        
+          
+  <h1 id="TOC_9.">9. sync.Mutex</h1>
+  
+  
+  <p>
+    チャネルが、goroutine間で通信するための素晴らしい方法であることを見てきました。
+  </p>
+  
+
+  
+  <p>
+    しかし、通信が必要ない場合はどうでしょう？
+
+
+    コンフリクトを避けるために、一度に1つのgoroutineだけが変数にアクセスできるようにしたい場合はどうでしょうか？
+  </p>
+  
+
+  
+  <p>
+    このコンセプトは、<a href="https://ja.wikipedia.org/wiki/%E6%8E%92%E4%BB%96%E5%88%B6%E5%BE%A1" target="_blank">排他制御( <i>mutual exclusion</i> )</a>と呼ばれ、このデータ構造を指す一般的な名前は <a href="https://ja.wikipedia.org/wiki/%E3%83%9F%E3%83%A5%E3%83%BC%E3%83%86%E3%83%83%E3%82%AF%E3%82%B9" target="_blank"> <b>mutex</b> (ミューテックス)</a>です。
+  </p>
+  
+
+  
+  <p>
+    Goの標準ライブラリは、排他制御を<a href="https://golang.org/pkg/sync/#Mutex" target="_blank"><code>sync.Mutex</code></a>と次の二つのメソッドで提供します:
+  </p>
+  
+
+  <ul>
+  
+    <li><code>Lock</code></li>
+  
+    <li><code>Unlock</code></li>
+  
+  </ul>
+
+  
+  <p>
+    <code>Inc</code> メソッドにあるように、 <code>Lock</code> と <code>Unlock</code> で囲むことで排他制御で実行するコードを定義できます。
+  </p>
+  
+
+  
+  <p>
+    <code>Value</code> メソッドのように、mutexがUnlockされることを保証するために <code>defer</code> を使うこともできます。
+  </p>
+  
+
+  <div class="code" >
+<pre><span num="3">package main</span>
+<span num="4"></span>
+<span num="5">import (</span>
+<span num="6">    &#34;fmt&#34;</span>
+<span num="7">    &#34;sync&#34;</span>
+<span num="8">    &#34;time&#34;</span>
+<span num="9">)</span>
+<span num="10"></span>
+<span num="11">// SafeCounter is safe to use concurrently.</span>
+<span num="12">type SafeCounter struct {</span>
+<span num="13">    v   map[string]int</span>
+<span num="14">    mux sync.Mutex</span>
+<span num="15">}</span>
+<span num="16"></span>
+<span num="17">// Inc increments the counter for the given key.</span>
+<span num="18">func (c *SafeCounter) Inc(key string) {</span>
+<span num="19">    c.mux.Lock()</span>
+<span num="20">    // Lock so only one goroutine at a time can access the map c.v.</span>
+<span num="21">    c.v[key]&#43;&#43;</span>
+<span num="22">    c.mux.Unlock()</span>
+<span num="23">}</span>
+<span num="24"></span>
+<span num="25">// Value returns the current value of the counter for the given key.</span>
+<span num="26">func (c *SafeCounter) Value(key string) int {</span>
+<span num="27">    c.mux.Lock()</span>
+<span num="28">    // Lock so only one goroutine at a time can access the map c.v.</span>
+<span num="29">    defer c.mux.Unlock()</span>
+<span num="30">    return c.v[key]</span>
+<span num="31">}</span>
+<span num="32"></span>
+<span num="33">func main() {</span>
+<span num="34">    c := SafeCounter{v: make(map[string]int)}</span>
+<span num="35">    for i := 0; i &lt; 1000; i&#43;&#43; {</span>
+<span num="36">        go c.Inc(&#34;somekey&#34;)</span>
+<span num="37">    }</span>
+<span num="38"></span>
+<span num="39">    time.Sleep(time.Second)</span>
+<span num="40">    fmt.Println(c.Value(&#34;somekey&#34;))</span>
+<span num="41">}</span>
+</pre>
+</div>
+
+
+        
+          
+  <h1 id="TOC_10.">10. Exercise: Web Crawler</h1>
+  
+  
+  <p>
+    この演習では、ウェブクローラ( <i>web crawler</i> )を並列化するため、Goの並行性の特徴を使います。
+  </p>
+  
+
+  
+  <p>
+    同じURLを2度取ってくることなく並列してURLを取ってくるように、 <code>Crawl</code> 関数を修正してみてください(注1)。
+  </p>
+  
+
+  
+  <p>
+    <b>補足</b>: 工夫すれば <code>Crawl</code> 関数のみの修正で実装できますが、無理に <code>Crawl</code> 関数内部に収める必要はありません。
+  </p>
+  
+
+  
+  <p>
+    <b>ひとこと</b>: mapにフェッチしたURLのキャッシュを保持できますが、mapだけでは並行実行時の安全性はありません!
+  </p>
+  
+
+  <div class="code" >
+<pre><span num="3">package main</span>
+<span num="4"></span>
+<span num="5">import (</span>
+<span num="6">    &#34;fmt&#34;</span>
+<span num="7">)</span>
+<span num="8"></span>
+<span num="9">type Fetcher interface {</span>
+<span num="10">    // Fetch returns the body of URL and</span>
+<span num="11">    // a slice of URLs found on that page.</span>
+<span num="12">    Fetch(url string) (body string, urls []string, err error)</span>
+<span num="13">}</span>
+<span num="14"></span>
+<span num="15">// Crawl uses fetcher to recursively crawl</span>
+<span num="16">// pages starting with url, to a maximum of depth.</span>
+<span num="17">func Crawl(url string, depth int, fetcher Fetcher) {</span>
+<span num="18">    // TODO: Fetch URLs in parallel.</span>
+<span num="19">    // TODO: Don&#39;t fetch the same URL twice.</span>
+<span num="20">    // This implementation doesn&#39;t do either:</span>
+<span num="21">    if depth &lt;= 0 {</span>
+<span num="22">        return</span>
+<span num="23">    }</span>
+<span num="24">    body, urls, err := fetcher.Fetch(url)</span>
+<span num="25">    if err != nil {</span>
+<span num="26">        fmt.Println(err)</span>
+<span num="27">        return</span>
+<span num="28">    }</span>
+<span num="29">    fmt.Printf(&#34;found: %s %q\n&#34;, url, body)</span>
+<span num="30">    for _, u := range urls {</span>
+<span num="31">        Crawl(u, depth-1, fetcher)</span>
+<span num="32">    }</span>
+<span num="33">    return</span>
+<span num="34">}</span>
+<span num="35"></span>
+<span num="36">func main() {</span>
+<span num="37">    Crawl(&#34;https://golang.org/&#34;, 4, fetcher)</span>
+<span num="38">}</span>
+<span num="39"></span>
+<span num="40">// fakeFetcher is Fetcher that returns canned results.</span>
+<span num="41">type fakeFetcher map[string]*fakeResult</span>
+<span num="42"></span>
+<span num="43">type fakeResult struct {</span>
+<span num="44">    body string</span>
+<span num="45">    urls []string</span>
+<span num="46">}</span>
+<span num="47"></span>
+<span num="48">func (f fakeFetcher) Fetch(url string) (string, []string, error) {</span>
+<span num="49">    if res, ok := f[url]; ok {</span>
+<span num="50">        return res.body, res.urls, nil</span>
+<span num="51">    }</span>
+<span num="52">    return &#34;&#34;, nil, fmt.Errorf(&#34;not found: %s&#34;, url)</span>
+<span num="53">}</span>
+<span num="54"></span>
+<span num="55">// fetcher is a populated fakeFetcher.</span>
+<span num="56">var fetcher = fakeFetcher{</span>
+<span num="57">    &#34;https://golang.org/&#34;: &amp;fakeResult{</span>
+<span num="58">        &#34;The Go Programming Language&#34;,</span>
+<span num="59">        []string{</span>
+<span num="60">            &#34;https://golang.org/pkg/&#34;,</span>
+<span num="61">            &#34;https://golang.org/cmd/&#34;,</span>
+<span num="62">        },</span>
+<span num="63">    },</span>
+<span num="64">    &#34;https://golang.org/pkg/&#34;: &amp;fakeResult{</span>
+<span num="65">        &#34;Packages&#34;,</span>
+<span num="66">        []string{</span>
+<span num="67">            &#34;https://golang.org/&#34;,</span>
+<span num="68">            &#34;https://golang.org/cmd/&#34;,</span>
+<span num="69">            &#34;https://golang.org/pkg/fmt/&#34;,</span>
+<span num="70">            &#34;https://golang.org/pkg/os/&#34;,</span>
+<span num="71">        },</span>
+<span num="72">    },</span>
+<span num="73">    &#34;https://golang.org/pkg/fmt/&#34;: &amp;fakeResult{</span>
+<span num="74">        &#34;Package fmt&#34;,</span>
+<span num="75">        []string{</span>
+<span num="76">            &#34;https://golang.org/&#34;,</span>
+<span num="77">            &#34;https://golang.org/pkg/&#34;,</span>
+<span num="78">        },</span>
+<span num="79">    },</span>
+<span num="80">    &#34;https://golang.org/pkg/os/&#34;: &amp;fakeResult{</span>
+<span num="81">        &#34;Package os&#34;,</span>
+<span num="82">        []string{</span>
+<span num="83">            &#34;https://golang.org/&#34;,</span>
+<span num="84">            &#34;https://golang.org/pkg/&#34;,</span>
+<span num="85">        },</span>
+<span num="86">    },</span>
+<span num="87">}</span>
+</pre>
+</div>
+
+
+        
+          
+  <h1 id="TOC_11.">11. Where to Go from here...</h1>
+  
+  
+  <p>
+    この
+
+
+    <a href="https://golang.org/doc/" target="_blank">Goのドキュメント</a> は、
+
+
+    始める
+
+
+    にはとても良いものです。
+
+
+    ここにはリファレンスやチュートリアル、ビデオなどがあります。
+  </p>
+  
+
+  
+  <p>
+    Goのコードの構成や、動かし方を学ぶためには、 <a href="https://www.youtube.com/watch?v=XCsL89YtqCs" target="_blank">この動画</a> を見てください。また、 <a href="https://golang.org/doc/code.html" target="_blank">How to Write Go Code</a> を読んでください。
+  </p>
+  
+
+  
+  <p>
+    もし、標準ライブラリに関してヘルプが必要なら、
+
+
+    <a href="https://golang.org/pkg/" target="_blank">パッケージリファレンス</a>
+
+
+    を見てください。
+
+
+    言語自身に関してのヘルプは、
+
+
+    <a href="https://golang.org/ref/spec" target="_blank">Go言語仕様</a>
+
+
+    がとても参考になります。
+  </p>
+  
+
+  
+  <p>
+    Goの並行性のモデルについてもっと調べてみたいなら、
+
+
+    <a href="https://www.youtube.com/watch?v=f6kdp27TYZs" target="_blank">Go Concurrency Patterns</a>
+
+
+    (<a href="https://talks.golang.org/2012/concurrency.slide" target="_blank">slides</a>)
+
+
+    や、
+
+
+    <a href="https://www.youtube.com/watch?v=QDDwwePbDtw" target="_blank">Advanced Go Concurrency Patterns</a>
+
+
+    (<a href="https://talks.golang.org/2013/advconc.slide" target="_blank">slides</a>)
+
+
+    を見たり、
+
+
+    codewalk:
+
+
+    <a href="https://golang.org/doc/codewalk/sharemem/" target="_blank">Share Memory by Communicating</a>
+
+
+    を読んでみてください。
+  </p>
+  
+
+  
+  <p>
+    Webアプリケーションをはじめてみるなら、
+
+
+    <a href="https://vimeo.com/53221558" target="_blank">A simple programming environment</a>
+
+
+    (<a href="https://talks.golang.org/2012/simple.slide" target="_blank">slides</a>)
+
+
+    を見たり、
+
+
+    チュートリアル:
+
+
+    <a href="https://golang.org/doc/articles/wiki/" target="_blank">Writing Web Applications</a>
+
+
+    を読んでみてください。
+  </p>
+  
+
+  
+  <p>
+    <a href="https://golang.org/doc/codewalk/functions/" target="_blank">First Class Functions in Go</a>
+
+
+    では、Goの関数型の興味深い側面を教えてくれます。
+  </p>
+  
+
+  
+  <p>
+    <a href="https://blog.golang.org/" target="_blank">Go Blog</a>
+
+
+    には、Goに関する素晴らしい記事の多くのアーカイブがあります。
+  </p>
+  
+
+  
+  <p>
+    もちろん、 <a href="https://golang.org" target="_blank">golang.org</a>
+
+
+    も見てください。
+  </p>
+  
+
+  
+  <p>
+    <i>翻訳：</i> <a href="https://github.com/atotto/go-tour-jp" target="_blank"><i>@atotto</i></a>
+  </p>
+  
+
+
+        
+
+      </div>
+    </div>
+
+    
+
+    <script>
+      (function() {
+        
+        if (window["location"] && window["location"]["hostname"] == "talks.golang.org") {
+          var ga = document.createElement("script"); ga.type = "text/javascript"; ga.async = true;
+          ga.src = ("https:" == document.location.protocol ? "https://ssl" : "http://www") + ".google-analytics.com/ga.js";
+          var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(ga, s);
+        }
+      })();
+    </script>
+  </body>
+</html>

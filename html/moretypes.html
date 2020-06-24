@@ -1,0 +1,1467 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>More types: structs, slices, and maps.</title>
+    <link type="text/css" rel="stylesheet" href="article.css">
+    <meta charset='utf-8'>
+    <script>
+      
+      if (window["location"] && window["location"]["hostname"] == "talks.golang.org") {
+        var _gaq = _gaq || [];
+        _gaq.push(["_setAccount", "UA-11222381-6"]);
+        _gaq.push(["b._setAccount", "UA-49880327-6"]);
+        window.trackPageview = function() {
+          _gaq.push(["_trackPageview", location.pathname+location.hash]);
+          _gaq.push(["b._trackPageview", location.pathname+location.hash]);
+        };
+        window.trackPageview();
+        window.trackEvent = function(category, action, opt_label, opt_value, opt_noninteraction) {
+          _gaq.push(["_trackEvent", category, action, opt_label, opt_value, opt_noninteraction]);
+          _gaq.push(["b._trackEvent", category, action, opt_label, opt_value, opt_noninteraction]);
+        };
+      }
+    </script>
+  </head>
+
+  <body>
+    <div id="topbar" class="wide">
+      <div class="container">
+        <div id="heading">More types: structs, slices, and maps.
+          既存の型に基づいて新しい型を定義する方法を学ぶ: このレッスンでは構造体、配列、slice、map について説明します。
+          
+            
+              <div class="author">
+                
+  
+  <p>
+    The Go Authors
+  </p>
+  
+<p class="link"><a href="https://golang.org" target="_blank">https://golang.org</a></p>
+              </div>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div id="page" class="wide">
+      <div class="container">
+        
+          <div id="toc" class="no-print">
+            <div id="tochead">Contents</div>
+            
+  <ul class="toc-outer">
+  
+    <li><a href="#TOC_1.">Pointers</a></li>
+    
+  
+    <li><a href="#TOC_2.">Structs</a></li>
+    
+  
+    <li><a href="#TOC_3.">Struct Fields</a></li>
+    
+  
+    <li><a href="#TOC_4.">Pointers to structs</a></li>
+    
+  
+    <li><a href="#TOC_5.">Struct Literals</a></li>
+    
+  
+    <li><a href="#TOC_6.">Arrays</a></li>
+    
+  
+    <li><a href="#TOC_7.">Slices</a></li>
+    
+  
+    <li><a href="#TOC_8.">Slices are like references to arrays</a></li>
+    
+  
+    <li><a href="#TOC_9.">Slice literals</a></li>
+    
+  
+    <li><a href="#TOC_10.">Slice defaults</a></li>
+    
+  
+    <li><a href="#TOC_11.">Slice length and capacity</a></li>
+    
+  
+    <li><a href="#TOC_12.">Nil slices</a></li>
+    
+  
+    <li><a href="#TOC_13.">Creating a slice with make</a></li>
+    
+  
+    <li><a href="#TOC_14.">Slices of slices</a></li>
+    
+  
+    <li><a href="#TOC_15.">Appending to a slice</a></li>
+    
+  
+    <li><a href="#TOC_16.">Range</a></li>
+    
+  
+    <li><a href="#TOC_17.">Range continued</a></li>
+    
+  
+    <li><a href="#TOC_18.">Exercise: Slices</a></li>
+    
+  
+    <li><a href="#TOC_19.">Maps</a></li>
+    
+  
+    <li><a href="#TOC_20.">Map literals</a></li>
+    
+  
+    <li><a href="#TOC_21.">Map literals continued</a></li>
+    
+  
+    <li><a href="#TOC_22.">Mutating Maps</a></li>
+    
+  
+    <li><a href="#TOC_23.">Exercise: Maps</a></li>
+    
+  
+    <li><a href="#TOC_24.">Function values</a></li>
+    
+  
+    <li><a href="#TOC_25.">Function closures</a></li>
+    
+  
+    <li><a href="#TOC_26.">Exercise: Fibonacci closure</a></li>
+    
+  
+    <li><a href="#TOC_27.">Congratulations!</a></li>
+    
+  
+  </ul>
+
+          </div>
+        
+
+        
+          
+  <h1 id="TOC_1.">1. Pointers</h1>
+  
+  
+  <p>
+    Goはポインタを扱います。
+
+
+    ポインタは値のメモリアドレスを指します。
+  </p>
+  
+
+  
+  <p>
+    変数 <code>T</code> のポインタは、 <code>*T</code> 型で、ゼロ値は <code>nil</code> です。
+  </p>
+  
+
+  
+  <div class="code"><pre>var p *int</pre></div>
+  
+
+  
+  <p>
+    <code>&amp;</code> オペレータは、そのオペランド( <i>operand</i> )へのポインタを引き出します。
+  </p>
+  
+
+  
+  <div class="code"><pre>i := 42
+p = &amp;i</pre></div>
+  
+
+  
+  <p>
+    <code>*</code> オペレータは、ポインタの指す先の変数を示します。
+  </p>
+  
+
+  
+  <div class="code"><pre>fmt.Println(*p) // ポインタpを通してiから値を読みだす
+*p = 21         // ポインタpを通してiへ値を代入する</pre></div>
+  
+
+  
+  <p>
+    これは &#34;dereferencing&#34; または &#34;indirecting&#34; としてよく知られています。
+  </p>
+  
+
+  
+  <p>
+    なお、C言語とは異なり、ポインタ演算はありません。
+  </p>
+  
+
+  <div class="code" >
+<pre><span num="3">package main</span>
+<span num="4"></span>
+<span num="5">import &#34;fmt&#34;</span>
+<span num="6"></span>
+<span num="7">func main() {</span>
+<span num="8">    i, j := 42, 2701</span>
+<span num="9"></span>
+<span num="10">    p := &amp;i         // point to i</span>
+<span num="11">    fmt.Println(*p) // read i through the pointer</span>
+<span num="12">    *p = 21         // set i through the pointer</span>
+<span num="13">    fmt.Println(i)  // see the new value of i</span>
+<span num="14"></span>
+<span num="15">    p = &amp;j         // point to j</span>
+<span num="16">    *p = *p / 37   // divide j through the pointer</span>
+<span num="17">    fmt.Println(j) // see the new value of j</span>
+<span num="18">}</span>
+</pre>
+</div>
+
+
+        
+          
+  <h1 id="TOC_2.">2. Structs</h1>
+  
+  
+  <p>
+    <code>struct</code> (構造体)は、フィールド( <i>field</i> )の集まりです。
+  </p>
+  
+
+  <div class="code" >
+<pre><span num="3">package main</span>
+<span num="4"></span>
+<span num="5">import &#34;fmt&#34;</span>
+<span num="6"></span>
+<span num="7">type Vertex struct {</span>
+<span num="8">    X int</span>
+<span num="9">    Y int</span>
+<span num="10">}</span>
+<span num="11"></span>
+<span num="12">func main() {</span>
+<span num="13">    fmt.Println(Vertex{1, 2})</span>
+<span num="14">}</span>
+</pre>
+</div>
+
+
+        
+          
+  <h1 id="TOC_3.">3. Struct Fields</h1>
+  
+  
+  <p>
+    structのフィールドは、ドット( <code>.</code> )を用いてアクセスします。
+  </p>
+  
+
+  <div class="code" >
+<pre><span num="3">package main</span>
+<span num="4"></span>
+<span num="5">import &#34;fmt&#34;</span>
+<span num="6"></span>
+<span num="7">type Vertex struct {</span>
+<span num="8">    X int</span>
+<span num="9">    Y int</span>
+<span num="10">}</span>
+<span num="11"></span>
+<span num="12">func main() {</span>
+<span num="13">    v := Vertex{1, 2}</span>
+<span num="14">    v.X = 4</span>
+<span num="15">    fmt.Println(v.X)</span>
+<span num="16">}</span>
+</pre>
+</div>
+
+
+        
+          
+  <h1 id="TOC_4.">4. Pointers to structs</h1>
+  
+  
+  <p>
+    structのフィールドは、structのポインタを通してアクセスすることもできます。
+  </p>
+  
+
+  
+  <p>
+    フィールド <code>X</code> を持つstructのポインタ <code>p</code> がある場合、フィールド <code>X</code> にアクセスするには <code>(*p).X</code> のように書くことができます。
+
+
+    しかし、この表記法は大変面倒ですので、Goでは代わりに <code>p.X</code> と書くこともできます。
+  </p>
+  
+
+  <div class="code" >
+<pre><span num="3">package main</span>
+<span num="4"></span>
+<span num="5">import &#34;fmt&#34;</span>
+<span num="6"></span>
+<span num="7">type Vertex struct {</span>
+<span num="8">    X int</span>
+<span num="9">    Y int</span>
+<span num="10">}</span>
+<span num="11"></span>
+<span num="12">func main() {</span>
+<span num="13">    v := Vertex{1, 2}</span>
+<span num="14">    p := &amp;v</span>
+<span num="15">    p.X = 1e9</span>
+<span num="16">    fmt.Println(v)</span>
+<span num="17">}</span>
+</pre>
+</div>
+
+
+        
+          
+  <h1 id="TOC_5.">5. Struct Literals</h1>
+  
+  
+  <p>
+    structリテラルは、フィールドの値を列挙することで新しいstructの初期値の割り当てを示しています。
+  </p>
+  
+
+  
+  <p>
+    <code>Name:</code> 構文を使って、フィールドの一部だけを列挙することができます(この方法でのフィールドの指定順序は関係ありません)。
+
+
+    例では <code>X: 1</code> として <code>X</code> だけを初期化しています。
+  </p>
+  
+
+  
+  <p>
+    <code>&amp;</code> を頭に付けると、新しく割り当てられたstructへのポインタを戻します。
+  </p>
+  
+
+  <div class="code" >
+<pre><span num="3">package main</span>
+<span num="4"></span>
+<span num="5">import &#34;fmt&#34;</span>
+<span num="6"></span>
+<span num="7">type Vertex struct {</span>
+<span num="8">    X, Y int</span>
+<span num="9">}</span>
+<span num="10"></span>
+<span num="11">var (</span>
+<span num="12">    v1 = Vertex{1, 2}  // has type Vertex</span>
+<span num="13">    v2 = Vertex{X: 1}  // Y:0 is implicit</span>
+<span num="14">    v3 = Vertex{}      // X:0 and Y:0</span>
+<span num="15">    p  = &amp;Vertex{1, 2} // has type *Vertex</span>
+<span num="16">)</span>
+<span num="17"></span>
+<span num="18">func main() {</span>
+<span num="19">    fmt.Println(v1, p, v2, v3)</span>
+<span num="20">}</span>
+</pre>
+</div>
+
+
+        
+          
+  <h1 id="TOC_6.">6. Arrays</h1>
+  
+  
+  <p>
+    <code>[n]T</code> 型は、型 <code>T</code> の <code>n</code> 個の変数の配列( <i>array</i> )を表します。
+  </p>
+  
+
+  
+  <p>
+    以下は、intの10個の配列を宣言しています:
+  </p>
+  
+
+  
+  <div class="code"><pre>var a [10]int</pre></div>
+  
+
+  
+  <p>
+    配列の長さは、型の一部分です。ですので、配列のサイズを変えることはできません。
+
+
+    これは制約のように思えますが、心配しないでください。
+
+
+    Goは配列を扱うための便利な方法を提供しています。
+  </p>
+  
+
+  <div class="code" >
+<pre><span num="3">package main</span>
+<span num="4"></span>
+<span num="5">import &#34;fmt&#34;</span>
+<span num="6"></span>
+<span num="7">func main() {</span>
+<span num="8">    var a [2]string</span>
+<span num="9">    a[0] = &#34;Hello&#34;</span>
+<span num="10">    a[1] = &#34;World&#34;</span>
+<span num="11">    fmt.Println(a[0], a[1])</span>
+<span num="12">    fmt.Println(a)</span>
+<span num="13"></span>
+<span num="14">    primes := [6]int{2, 3, 5, 7, 11, 13}</span>
+<span num="15">    fmt.Println(primes)</span>
+<span num="16">}</span>
+</pre>
+</div>
+
+
+        
+          
+  <h1 id="TOC_7.">7. Slices</h1>
+  
+  
+  <p>
+    配列は固定長です。一方で、スライスは可変長です。より柔軟な配列と見なすこともできます。
+
+
+    実際には、スライスは配列よりもより一般的です。
+  </p>
+  
+
+  
+  <p>
+    型 <code>[]T</code> は 型 <code>T</code> のスライスを表します。
+  </p>
+  
+
+  
+  <p>
+    コロンで区切られた二つのインデックス low と high の境界を指定することによってスライスが形成されます:
+  </p>
+  
+
+  
+  <div class="code"><pre>a[low : high]</pre></div>
+  
+
+  
+  <p>
+    これは最初の要素は含むが、最後の要素は除いた半開区間を選択します。
+  </p>
+  
+
+  
+  <p>
+    次の式は a の要素の内 1 から 3 を含むスライスを作ります。
+  </p>
+  
+
+  
+  <div class="code"><pre>a[1:4]</pre></div>
+  
+
+  <div class="code" >
+<pre><span num="3">package main</span>
+<span num="4"></span>
+<span num="5">import &#34;fmt&#34;</span>
+<span num="6"></span>
+<span num="7">func main() {</span>
+<span num="8">    primes := [6]int{2, 3, 5, 7, 11, 13}</span>
+<span num="9"></span>
+<span num="10">    var s []int = primes[1:4]</span>
+<span num="11">    fmt.Println(s)</span>
+<span num="12">}</span>
+</pre>
+</div>
+
+
+        
+          
+  <h1 id="TOC_8.">8. Slices are like references to arrays</h1>
+  
+  
+  <p>
+    スライスは配列への参照のようなものです。
+  </p>
+  
+
+  
+  <p>
+    スライスはどんなデータも格納しておらず、単に元の配列の部分列を指し示しています。
+  </p>
+  
+
+  
+  <p>
+    スライスの要素を変更すると、その元となる配列の対応する要素が変更されます。
+  </p>
+  
+
+  
+  <p>
+    同じ元となる配列を共有している他のスライスは、それらの変更が反映されます。
+  </p>
+  
+
+  <div class="code" >
+<pre><span num="3">package main</span>
+<span num="4"></span>
+<span num="5">import &#34;fmt&#34;</span>
+<span num="6"></span>
+<span num="7">func main() {</span>
+<span num="8">    names := [4]string{</span>
+<span num="9">        &#34;John&#34;,</span>
+<span num="10">        &#34;Paul&#34;,</span>
+<span num="11">        &#34;George&#34;,</span>
+<span num="12">        &#34;Ringo&#34;,</span>
+<span num="13">    }</span>
+<span num="14">    fmt.Println(names)</span>
+<span num="15"></span>
+<span num="16">    a := names[0:2]</span>
+<span num="17">    b := names[1:3]</span>
+<span num="18">    fmt.Println(a, b)</span>
+<span num="19"></span>
+<span num="20">    b[0] = &#34;XXX&#34;</span>
+<span num="21">    fmt.Println(a, b)</span>
+<span num="22">    fmt.Println(names)</span>
+<span num="23">}</span>
+</pre>
+</div>
+
+
+        
+          
+  <h1 id="TOC_9.">9. Slice literals</h1>
+  
+  
+  <p>
+    スライスのリテラルは長さのない配列リテラルのようなものです。
+  </p>
+  
+
+  
+  <p>
+    これは配列リテラルです:
+  </p>
+  
+
+  
+  <div class="code"><pre>[3]bool{true, true, false}</pre></div>
+  
+
+  
+  <p>
+    そして、これは上記と同様の配列を作成し、それを参照するスライスを作成します:
+  </p>
+  
+
+  
+  <div class="code"><pre>[]bool{true, true, false}</pre></div>
+  
+
+  <div class="code" >
+<pre><span num="3">package main</span>
+<span num="4"></span>
+<span num="5">import &#34;fmt&#34;</span>
+<span num="6"></span>
+<span num="7">func main() {</span>
+<span num="8">    q := []int{2, 3, 5, 7, 11, 13}</span>
+<span num="9">    fmt.Println(q)</span>
+<span num="10"></span>
+<span num="11">    r := []bool{true, false, true, true, false, true}</span>
+<span num="12">    fmt.Println(r)</span>
+<span num="13"></span>
+<span num="14">    s := []struct {</span>
+<span num="15">        i int</span>
+<span num="16">        b bool</span>
+<span num="17">    }{</span>
+<span num="18">        {2, true},</span>
+<span num="19">        {3, false},</span>
+<span num="20">        {5, true},</span>
+<span num="21">        {7, true},</span>
+<span num="22">        {11, false},</span>
+<span num="23">        {13, true},</span>
+<span num="24">    }</span>
+<span num="25">    fmt.Println(s)</span>
+<span num="26">}</span>
+</pre>
+</div>
+
+
+        
+          
+  <h1 id="TOC_10.">10. Slice defaults</h1>
+  
+  
+  <p>
+    スライスするときは、それらの既定値を代わりに使用することで上限または下限を省略することができます。
+  </p>
+  
+
+  
+  <p>
+    既定値は下限が 0 で上限はスライスの長さです。
+  </p>
+  
+
+  
+  <p>
+    以下の配列において
+  </p>
+  
+
+  
+  <div class="code"><pre>var a [10]int</pre></div>
+  
+
+  
+  <p>
+    これらのスライス式は等価です:
+  </p>
+  
+
+  
+  <div class="code"><pre>a[0:10]
+a[:10]
+a[0:]
+a[:]</pre></div>
+  
+
+  <div class="code" >
+<pre><span num="3">package main</span>
+<span num="4"></span>
+<span num="5">import &#34;fmt&#34;</span>
+<span num="6"></span>
+<span num="7">func main() {</span>
+<span num="8">    s := []int{2, 3, 5, 7, 11, 13}</span>
+<span num="9"></span>
+<span num="10">    s = s[1:4]</span>
+<span num="11">    fmt.Println(s)</span>
+<span num="12"></span>
+<span num="13">    s = s[:2]</span>
+<span num="14">    fmt.Println(s)</span>
+<span num="15"></span>
+<span num="16">    s = s[1:]</span>
+<span num="17">    fmt.Println(s)</span>
+<span num="18">}</span>
+</pre>
+</div>
+
+
+        
+          
+  <h1 id="TOC_11.">11. Slice length and capacity</h1>
+  
+  
+  <p>
+    スライスは長さ( <i>length</i> )と容量( <i>capacity</i> )の両方を持っています。
+  </p>
+  
+
+  
+  <p>
+    スライスの長さは、それに含まれる要素の数です。
+  </p>
+  
+
+  
+  <p>
+    スライスの容量は、スライスの最初の要素から数えて、元となる配列の要素数です。
+  </p>
+  
+
+  
+  <p>
+    スライス <code>s</code> の長さと容量は <code>len(s)</code> と <code>cap(s)</code> という式を使用して得ることができます。
+  </p>
+  
+
+  
+  <p>
+    十分な容量を持って提供されているスライスを再スライスすることによって、スライスの長さを伸ばすことができます。
+
+
+    その容量を超えて伸ばしたときに何が起こるかを見るため、プログラム例でのスライスのいずれかの操作を変更してみてください。
+  </p>
+  
+
+  <div class="code" >
+<pre><span num="3">package main</span>
+<span num="4"></span>
+<span num="5">import &#34;fmt&#34;</span>
+<span num="6"></span>
+<span num="7">func main() {</span>
+<span num="8">    s := []int{2, 3, 5, 7, 11, 13}</span>
+<span num="9">    printSlice(s)</span>
+<span num="10"></span>
+<span num="11">    // Slice the slice to give it zero length.</span>
+<span num="12">    s = s[:0]</span>
+<span num="13">    printSlice(s)</span>
+<span num="14"></span>
+<span num="15">    // Extend its length.</span>
+<span num="16">    s = s[:4]</span>
+<span num="17">    printSlice(s)</span>
+<span num="18"></span>
+<span num="19">    // Drop its first two values.</span>
+<span num="20">    s = s[2:]</span>
+<span num="21">    printSlice(s)</span>
+<span num="22">}</span>
+<span num="23"></span>
+<span num="24">func printSlice(s []int) {</span>
+<span num="25">    fmt.Printf(&#34;len=%d cap=%d %v\n&#34;, len(s), cap(s), s)</span>
+<span num="26">}</span>
+</pre>
+</div>
+
+
+        
+          
+  <h1 id="TOC_12.">12. Nil slices</h1>
+  
+  
+  <p>
+    スライスのゼロ値は <code>nil</code> です。
+  </p>
+  
+
+  
+  <p>
+    <code>nil</code> スライスは 0 の長さと容量を持っており、何の元となる配列も持っていません。
+  </p>
+  
+
+  <div class="code" >
+<pre><span num="3">package main</span>
+<span num="4"></span>
+<span num="5">import &#34;fmt&#34;</span>
+<span num="6"></span>
+<span num="7">func main() {</span>
+<span num="8">    var s []int</span>
+<span num="9">    fmt.Println(s, len(s), cap(s))</span>
+<span num="10">    if s == nil {</span>
+<span num="11">        fmt.Println(&#34;nil!&#34;)</span>
+<span num="12">    }</span>
+<span num="13">}</span>
+</pre>
+</div>
+
+
+        
+          
+  <h1 id="TOC_13.">13. Creating a slice with make</h1>
+  
+  
+  <p>
+    スライスは、組み込みの <code>make</code> 関数を使用して作成することができます。
+
+
+    これは、動的サイズの配列を作成する方法です。
+  </p>
+  
+
+  
+  <p>
+    <code>make</code> 関数はゼロ化された配列を割り当て、その配列を指すスライスを返します。
+  </p>
+  
+
+  
+  <div class="code"><pre>a := make([]int, 5)  // len(a)=5</pre></div>
+  
+
+  
+  <p>
+    <code>make</code> の3番目の引数に、スライスの容量( <i>capacity</i> )を指定できます。
+
+
+    <code>cap(b)</code> で、スライスの容量を返します:
+  </p>
+  
+
+  
+  <div class="code"><pre>b := make([]int, 0, 5) // len(b)=0, cap(b)=5
+
+b = b[:cap(b)] // len(b)=5, cap(b)=5
+b = b[1:]      // len(b)=4, cap(b)=4</pre></div>
+  
+
+  <div class="code" >
+<pre><span num="3">package main</span>
+<span num="4"></span>
+<span num="5">import &#34;fmt&#34;</span>
+<span num="6"></span>
+<span num="7">func main() {</span>
+<span num="8">    a := make([]int, 5)</span>
+<span num="9">    printSlice(&#34;a&#34;, a)</span>
+<span num="10"></span>
+<span num="11">    b := make([]int, 0, 5)</span>
+<span num="12">    printSlice(&#34;b&#34;, b)</span>
+<span num="13"></span>
+<span num="14">    c := b[:2]</span>
+<span num="15">    printSlice(&#34;c&#34;, c)</span>
+<span num="16"></span>
+<span num="17">    d := c[2:5]</span>
+<span num="18">    printSlice(&#34;d&#34;, d)</span>
+<span num="19">}</span>
+<span num="20"></span>
+<span num="21">func printSlice(s string, x []int) {</span>
+<span num="22">    fmt.Printf(&#34;%s len=%d cap=%d %v\n&#34;,</span>
+<span num="23">        s, len(x), cap(x), x)</span>
+<span num="24">}</span>
+</pre>
+</div>
+
+
+        
+          
+  <h1 id="TOC_14.">14. Slices of slices</h1>
+  
+  
+  <p>
+    スライスは、他のスライスを含む任意の型を含むことができます。
+  </p>
+  
+
+  <div class="code" >
+<pre><span num="3">package main</span>
+<span num="4"></span>
+<span num="5">import (</span>
+<span num="6">    &#34;fmt&#34;</span>
+<span num="7">    &#34;strings&#34;</span>
+<span num="8">)</span>
+<span num="9"></span>
+<span num="10">func main() {</span>
+<span num="11">    // Create a tic-tac-toe board.</span>
+<span num="12">    board := [][]string{</span>
+<span num="13">        []string{&#34;_&#34;, &#34;_&#34;, &#34;_&#34;},</span>
+<span num="14">        []string{&#34;_&#34;, &#34;_&#34;, &#34;_&#34;},</span>
+<span num="15">        []string{&#34;_&#34;, &#34;_&#34;, &#34;_&#34;},</span>
+<span num="16">    }</span>
+<span num="17"></span>
+<span num="18">    // The players take turns.</span>
+<span num="19">    board[0][0] = &#34;X&#34;</span>
+<span num="20">    board[2][2] = &#34;O&#34;</span>
+<span num="21">    board[1][2] = &#34;X&#34;</span>
+<span num="22">    board[1][0] = &#34;O&#34;</span>
+<span num="23">    board[0][2] = &#34;X&#34;</span>
+<span num="24"></span>
+<span num="25">    for i := 0; i &lt; len(board); i&#43;&#43; {</span>
+<span num="26">        fmt.Printf(&#34;%s\n&#34;, strings.Join(board[i], &#34; &#34;))</span>
+<span num="27">    }</span>
+<span num="28">}</span>
+</pre>
+</div>
+
+
+        
+          
+  <h1 id="TOC_15.">15. Appending to a slice</h1>
+  
+  
+  <p>
+    スライスへ新しい要素を追加するには、Goの組み込みの <code>append</code> を使います。
+
+
+    <code>append</code> についての詳細は <a href="https://golang.org/pkg/builtin/#append" target="_blank">documentation</a> を参照してみてください。
+  </p>
+  
+
+  
+  <div class="code"><pre>func append(s []T, vs ...T) []T</pre></div>
+  
+
+  
+  <p>
+    上の定義を見てみましょう。 <code>append</code> への最初のパラメータ <code>s</code> は、追加元となる <code>T</code> 型のスライスです。
+
+
+    残りの <code>vs</code> は、追加する <code>T</code> 型の変数群です。
+  </p>
+  
+
+  
+  <p>
+    <code>append</code> の戻り値は、追加元のスライスと追加する変数群を合わせたスライスとなります。
+  </p>
+  
+
+  
+  <p>
+    もし、元の配列 <code>s</code> が、変数群を追加する際に容量が小さい場合は、より大きいサイズの配列を割り当て直します。
+
+
+    その場合、戻り値となるスライスは、新しい割当先を示すようになります。
+  </p>
+  
+
+  
+  <p>
+    (スライスについてより詳しく学ぶには、<a href="https://blog.golang.org/go-slices-usage-and-internals" target="_blank">Slices: usage and internals</a>を読んでみてください)
+  </p>
+  
+
+  <div class="code" >
+<pre><span num="3">package main</span>
+<span num="4"></span>
+<span num="5">import &#34;fmt&#34;</span>
+<span num="6"></span>
+<span num="7">func main() {</span>
+<span num="8">    var s []int</span>
+<span num="9">    printSlice(s)</span>
+<span num="10"></span>
+<span num="11">    // append works on nil slices.</span>
+<span num="12">    s = append(s, 0)</span>
+<span num="13">    printSlice(s)</span>
+<span num="14"></span>
+<span num="15">    // The slice grows as needed.</span>
+<span num="16">    s = append(s, 1)</span>
+<span num="17">    printSlice(s)</span>
+<span num="18"></span>
+<span num="19">    // We can add more than one element at a time.</span>
+<span num="20">    s = append(s, 2, 3, 4)</span>
+<span num="21">    printSlice(s)</span>
+<span num="22">}</span>
+<span num="23"></span>
+<span num="24">func printSlice(s []int) {</span>
+<span num="25">    fmt.Printf(&#34;len=%d cap=%d %v\n&#34;, len(s), cap(s), s)</span>
+<span num="26">}</span>
+</pre>
+</div>
+
+
+        
+          
+  <h1 id="TOC_16.">16. Range</h1>
+  
+  
+  <p>
+    <code>for</code> ループに利用する <code>range</code> は、スライスや、マップ( <code>map</code> )をひとつずつ反復処理するために使います。
+  </p>
+  
+
+  
+  <p>
+    スライスをrangeで繰り返す場合、rangeは反復毎に2つの変数を返します。
+
+
+    1つ目の変数はインデックス( <i>index</i> )で、2つ目はインデックスの場所の要素のコピーです。
+  </p>
+  
+
+  <div class="code" >
+<pre><span num="3">package main</span>
+<span num="4"></span>
+<span num="5">import &#34;fmt&#34;</span>
+<span num="6"></span>
+<span num="7">var pow = []int{1, 2, 4, 8, 16, 32, 64, 128}</span>
+<span num="8"></span>
+<span num="9">func main() {</span>
+<span num="10">    for i, v := range pow {</span>
+<span num="11">        fmt.Printf(&#34;2**%d = %d\n&#34;, i, v)</span>
+<span num="12">    }</span>
+<span num="13">}</span>
+</pre>
+</div>
+
+
+        
+          
+  <h1 id="TOC_17.">17. Range continued</h1>
+  
+  
+  <p>
+    インデックスや値は、 &#34; <code>_</code> &#34;(アンダーバー) へ代入することで捨てることができます。
+  </p>
+  
+
+  
+  <p>
+    もしインデックスだけが必要なのであれば、 &#34; <code>, value</code> &#34; を省略します。
+  </p>
+  
+
+  <div class="code" >
+<pre><span num="3">package main</span>
+<span num="4"></span>
+<span num="5">import &#34;fmt&#34;</span>
+<span num="6"></span>
+<span num="7">func main() {</span>
+<span num="8">    pow := make([]int, 10)</span>
+<span num="9">    for i := range pow {</span>
+<span num="10">        pow[i] = 1 &lt;&lt; uint(i) // == 2**i</span>
+<span num="11">    }</span>
+<span num="12">    for _, value := range pow {</span>
+<span num="13">        fmt.Printf(&#34;%d\n&#34;, value)</span>
+<span num="14">    }</span>
+<span num="15">}</span>
+</pre>
+</div>
+
+
+        
+          
+  <h1 id="TOC_18.">18. Exercise: Slices</h1>
+  
+  
+  <p>
+    <code>Pic</code> 関数を実装してみましょう。
+
+
+    このプログラムを実行すると、生成した画像が下に表示されるはずです。
+
+
+    この関数は、長さ <code>dy</code> のsliceに、各要素が8bitのunsigned int型で長さ <code>dx</code> のsliceを割り当てたものを返すように実装する必要があります。
+
+
+    画像は、整数値をグレースケール(実際はブルースケール)として解釈したものです。
+  </p>
+  
+
+  
+  <p>
+    生成する画像は、好きに選んでください。例えば、面白い関数に、 <code>(x+y)/2</code> 、 <code>x*y</code> 、 <code>x^y</code> などがあります。
+  </p>
+  
+
+  
+  <p>
+    ヒント:( <code>[][]uint8</code> に、各 <code>[]uint8</code> を割り当てるためにループを使用する必要があります)
+  </p>
+  
+
+  
+  <p>
+    ヒント:( <code>uint8(intValue)</code> を型の変換のために使います)
+  </p>
+  
+
+  <div class="code" >
+<pre><span num="3">package main</span>
+<span num="4"></span>
+<span num="5">import &#34;golang.org/x/tour/pic&#34;</span>
+<span num="6"></span>
+<span num="7">func Pic(dx, dy int) [][]uint8 {</span>
+<span num="8">}</span>
+<span num="9"></span>
+<span num="10">func main() {</span>
+<span num="11">    pic.Show(Pic)</span>
+<span num="12">}</span>
+</pre>
+</div>
+
+
+        
+          
+  <h1 id="TOC_19.">19. Maps</h1>
+  
+  
+  <p>
+    <code>map</code> はキーと値とを関連付けます(マップします)。
+  </p>
+  
+
+  
+  <p>
+    マップのゼロ値は <code>nil</code> です。
+
+
+    <code>nil</code> マップはキーを持っておらず、またキーを追加することもできません。
+  </p>
+  
+
+  
+  <p>
+    <code>make</code> 関数は指定された型の、初期化され使用できるようにしたマップを返します。
+  </p>
+  
+
+  <div class="code" >
+<pre><span num="3">package main</span>
+<span num="4"></span>
+<span num="5">import &#34;fmt&#34;</span>
+<span num="6"></span>
+<span num="7">type Vertex struct {</span>
+<span num="8">    Lat, Long float64</span>
+<span num="9">}</span>
+<span num="10"></span>
+<span num="11">var m map[string]Vertex</span>
+<span num="12"></span>
+<span num="13">func main() {</span>
+<span num="14">    m = make(map[string]Vertex)</span>
+<span num="15">    m[&#34;Bell Labs&#34;] = Vertex{</span>
+<span num="16">        40.68433, -74.39967,</span>
+<span num="17">    }</span>
+<span num="18">    fmt.Println(m[&#34;Bell Labs&#34;])</span>
+<span num="19">}</span>
+</pre>
+</div>
+
+
+        
+          
+  <h1 id="TOC_20.">20. Map literals</h1>
+  
+  
+  <p>
+    mapリテラルは、structリテラルに似ていますが、 <b>キー</b> ( <i>key</i> )が必要です。
+  </p>
+  
+
+  <div class="code" >
+<pre><span num="3">package main</span>
+<span num="4"></span>
+<span num="5">import &#34;fmt&#34;</span>
+<span num="6"></span>
+<span num="7">type Vertex struct {</span>
+<span num="8">    Lat, Long float64</span>
+<span num="9">}</span>
+<span num="10"></span>
+<span num="11">var m = map[string]Vertex{</span>
+<span num="12">    &#34;Bell Labs&#34;: Vertex{</span>
+<span num="13">        40.68433, -74.39967,</span>
+<span num="14">    },</span>
+<span num="15">    &#34;Google&#34;: Vertex{</span>
+<span num="16">        37.42202, -122.08408,</span>
+<span num="17">    },</span>
+<span num="18">}</span>
+<span num="19"></span>
+<span num="20">func main() {</span>
+<span num="21">    fmt.Println(m)</span>
+<span num="22">}</span>
+</pre>
+</div>
+
+
+        
+          
+  <h1 id="TOC_21.">21. Map literals continued</h1>
+  
+  
+  <p>
+    もし、mapに渡すトップレベルの型が単純な型名である場合は、リテラルの要素から推定できますので、その型名を省略することができます。
+  </p>
+  
+
+  <div class="code" >
+<pre><span num="3">package main</span>
+<span num="4"></span>
+<span num="5">import &#34;fmt&#34;</span>
+<span num="6"></span>
+<span num="7">type Vertex struct {</span>
+<span num="8">    Lat, Long float64</span>
+<span num="9">}</span>
+<span num="10"></span>
+<span num="11">var m = map[string]Vertex{</span>
+<span num="12">    &#34;Bell Labs&#34;: {40.68433, -74.39967},</span>
+<span num="13">    &#34;Google&#34;:    {37.42202, -122.08408},</span>
+<span num="14">}</span>
+<span num="15"></span>
+<span num="16">func main() {</span>
+<span num="17">    fmt.Println(m)</span>
+<span num="18">}</span>
+</pre>
+</div>
+
+
+        
+          
+  <h1 id="TOC_22.">22. Mutating Maps</h1>
+  
+  
+  <p>
+    map <code>m</code> の操作を見ていきましょう。
+  </p>
+  
+
+  
+  <p>
+    <code>m</code> へ要素(elem)の挿入や更新:
+  </p>
+  
+
+  
+  <div class="code"><pre>m[key] = elem</pre></div>
+  
+
+  
+  <p>
+    要素の取得:
+  </p>
+  
+
+  
+  <div class="code"><pre>elem = m[key]</pre></div>
+  
+
+  
+  <p>
+    要素の削除:
+  </p>
+  
+
+  
+  <div class="code"><pre>delete(m, key)</pre></div>
+  
+
+  
+  <p>
+    キーに対する要素が存在するかどうかは、2つの目の値で確認します:
+  </p>
+  
+
+  
+  <div class="code"><pre>elem, ok = m[key]</pre></div>
+  
+
+  
+  <p>
+    もし、 <code>m</code> に <code>key</code> があれば、変数 <code>ok</code> は <code>true</code> となり、存在しなければ、 <code>ok</code> は <code>false</code> となります。
+  </p>
+  
+
+  
+  <p>
+    なお、mapに <code>key</code> が存在しない場合、 <code>elem</code> はmapの要素の型のゼロ値となります。
+  </p>
+  
+
+  
+  <p>
+    Note: もし <code>elem</code> や <code>ok</code> を宣言していないのであれば、次のように <code>:=</code> で短く表現できます:
+  </p>
+  
+
+  
+  <div class="code"><pre>elem, ok := m[key]</pre></div>
+  
+
+  <div class="code" >
+<pre><span num="3">package main</span>
+<span num="4"></span>
+<span num="5">import &#34;fmt&#34;</span>
+<span num="6"></span>
+<span num="7">func main() {</span>
+<span num="8">    m := make(map[string]int)</span>
+<span num="9"></span>
+<span num="10">    m[&#34;Answer&#34;] = 42</span>
+<span num="11">    fmt.Println(&#34;The value:&#34;, m[&#34;Answer&#34;])</span>
+<span num="12"></span>
+<span num="13">    m[&#34;Answer&#34;] = 48</span>
+<span num="14">    fmt.Println(&#34;The value:&#34;, m[&#34;Answer&#34;])</span>
+<span num="15"></span>
+<span num="16">    delete(m, &#34;Answer&#34;)</span>
+<span num="17">    fmt.Println(&#34;The value:&#34;, m[&#34;Answer&#34;])</span>
+<span num="18"></span>
+<span num="19">    v, ok := m[&#34;Answer&#34;]</span>
+<span num="20">    fmt.Println(&#34;The value:&#34;, v, &#34;Present?&#34;, ok)</span>
+<span num="21">}</span>
+</pre>
+</div>
+
+
+        
+          
+  <h1 id="TOC_23.">23. Exercise: Maps</h1>
+  
+  
+  <p>
+    <code>WordCount</code> 関数を実装してみましょう。string <code>s</code> で渡される文章の、各単語の出現回数のmapを返す必要があります。
+
+
+    <code>wc.Test</code> 関数は、引数に渡した関数に対しテストスイートを実行し、成功か失敗かを結果に表示します。
+  </p>
+  
+
+  
+  <p>
+    <a href="https://golang.org/pkg/strings/#Fields" target="_blank">strings.Fields</a> で、何かヒントを得ることができるはずです。
+  </p>
+  
+
+  
+  <p>
+    Note: このテストスイートで何を入力とし、何を期待しているかについては、<a href="https://github.com/golang/tour/blob/master/wc/wc.go" target="_blank">golang.org/x/tour/wc</a>を見てみてください。
+  </p>
+  
+
+  <div class="code" >
+<pre><span num="3">package main</span>
+<span num="4"></span>
+<span num="5">import (</span>
+<span num="6">    &#34;golang.org/x/tour/wc&#34;</span>
+<span num="7">)</span>
+<span num="8"></span>
+<span num="9">func WordCount(s string) map[string]int {</span>
+<span num="10">    return map[string]int{&#34;x&#34;: 1}</span>
+<span num="11">}</span>
+<span num="12"></span>
+<span num="13">func main() {</span>
+<span num="14">    wc.Test(WordCount)</span>
+<span num="15">}</span>
+</pre>
+</div>
+
+
+        
+          
+  <h1 id="TOC_24.">24. Function values</h1>
+  
+  
+  <p>
+    関数も変数です。他の変数のように関数を渡すことができます。
+  </p>
+  
+
+  
+  <p>
+    関数値( <i>function value</i> )は、関数の引数に取ることもできますし、戻り値としても利用できます。
+  </p>
+  
+
+  <div class="code" >
+<pre><span num="3">package main</span>
+<span num="4"></span>
+<span num="5">import (</span>
+<span num="6">    &#34;fmt&#34;</span>
+<span num="7">    &#34;math&#34;</span>
+<span num="8">)</span>
+<span num="9"></span>
+<span num="10">func compute(fn func(float64, float64) float64) float64 {</span>
+<span num="11">    return fn(3, 4)</span>
+<span num="12">}</span>
+<span num="13"></span>
+<span num="14">func main() {</span>
+<span num="15">    hypot := func(x, y float64) float64 {</span>
+<span num="16">        return math.Sqrt(x*x &#43; y*y)</span>
+<span num="17">    }</span>
+<span num="18">    fmt.Println(hypot(5, 12))</span>
+<span num="19"></span>
+<span num="20">    fmt.Println(compute(hypot))</span>
+<span num="21">    fmt.Println(compute(math.Pow))</span>
+<span num="22">}</span>
+</pre>
+</div>
+
+
+        
+          
+  <h1 id="TOC_25.">25. Function closures</h1>
+  
+  
+  <p>
+    Goの関数は <a href="https://ja.wikipedia.org/wiki/クロージャ" target="_blank">クロージャ( <i>closure</i> )</a> です。
+
+
+    クロージャは、それ自身の外部から変数を参照する関数値です。
+
+
+    この関数は、参照された変数へアクセスして変えることができ、その意味では、その関数は変数へ&#34;バインド&#34;( <i>bind</i> )されています。
+  </p>
+  
+
+  
+  <p>
+    例えば、 <code>adder</code> 関数はクロージャを返しています。
+
+
+    各クロージャは、それ自身の <code>sum</code> 変数へバインドされます。
+  </p>
+  
+
+  <div class="code" >
+<pre><span num="3">package main</span>
+<span num="4"></span>
+<span num="5">import &#34;fmt&#34;</span>
+<span num="6"></span>
+<span num="7">func adder() func(int) int {</span>
+<span num="8">    sum := 0</span>
+<span num="9">    return func(x int) int {</span>
+<span num="10">        sum &#43;= x</span>
+<span num="11">        return sum</span>
+<span num="12">    }</span>
+<span num="13">}</span>
+<span num="14"></span>
+<span num="15">func main() {</span>
+<span num="16">    pos, neg := adder(), adder()</span>
+<span num="17">    for i := 0; i &lt; 10; i&#43;&#43; {</span>
+<span num="18">        fmt.Println(</span>
+<span num="19">            pos(i),</span>
+<span num="20">            neg(-2*i),</span>
+<span num="21">        )</span>
+<span num="22">    }</span>
+<span num="23">}</span>
+</pre>
+</div>
+
+
+        
+          
+  <h1 id="TOC_26.">26. Exercise: Fibonacci closure</h1>
+  
+  
+  <p>
+    関数を用いた面白い例を見てみましょう。
+  </p>
+  
+
+  
+  <p>
+    <code>fibonacci</code> (フィボナッチ)関数を実装しましょう。この関数は、連続する<a href="https://ja.wikipedia.org/wiki/%E3%83%95%E3%82%A3%E3%83%9C%E3%83%8A%E3%83%83%E3%83%81%E6%95%B0" target="_blank">フィボナッチ数</a>(0, 1, 1, 2, 3, 5, ...)を返す関数(クロージャ)を返します。
+  </p>
+  
+
+  <div class="code" >
+<pre><span num="3">package main</span>
+<span num="4"></span>
+<span num="5">import &#34;fmt&#34;</span>
+<span num="6"></span>
+<span num="7">// fibonacci is a function that returns</span>
+<span num="8">// a function that returns an int.</span>
+<span num="9">func fibonacci() func() int {</span>
+<span num="10">}</span>
+<span num="11"></span>
+<span num="12">func main() {</span>
+<span num="13">    f := fibonacci()</span>
+<span num="14">    for i := 0; i &lt; 10; i&#43;&#43; {</span>
+<span num="15">        fmt.Println(f())</span>
+<span num="16">    }</span>
+<span num="17">}</span>
+</pre>
+</div>
+
+
+        
+          
+  <h1 id="TOC_27.">27. Congratulations!</h1>
+  
+  
+  <p>
+    この章はこれで終わりです。
+  </p>
+  
+
+  
+  <p>
+    <a href="/list" target="_self">章のリスト</a>から学びたいところを見ても良いですし、
+
+
+    <a href="javascript:click(&#39;.next-page&#39;)" target="_self">&gt;</a> をクリックして次の章へ進みましょう。
+  </p>
+  
+
+
+        
+
+      </div>
+    </div>
+
+    
+
+    <script>
+      (function() {
+        
+        if (window["location"] && window["location"]["hostname"] == "talks.golang.org") {
+          var ga = document.createElement("script"); ga.type = "text/javascript"; ga.async = true;
+          ga.src = ("https:" == document.location.protocol ? "https://ssl" : "http://www") + ".google-analytics.com/ga.js";
+          var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(ga, s);
+        }
+      })();
+    </script>
+  </body>
+</html>

@@ -1,3 +1,26 @@
+これは A Tour of Go の簡易HTML版を生成するためのリポジトリです。
+生成物は `html` ディレクトリ以下にあります。
+
+## 生成方法のメモ
+
+```sh
+$ present -play=false
+```
+
+でサーバーを立てておき、別のシェルから
+
+```sh
+$ cd html
+$ wget localhost:3999/content/{basics,concurrency,flowcontrol,methods,moretypes}.article
+$ rename s/article/html/ *.article
+$ wget localhost:3999/static/article.css
+$ sed -i -e 's/\/static\/article.css/article.css/g' *.html
+```
+
+あとは article.css をいいかんじに編集する。
+
+-------
+
 A Tour of Go is an introduction to the Go programming language.
 
 The easiest way to install the tour locally is to install

@@ -1,0 +1,909 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Packages, variables, and functions.</title>
+    <link type="text/css" rel="stylesheet" href="article.css">
+    <meta charset='utf-8'>
+    <script>
+      
+      if (window["location"] && window["location"]["hostname"] == "talks.golang.org") {
+        var _gaq = _gaq || [];
+        _gaq.push(["_setAccount", "UA-11222381-6"]);
+        _gaq.push(["b._setAccount", "UA-49880327-6"]);
+        window.trackPageview = function() {
+          _gaq.push(["_trackPageview", location.pathname+location.hash]);
+          _gaq.push(["b._trackPageview", location.pathname+location.hash]);
+        };
+        window.trackPageview();
+        window.trackEvent = function(category, action, opt_label, opt_value, opt_noninteraction) {
+          _gaq.push(["_trackEvent", category, action, opt_label, opt_value, opt_noninteraction]);
+          _gaq.push(["b._trackEvent", category, action, opt_label, opt_value, opt_noninteraction]);
+        };
+      }
+    </script>
+  </head>
+
+  <body>
+    <div id="topbar" class="wide">
+      <div class="container">
+        <div id="heading">Packages, variables, and functions.
+          Go プログラムの基本的なコンポーネントを学びます。
+          
+            
+              <div class="author">
+                
+  
+  <p>
+    The Go Authors
+  </p>
+  
+<p class="link"><a href="https://golang.org" target="_blank">https://golang.org</a></p>
+              </div>
+            
+          
+        </div>
+      </div>
+    </div>
+    <div id="page" class="wide">
+      <div class="container">
+        
+          <div id="toc" class="no-print">
+            <div id="tochead">Contents</div>
+            
+  <ul class="toc-outer">
+  
+    <li><a href="#TOC_1.">Packages</a></li>
+    
+  
+    <li><a href="#TOC_2.">Imports</a></li>
+    
+  
+    <li><a href="#TOC_3.">Exported names</a></li>
+    
+  
+    <li><a href="#TOC_4.">Functions</a></li>
+    
+  
+    <li><a href="#TOC_5.">Functions continued</a></li>
+    
+  
+    <li><a href="#TOC_6.">Multiple results</a></li>
+    
+  
+    <li><a href="#TOC_7.">Named return values</a></li>
+    
+  
+    <li><a href="#TOC_8.">Variables</a></li>
+    
+  
+    <li><a href="#TOC_9.">Variables with initializers</a></li>
+    
+  
+    <li><a href="#TOC_10.">Short variable declarations</a></li>
+    
+  
+    <li><a href="#TOC_11.">Basic types</a></li>
+    
+  
+    <li><a href="#TOC_12.">Zero values</a></li>
+    
+  
+    <li><a href="#TOC_13.">Type conversions</a></li>
+    
+  
+    <li><a href="#TOC_14.">Type inference</a></li>
+    
+  
+    <li><a href="#TOC_15.">Constants</a></li>
+    
+  
+    <li><a href="#TOC_16.">Numeric Constants</a></li>
+    
+  
+    <li><a href="#TOC_17.">Congratulations!</a></li>
+    
+  
+  </ul>
+
+          </div>
+        
+
+        
+          
+  <h1 id="TOC_1.">1. Packages</h1>
+  
+  
+  <p>
+    Goのプログラムは、パッケージ( <i>package</i> )で構成されます。
+  </p>
+  
+
+  
+  <p>
+    プログラムは <code>main</code> パッケージから開始されます。
+  </p>
+  
+
+  
+  <p>
+    このプログラムでは <code>&#34;fmt&#34;</code> と <code>&#34;math/rand&#34;</code> パッケージをインポート( <i>import</i> )しています。
+  </p>
+  
+
+  
+  <p>
+    規約で、パッケージ名はインポートパスの最後の要素と同じ名前になります。
+
+
+    例えば、インポートパスが <code>&#34;math/rand&#34;</code> のパッケージは、 <code>package rand</code> ステートメントで始まるファイル群で構成します。
+  </p>
+  
+
+  
+  <p>
+    (もしURLを含むインポートパスが &#34;golang.org/x/net/websocket&#34; だった場合は、 <code>package websocket</code> になります)
+  </p>
+  
+
+  <div class="code" >
+<pre><span num="3">package main</span>
+<span num="4"></span>
+<span num="5">import (</span>
+<span num="6">    &#34;fmt&#34;</span>
+<span num="7">    &#34;math/rand&#34;</span>
+<span num="8">)</span>
+<span num="9"></span>
+<span num="10">func main() {</span>
+<span num="11">    fmt.Println(&#34;My favorite number is&#34;, rand.Intn(10))</span>
+<span num="12">}</span>
+</pre>
+</div>
+
+
+        
+          
+  <h1 id="TOC_2.">2. Imports</h1>
+  
+  
+  <p>
+    このコードでは、括弧でパッケージのインポートをグループ化し、factoredインポートステートメント( <i>factored import statement</i> )としています。
+  </p>
+  
+
+  
+  <p>
+    もちろん、複数のインポートステートメントで書くこともできます:
+  </p>
+  
+
+  
+  <div class="code"><pre>import &#34;fmt&#34;
+import &#34;math&#34;</pre></div>
+  
+
+  
+  <p>
+    ですが、先に示したfactoredインポートステートメントの方がより良いスタイルです。
+  </p>
+  
+
+  
+  <p>
+    訳注: ここの <i>factored</i> の意味は、「要素化、グループ化、整理済み」ということです。良い日本語募集中。
+  </p>
+  
+
+  <div class="code" >
+<pre><span num="3">package main</span>
+<span num="4"></span>
+<span num="5">import (</span>
+<span num="6">    &#34;fmt&#34;</span>
+<span num="7">    &#34;math&#34;</span>
+<span num="8">)</span>
+<span num="9"></span>
+<span num="10">func main() {</span>
+<span num="11">    fmt.Printf(&#34;Now you have %g problems.&#34;, math.Sqrt(7))</span>
+<span num="12">}</span>
+</pre>
+</div>
+
+
+        
+          
+  <h1 id="TOC_3.">3. Exported names</h1>
+  
+  
+  <p>
+    Goでは、最初の文字が大文字で始まる名前は、外部のパッケージから参照できるエクスポート（公開）された名前( <i>exported name</i> )です。
+
+
+    例えば、 <code>Pi</code> は <code>math</code> パッケージでエクスポートされています。
+  </p>
+  
+
+  
+  <p>
+    小文字ではじまる <code>pi</code> や <code>hoge</code> などはエクスポートされていない名前です。
+  </p>
+  
+
+  
+  <p>
+    パッケージをインポートすると、そのパッケージがエクスポートしている名前を参照することができます。
+
+
+    エクスポートされていない名前(小文字ではじまる名前)は、外部のパッケージからアクセスすることはできません。
+  </p>
+  
+
+  
+  <p>
+    コードを実行し、エラーを確認してみましょう。
+  </p>
+  
+
+  
+  <p>
+    エラーを修正するために、 <code>math.pi</code> を <code>math.Pi</code> に書き換え、もう一度実行してみてください。
+  </p>
+  
+
+  <div class="code" >
+<pre><span num="3">package main</span>
+<span num="4"></span>
+<span num="5">import (</span>
+<span num="6">    &#34;fmt&#34;</span>
+<span num="7">    &#34;math&#34;</span>
+<span num="8">)</span>
+<span num="9"></span>
+<span num="10">func main() {</span>
+<span num="11">    fmt.Println(math.pi)</span>
+<span num="12">}</span>
+</pre>
+</div>
+
+
+        
+          
+  <h1 id="TOC_4.">4. Functions</h1>
+  
+  
+  <p>
+    関数は、0個以上の引数を取ることができます。
+  </p>
+  
+
+  
+  <p>
+    この例では、 <code>add</code> 関数は、 <code>int</code> 型の２つのパラメータを取ります。
+  </p>
+  
+
+  
+  <p>
+    変数名の <b>後ろ</b> に型名を書くことに注意してください。
+  </p>
+  
+
+  
+  <p>
+    (型をなぜこのように宣言するのか、についての詳細な情報は、 <a href="https://blog.golang.org/gos-declaration-syntax" target="_blank">記事「Go&#39;s declaration syntax」</a> を参照してください。)
+  </p>
+  
+
+  <div class="code" >
+<pre><span num="3">package main</span>
+<span num="4"></span>
+<span num="5">import &#34;fmt&#34;</span>
+<span num="6"></span>
+<span num="7">func add(x int, y int) int {</span>
+<span num="8">    return x &#43; y</span>
+<span num="9">}</span>
+<span num="10"></span>
+<span num="11">func main() {</span>
+<span num="12">    fmt.Println(add(42, 13))</span>
+<span num="13">}</span>
+</pre>
+</div>
+
+
+        
+          
+  <h1 id="TOC_5.">5. Functions continued</h1>
+  
+  
+  <p>
+    関数の２つ以上の引数が同じ型である場合には、最後の型を残して省略して記述できます。
+  </p>
+  
+
+  
+  <p>
+    この例では、
+  </p>
+  
+
+  
+  <div class="code"><pre>x int, y int</pre></div>
+  
+
+  
+  <p>
+    を
+  </p>
+  
+
+  
+  <div class="code"><pre>x, y int</pre></div>
+  
+
+  
+  <p>
+    へ省略できます。
+  </p>
+  
+
+  <div class="code" >
+<pre><span num="3">package main</span>
+<span num="4"></span>
+<span num="5">import &#34;fmt&#34;</span>
+<span num="6"></span>
+<span num="7">func add(x, y int) int {</span>
+<span num="8">    return x &#43; y</span>
+<span num="9">}</span>
+<span num="10"></span>
+<span num="11">func main() {</span>
+<span num="12">    fmt.Println(add(42, 13))</span>
+<span num="13">}</span>
+</pre>
+</div>
+
+
+        
+          
+  <h1 id="TOC_6.">6. Multiple results</h1>
+  
+  
+  <p>
+    関数は複数の戻り値を返すことができます。
+  </p>
+  
+
+  
+  <p>
+    この <code>swap</code> 関数は2つの string を返します。
+
+
+    とても簡単に交換できますね！
+  </p>
+  
+
+  <div class="code" >
+<pre><span num="3">package main</span>
+<span num="4"></span>
+<span num="5">import &#34;fmt&#34;</span>
+<span num="6"></span>
+<span num="7">func swap(x, y string) (string, string) {</span>
+<span num="8">    return y, x</span>
+<span num="9">}</span>
+<span num="10"></span>
+<span num="11">func main() {</span>
+<span num="12">    a, b := swap(&#34;hello&#34;, &#34;world&#34;)</span>
+<span num="13">    fmt.Println(a, b)</span>
+<span num="14">}</span>
+</pre>
+</div>
+
+
+        
+          
+  <h1 id="TOC_7.">7. Named return values</h1>
+  
+  
+  <p>
+    Goでの戻り値となる変数に名前をつける( <i>named return value</i> )ことができます。戻り値に名前をつけると、関数の最初で定義した変数名として扱われます。
+  </p>
+  
+
+  
+  <p>
+    この戻り値の名前は、戻り値の意味を示す名前とすることで、関数のドキュメントとして表現するようにしましょう。
+  </p>
+  
+
+  
+  <p>
+    名前をつけた戻り値の変数を使うと、 <code>return</code> ステートメントに何も書かずに戻すことができます。これを &#34;naked&#34; return と呼びます。
+  </p>
+  
+
+  
+  <p>
+    例のコードのように、naked returnステートメントは、短い関数でのみ利用すべきです。長い関数で使うと読みやすさ( <i>readability</i> )に悪影響があります。
+  </p>
+  
+
+  <div class="code" >
+<pre><span num="3">package main</span>
+<span num="4"></span>
+<span num="5">import &#34;fmt&#34;</span>
+<span num="6"></span>
+<span num="7">func split(sum int) (x, y int) {</span>
+<span num="8">    x = sum * 4 / 9</span>
+<span num="9">    y = sum - x</span>
+<span num="10">    return</span>
+<span num="11">}</span>
+<span num="12"></span>
+<span num="13">func main() {</span>
+<span num="14">    fmt.Println(split(17))</span>
+<span num="15">}</span>
+</pre>
+</div>
+
+
+        
+          
+  <h1 id="TOC_8.">8. Variables</h1>
+  
+  
+  <p>
+    <code>var</code> ステートメントは変数( <i>variable</i> )を宣言します。
+
+
+    関数の引数リストと同様に、複数の変数の最後に型を書くことで、変数のリストを宣言できます。
+  </p>
+  
+
+  
+  <p>
+    <code>var</code> ステートメントはパッケージ、または、関数で利用できます。例のコードで示します。
+  </p>
+  
+
+  <div class="code" >
+<pre><span num="3">package main</span>
+<span num="4"></span>
+<span num="5">import &#34;fmt&#34;</span>
+<span num="6"></span>
+<span num="7">var c, python, java bool</span>
+<span num="8"></span>
+<span num="9">func main() {</span>
+<span num="10">    var i int</span>
+<span num="11">    fmt.Println(i, c, python, java)</span>
+<span num="12">}</span>
+</pre>
+</div>
+
+
+        
+          
+  <h1 id="TOC_9.">9. Variables with initializers</h1>
+  
+  
+  <p>
+    <code>var</code> 宣言では、変数毎に初期化子( <i>initializer</i> )を与えることができます。
+  </p>
+  
+
+  
+  <p>
+    初期化子が与えられている場合、型を省略できます。その変数は初期化子が持つ型になります。
+  </p>
+  
+
+  <div class="code" >
+<pre><span num="3">package main</span>
+<span num="4"></span>
+<span num="5">import &#34;fmt&#34;</span>
+<span num="6"></span>
+<span num="7">var i, j int = 1, 2</span>
+<span num="8"></span>
+<span num="9">func main() {</span>
+<span num="10">    var c, python, java = true, false, &#34;no!&#34;</span>
+<span num="11">    fmt.Println(i, j, c, python, java)</span>
+<span num="12">}</span>
+</pre>
+</div>
+
+
+        
+          
+  <h1 id="TOC_10.">10. Short variable declarations</h1>
+  
+  
+  <p>
+    関数の中では、 <code>var</code> 宣言の代わりに、短い <code>:=</code> の代入文を使い、暗黙的な型宣言ができます。
+  </p>
+  
+
+  
+  <p>
+    なお、関数の外では、キーワードではじまる宣言( <code>var</code>, <code>func</code>, など)が必要で、 <code>:=</code> での暗黙的な宣言は利用できません。
+  </p>
+  
+
+  <div class="code" >
+<pre><span num="3">package main</span>
+<span num="4"></span>
+<span num="5">import &#34;fmt&#34;</span>
+<span num="6"></span>
+<span num="7">func main() {</span>
+<span num="8">    var i, j int = 1, 2</span>
+<span num="9">    k := 3</span>
+<span num="10">    c, python, java := true, false, &#34;no!&#34;</span>
+<span num="11"></span>
+<span num="12">    fmt.Println(i, j, k, c, python, java)</span>
+<span num="13">}</span>
+</pre>
+</div>
+
+
+        
+          
+  <h1 id="TOC_11.">11. Basic types</h1>
+  
+  
+  <p>
+    Go言語の基本型(組み込み型)は次のとおりです:
+  </p>
+  
+
+  
+  <div class="code"><pre>bool
+
+string
+
+int  int8  int16  int32  int64
+uint uint8 uint16 uint32 uint64 uintptr
+
+byte // uint8 の別名
+
+rune // int32 の別名
+     // Unicode のコードポイントを表す
+
+float32 float64
+
+complex64 complex128</pre></div>
+  
+
+  
+  <p>
+    (訳注：runeとは古代文字を表す言葉(runes)ですが、Goでは文字そのものを表すためにruneという言葉を使います。)
+  </p>
+  
+
+  
+  <p>
+    例では、いくつかの型の変数を示しています。また、変数宣言は、インポートステートメントと同様に、まとめて( <i>factored</i> )宣言可能です。
+  </p>
+  
+
+  
+  <p>
+    <code>int</code>, <code>uint</code>, <code>uintptr</code> 型は、32-bitのシステムでは32 bitで、64-bitのシステムでは64 bitです。
+
+
+    サイズ、符号なし( <i>unsigned</i> )整数の型を使うための特別な理由がない限り、整数の変数が必要な場合は <code>int</code> を使うようにしましょう。
+  </p>
+  
+
+  <div class="code" >
+<pre><span num="3">package main</span>
+<span num="4"></span>
+<span num="5">import (</span>
+<span num="6">    &#34;fmt&#34;</span>
+<span num="7">    &#34;math/cmplx&#34;</span>
+<span num="8">)</span>
+<span num="9"></span>
+<span num="10">var (</span>
+<span num="11">    ToBe   bool       = false</span>
+<span num="12">    MaxInt uint64     = 1&lt;&lt;64 - 1</span>
+<span num="13">    z      complex128 = cmplx.Sqrt(-5 &#43; 12i)</span>
+<span num="14">)</span>
+<span num="15"></span>
+<span num="16">func main() {</span>
+<span num="17">    fmt.Printf(&#34;Type: %T Value: %v\n&#34;, ToBe, ToBe)</span>
+<span num="18">    fmt.Printf(&#34;Type: %T Value: %v\n&#34;, MaxInt, MaxInt)</span>
+<span num="19">    fmt.Printf(&#34;Type: %T Value: %v\n&#34;, z, z)</span>
+<span num="20">}</span>
+</pre>
+</div>
+
+
+        
+          
+  <h1 id="TOC_12.">12. Zero values</h1>
+  
+  
+  <p>
+    変数に初期値を与えずに宣言すると、ゼロ値( <i>zero value</i> )が与えられます。
+  </p>
+  
+
+  
+  <p>
+    ゼロ値は型によって以下のように与えられます:
+  </p>
+  
+
+  <ul>
+  
+    <li>数値型(int,floatなど): <code>0</code></li>
+  
+    <li>bool型: <code>false</code></li>
+  
+    <li>string型: <code>&#34;&#34;</code> (空文字列( <i>empty string</i> ))</li>
+  
+  </ul>
+
+  <div class="code" >
+<pre><span num="3">package main</span>
+<span num="4"></span>
+<span num="5">import &#34;fmt&#34;</span>
+<span num="6"></span>
+<span num="7">func main() {</span>
+<span num="8">    var i int</span>
+<span num="9">    var f float64</span>
+<span num="10">    var b bool</span>
+<span num="11">    var s string</span>
+<span num="12">    fmt.Printf(&#34;%v %v %v %q\n&#34;, i, f, b, s)</span>
+<span num="13">}</span>
+</pre>
+</div>
+
+
+        
+          
+  <h1 id="TOC_13.">13. Type conversions</h1>
+  
+  
+  <p>
+    型変換
+  </p>
+  
+
+  
+  <p>
+    変数 <code>v</code> 、型 <code>T</code> があった場合、 <code>T(v)</code> は、変数 <code>v</code> を <code>T</code> 型へ変換します。
+  </p>
+  
+
+  
+  <p>
+    いくつかの変換を見てみましょう:
+  </p>
+  
+
+  
+  <div class="code"><pre>var i int = 42
+var f float64 = float64(i)
+var u uint = uint(f)</pre></div>
+  
+
+  
+  <p>
+    よりシンプルに記述できます:
+  </p>
+  
+
+  
+  <div class="code"><pre>i := 42
+f := float64(i)
+u := uint(f)</pre></div>
+  
+
+  
+  <p>
+    C言語とは異なり、Goでの型変換は明示的な変換が必要です。
+
+
+    例のコードで、 <code>float64</code> や <code>uint</code> の変換を削除し、何が起きるのか確認しましょう。
+  </p>
+  
+
+  <div class="code" >
+<pre><span num="3">package main</span>
+<span num="4"></span>
+<span num="5">import (</span>
+<span num="6">    &#34;fmt&#34;</span>
+<span num="7">    &#34;math&#34;</span>
+<span num="8">)</span>
+<span num="9"></span>
+<span num="10">func main() {</span>
+<span num="11">    var x, y int = 3, 4</span>
+<span num="12">    var f float64 = math.Sqrt(float64(x*x &#43; y*y))</span>
+<span num="13">    var z uint = uint(f)</span>
+<span num="14">    fmt.Println(x, y, z)</span>
+<span num="15">}</span>
+</pre>
+</div>
+
+
+        
+          
+  <h1 id="TOC_14.">14. Type inference</h1>
+  
+  
+  <p>
+    明示的な型を指定せずに変数を宣言する場合( <code>:=</code> や <code>var =</code> のいずれか)、変数の型は右側の変数から型推論されます。
+  </p>
+  
+
+  
+  <p>
+    右側の変数が型を持っている場合、左側の新しい変数は同じ型になります:
+  </p>
+  
+
+  
+  <div class="code"><pre>var i int
+j := i // j is an int</pre></div>
+  
+
+  
+  <p>
+    右側に型を指定しない数値である場合、左側の新しい変数は右側の定数の精度に基いて <code>int</code>, <code>float64</code>, <code>complex128</code> の型になります:
+  </p>
+  
+
+  
+  <div class="code"><pre>i := 42           // int
+f := 3.142        // float64
+g := 0.867 &#43; 0.5i // complex128</pre></div>
+  
+
+  
+  <p>
+    例のコードにある変数 <code>v</code> の初期値を変えて、型がどのように変化するかを見てみてください。
+  </p>
+  
+
+  <div class="code" >
+<pre><span num="3">package main</span>
+<span num="4"></span>
+<span num="5">import &#34;fmt&#34;</span>
+<span num="6"></span>
+<span num="7">func main() {</span>
+<span num="8">    v := 42 // change me!</span>
+<span num="9">    fmt.Printf(&#34;v is of type %T\n&#34;, v)</span>
+<span num="10">}</span>
+</pre>
+</div>
+
+
+        
+          
+  <h1 id="TOC_15.">15. Constants</h1>
+  
+  
+  <p>
+    定数( <i>constant</i> )は、 <code>const</code> キーワードを使って変数と同じように宣言します。
+  </p>
+  
+
+  
+  <p>
+    定数は、文字(character)、文字列(string)、boolean、数値(numeric)のみで使えます。
+  </p>
+  
+
+  
+  <p>
+    なお、定数は <code>:=</code> を使って宣言できません。
+  </p>
+  
+
+  <div class="code" >
+<pre><span num="3">package main</span>
+<span num="4"></span>
+<span num="5">import &#34;fmt&#34;</span>
+<span num="6"></span>
+<span num="7">const Pi = 3.14</span>
+<span num="8"></span>
+<span num="9">func main() {</span>
+<span num="10">    const World = &#34;世界&#34;</span>
+<span num="11">    fmt.Println(&#34;Hello&#34;, World)</span>
+<span num="12">    fmt.Println(&#34;Happy&#34;, Pi, &#34;Day&#34;)</span>
+<span num="13"></span>
+<span num="14">    const Truth = true</span>
+<span num="15">    fmt.Println(&#34;Go rules?&#34;, Truth)</span>
+<span num="16">}</span>
+</pre>
+</div>
+
+
+        
+          
+  <h1 id="TOC_16.">16. Numeric Constants</h1>
+  
+  
+  <p>
+    数値の定数は、高精度な <b>値</b> ( <i>values</i> )です。
+  </p>
+  
+
+  
+  <p>
+    型のない定数は、その状況によって必要な型を取ることになります。
+  </p>
+  
+
+  
+  <p>
+    例で <code>needInt(Big)</code> を出力してみてください。
+  </p>
+  
+
+  
+  <p>
+    ( <code>int</code> は64-bitの整数を保持できますが、それでは足りないことが時々あります。そういったときにconstを活用しましょう)
+  </p>
+  
+
+  <div class="code" >
+<pre><span num="3">package main</span>
+<span num="4"></span>
+<span num="5">import &#34;fmt&#34;</span>
+<span num="6"></span>
+<span num="7">const (</span>
+<span num="8">    // Create a huge number by shifting a 1 bit left 100 places.</span>
+<span num="9">    // In other words, the binary number that is 1 followed by 100 zeroes.</span>
+<span num="10">    Big = 1 &lt;&lt; 100</span>
+<span num="11">    // Shift it right again 99 places, so we end up with 1&lt;&lt;1, or 2.</span>
+<span num="12">    Small = Big &gt;&gt; 99</span>
+<span num="13">)</span>
+<span num="14"></span>
+<span num="15">func needInt(x int) int { return x*10 &#43; 1 }</span>
+<span num="16">func needFloat(x float64) float64 {</span>
+<span num="17">    return x * 0.1</span>
+<span num="18">}</span>
+<span num="19"></span>
+<span num="20">func main() {</span>
+<span num="21">    fmt.Println(needInt(Small))</span>
+<span num="22">    fmt.Println(needFloat(Small))</span>
+<span num="23">    fmt.Println(needFloat(Big))</span>
+<span num="24">}</span>
+</pre>
+</div>
+
+
+        
+          
+  <h1 id="TOC_17.">17. Congratulations!</h1>
+  
+  
+  <p>
+    この章はこれで終わりです。
+  </p>
+  
+
+  
+  <p>
+    <a href="/list" target="_self">章のリスト</a>から学びたいところを見ても良いですし、
+
+
+    <a href="javascript:click(&#39;.next-page&#39;)" target="_self">&gt;</a> をクリックして次の章へ進みましょう。
+  </p>
+  
+
+
+        
+
+      </div>
+    </div>
+
+    
+
+    <script>
+      (function() {
+        
+        if (window["location"] && window["location"]["hostname"] == "talks.golang.org") {
+          var ga = document.createElement("script"); ga.type = "text/javascript"; ga.async = true;
+          ga.src = ("https:" == document.location.protocol ? "https://ssl" : "http://www") + ".google-analytics.com/ga.js";
+          var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(ga, s);
+        }
+      })();
+    </script>
+  </body>
+</html>
