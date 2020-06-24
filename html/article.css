@@ -14,6 +14,7 @@ pre {
   line-height: 18px;
   margin: 0;
   padding: 0;
+  overflow-x: auto;
 }
 a {
   color: #375eab;
@@ -85,6 +86,7 @@ div#topbar > .container {
   margin-left: auto;
   margin-right: auto;
   padding: 0 20px;
+  min-width: 0;
 }
 div#page.wide > .container,
 div#topbar.wide > .container {
@@ -152,6 +154,9 @@ div#toc {
   -webkit-border-radius: 5px;
   -moz-border-radius: 5px;
   border-radius: 5px;
+
+  max-height: calc(100vh - 20px);
+  overflow-y: scroll;
 
   top: 10px;
   height: 100%;
